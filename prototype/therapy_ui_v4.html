@@ -1540,7 +1540,7 @@
         </div>
       </div>
 
-      <button class="home-start" onclick="goto('rppg')" style="margin-top:auto;flex-shrink:0;">
+      <button class="home-start" onclick="startDailyFlow()" style="margin-top:auto;flex-shrink:0;">
         시작하기
       </button>
 
@@ -1556,7 +1556,7 @@
   <!-- ── S2: rPPG 우울 측정 ───────────────────────────────── -->
   <div class="screen off" id="screen-rppg">
     <div class="sbar" style="padding:18px 22px 14px;">
-      <span onclick="goto('home')" style="cursor:pointer;font-size:18px;">❮</span>
+      <span onclick="dailyFlow=false;goto('home')" style="cursor:pointer;font-size:18px;">❮</span>
       <span>오늘 기분을 살펴볼까요?</span><span></span>
     </div>
     <div class="body">
@@ -1653,7 +1653,7 @@
 
     </div>
     <div class="bottom-fixed" id="rppg-bottom-btn" style="display:none;padding-bottom:40px;">
-      <button class="fixed-btn" onclick="goto('tasks')">시작하기</button>
+      <button class="fixed-btn" id="rppg-next-btn" onclick="rppgNext()">시작하기</button>
     </div>
   </div>
 
@@ -1780,7 +1780,7 @@
   <!-- ── S3: 오늘의 훈련 목록 ─────────────────────────────── -->
   <div class="screen off" id="screen-tasks">
     <div class="sbar" style="padding:18px 22px 14px;">
-      <span onclick="goto('rppg')" style="cursor:pointer;font-size:18px;">❮</span>
+      <span onclick="goto('home')" style="cursor:pointer;font-size:18px;">❮</span>
       <span style="font-size:var(--fs-lg);font-weight:700;">오늘의 훈련</span>
       <span></span>
     </div>
@@ -2855,10 +2855,31 @@ function setMode(v) {
 /* ══════════════════════════════════════════════════════════
    rPPG SIMULATION
 ══════════════════════════════════════════════════════════ */
+/* ── 일일 플로우 모드 ── */
+let dailyFlow = false;
+
+function startDailyFlow() {
+  dailyFlow = true;
+  goto('rppg');
+}
+
+function rppgNext() {
+  if (dailyFlow) {
+    dailyFlow = false;
+    goto('tasks');
+  } else {
+    goto('home');
+  }
+}
+
 function resetRppg() {
   document.getElementById('rppg-before').style.display = 'block';
   document.getElementById('rppg-during').style.display = 'none';
   document.getElementById('rppg-after').style.display  = 'none';
+  document.getElementById('rppg-bottom-btn').style.display = 'none';
+  // 플로우 모드에 따라 버튼 텍스트 변경
+  const btn = document.getElementById('rppg-next-btn');
+  btn.textContent = dailyFlow ? '맞춤 훈련 시작 →' : '홈으로 돌아가기';
 }
 
 function startRppg() {
