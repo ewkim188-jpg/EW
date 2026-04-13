@@ -544,6 +544,93 @@
     .b-sev-m { background: var(--primary-l); color: var(--primary); }
     .b-sev-e { background: var(--green-l); color: #16A34A; }
 
+    /* ── 중증도 진단 화면 ── */
+    .sev-task-list { display:flex; flex-direction:column; gap:12px; padding:0 4px; }
+    .sev-task-card {
+      background:white; border-radius:18px; padding:18px 20px;
+      display:flex; align-items:center; gap:14px; cursor:pointer;
+      border:2px solid #eee; transition:all .2s;
+    }
+    .sev-task-card.active { border-color:var(--primary); }
+    .sev-task-card.done { border-color:#16A34A; opacity:.7; }
+    .sev-task-num {
+      width:44px; height:44px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:18px; font-weight:700; flex-shrink:0;
+    }
+    .sev-task-card.active .sev-task-num { background:var(--primary); color:white; }
+    .sev-task-card:not(.active):not(.done) .sev-task-num { background:#e8eaf0; color:#999; }
+    .sev-task-card.done .sev-task-num { background:#E8F5E9; color:#16A34A; }
+    .sev-task-title { font-size:17px; font-weight:700; color:var(--t1); margin-bottom:4px; }
+    .sev-task-desc { font-size:13px; color:var(--t3); }
+    .sev-task-badge {
+      font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px;
+      display:inline-block; margin-left:8px;
+    }
+    .sev-rec-area {
+      flex:1; display:flex; flex-direction:column; align-items:center;
+      justify-content:center; gap:12px; min-height:120px; max-height:200px;
+    }
+    .sev-mic-btn {
+      width:110px; height:110px; border-radius:50%; background:var(--primary);
+      border:none; cursor:pointer; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:8px; transition:all .2s;
+    }
+    .sev-mic-btn.recording { background:#E24B4A; animation:micPulse 1.2s infinite; }
+    .sev-mic-label { font-size:13px; color:white; font-weight:600; }
+    .sev-word {
+      font-size:44px; font-weight:700; color:var(--t1); letter-spacing:3px;
+      text-align:center;
+    }
+    .sev-instruction { font-size:14px; color:var(--t3); text-align:center; line-height:1.5; }
+    .sev-wave-box {
+      background:white; border-radius:16px; padding:10px 16px;
+      display:flex; align-items:center; justify-content:center; height:52px;
+    }
+    .sev-feedback {
+      border-radius:12px; padding:10px 14px; display:flex;
+      align-items:center; gap:8px;
+    }
+    .sev-feedback-icon {
+      width:24px; height:24px; border-radius:50%; display:flex;
+      align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .sev-submit-btn {
+      width:100%; padding:15px; background:var(--primary); color:white;
+      border:none; border-radius:14px; font-size:17px; font-weight:700;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      cursor:pointer; font-family:inherit; transition:opacity .2s;
+    }
+    .sev-submit-btn:disabled { opacity:.4; }
+    .sev-prog-bar-wrap {
+      background:#EEF2FF; border-radius:999px; height:5px; margin-top:4px;
+    }
+    .sev-prog-bar {
+      background:var(--primary); height:5px; border-radius:999px;
+      transition:width .3s; width:0%;
+    }
+    /* 진단 완료 */
+    .sev-complete-wrap {
+      text-align:center; padding:40px 20px; display:flex;
+      flex-direction:column; align-items:center; gap:16px;
+    }
+    .sev-complete-icon {
+      width:80px; height:80px; background:#E8F5E9; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:40px; margin-bottom:8px;
+    }
+    .sev-complete-title { font-size:22px; font-weight:800; color:var(--t1); }
+    .sev-complete-sub { font-size:15px; color:var(--t3); line-height:1.6; }
+    .sev-result-card {
+      background:white; border-radius:16px; padding:20px;
+      width:100%; text-align:left;
+    }
+    .sev-result-row {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:10px 0; border-bottom:1px solid #f0f0f0;
+    }
+    .sev-result-row:last-child { border-bottom:none; }
+
     /* rPPG result states */
     .rr-high   { color: var(--primary); }
     .rr-mid    { color: var(--primary); }
@@ -1424,7 +1511,7 @@
       </div>
 
       <div class="home-cards-area">
-        <div class="home-menu-card" onclick="goto('tasks')">
+        <div class="home-menu-card" onclick="goto('severity')">
           <div class="menu-text">
             <div class="menu-title">중증도 진단</div>
             <div class="menu-desc">발성·조음·자음 정확도 측정</div>
@@ -1567,6 +1654,126 @@
     </div>
     <div class="bottom-fixed" id="rppg-bottom-btn" style="display:none;padding-bottom:40px;">
       <button class="fixed-btn" onclick="goto('tasks')">시작하기</button>
+    </div>
+  </div>
+
+  <!-- ── 중증도 진단 ─────────────────────────────────────── -->
+  <div class="screen off" id="screen-severity">
+    <!-- 과제 목록 뷰 -->
+    <div id="sev-list-view">
+      <div class="sbar" style="padding:18px 22px 14px;">
+        <span onclick="goto('home')" style="cursor:pointer;font-size:18px;">❮</span>
+        <span style="font-size:var(--fs-lg);font-weight:700;">중증도 진단</span>
+        <span style="background:#EEF2FF;color:var(--primary);font-size:13px;font-weight:600;padding:6px 12px;border-radius:20px;">1 / 2단계</span>
+      </div>
+      <div class="body" style="padding:20px;">
+        <div style="font-size:14px;font-weight:600;color:var(--t3);margin-bottom:12px;">수행 과제 목록</div>
+        <div class="sev-task-list">
+          <div class="sev-task-card active" id="sev-card-0" onclick="startSevTask(0)">
+            <div class="sev-task-num">1</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;"><span class="sev-task-title">모음 발성</span><span class="sev-task-badge" id="sev-badge-0" style="background:#FFF0D6;color:#E07B00;">진행중</span></div>
+              <div class="sev-task-desc">아·이·우 소리를 하나씩 길게 내어요</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="sev-task-card" id="sev-card-1" onclick="startSevTask(1)" style="opacity:.55;">
+            <div class="sev-task-num">2</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;"><span class="sev-task-title">퍼터커 발음</span><span class="sev-task-badge" id="sev-badge-1" style="display:none;"></span></div>
+              <div class="sev-task-desc">퍼·터·커를 빠르게 반복해서 말해요</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="sev-task-card" id="sev-card-2" onclick="startSevTask(2)" style="opacity:.55;">
+            <div class="sev-task-num">3</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;"><span class="sev-task-title">단어 읽기</span><span class="sev-task-badge" id="sev-badge-2" style="display:none;"></span></div>
+              <div class="sev-task-desc">화면에 나오는 단어를 소리 내어 읽어요</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 녹음 뷰 -->
+    <div id="sev-rec-view" style="display:none;flex-direction:column;height:100%;overflow-y:auto;">
+      <div class="sbar" style="padding:18px 22px 14px;">
+        <span onclick="backToSevList()" style="cursor:pointer;font-size:18px;">❮</span>
+        <span id="sev-rec-title" style="font-size:var(--fs-md);font-weight:700;"></span>
+        <span id="sev-rec-badge" style="font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px;"></span>
+      </div>
+      <div style="padding:0 20px 8px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+          <span style="font-size:11px;color:var(--t3);">진행률</span>
+          <span id="sev-prog-num" style="font-size:11px;font-weight:600;color:var(--primary);"></span>
+        </div>
+        <div class="sev-prog-bar-wrap"><div class="sev-prog-bar" id="sev-prog-bar"></div></div>
+      </div>
+      <div style="padding:8px 24px 0;text-align:center;">
+        <div class="sev-word" id="sev-word"></div>
+        <div class="sev-instruction" id="sev-instruction"></div>
+      </div>
+      <div class="sev-rec-area">
+        <button class="sev-mic-btn" id="sev-mic-btn" onclick="toggleSevRec()">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span class="sev-mic-label" id="sev-mic-label">눌러서 말하기</span>
+        </button>
+      </div>
+      <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:8px;">
+        <div class="sev-wave-box">
+          <canvas id="sevWaveCanvas" width="240" height="32" style="display:block;"></canvas>
+        </div>
+        <div class="sev-feedback" id="sev-feedback" style="background:#F4F6FF;">
+          <div class="sev-feedback-icon" id="sev-fb-icon" style="background:var(--primary);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+          </div>
+          <span id="sev-fb-text" style="font-size:13px;color:var(--primary);line-height:1.4;">마이크 버튼을 눌러 녹음을 시작하세요</span>
+        </div>
+        <button class="sev-submit-btn" id="sev-submit-btn" onclick="sevNextStep()" disabled>
+          <span id="sev-submit-label">제출하기</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 진단 완료 뷰 -->
+    <div id="sev-complete-view" style="display:none;flex-direction:column;height:100%;">
+      <div class="sbar" style="padding:18px 22px 14px;">
+        <span></span>
+        <span style="font-size:var(--fs-lg);font-weight:700;">진단 완료</span>
+        <span></span>
+      </div>
+      <div class="body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div class="sev-complete-wrap">
+          <div class="sev-complete-icon">✓</div>
+          <div class="sev-complete-title">진단이 완료되었어요!</div>
+          <div class="sev-complete-sub">모든 과제를 잘 수행했어요.<br>결과를 분석하고 있어요.</div>
+          <div class="sev-result-card" style="margin-top:12px;">
+            <div style="font-size:15px;font-weight:700;color:var(--t1);margin-bottom:12px;">진단 요약</div>
+            <div class="sev-result-row">
+              <span style="font-size:14px;color:var(--t3);">모음 발성</span>
+              <span style="font-size:14px;font-weight:600;color:#16A34A;">완료 ✓</span>
+            </div>
+            <div class="sev-result-row">
+              <span style="font-size:14px;color:var(--t3);">퍼터커 발음</span>
+              <span style="font-size:14px;font-weight:600;color:#16A34A;">완료 ✓</span>
+            </div>
+            <div class="sev-result-row">
+              <span style="font-size:14px;color:var(--t3);">단어 읽기</span>
+              <span style="font-size:14px;font-weight:600;color:#16A34A;">완료 ✓</span>
+            </div>
+            <div class="sev-result-row" style="border-top:2px solid #f0f0f0;margin-top:4px;padding-top:14px;">
+              <span style="font-size:15px;font-weight:700;color:var(--t1);">예상 중증도</span>
+              <span id="sev-result-level" style="font-size:15px;font-weight:800;color:var(--primary);">분석 중...</span>
+            </div>
+          </div>
+          <button class="sev-submit-btn" onclick="goto('home')" style="margin-top:16px;">
+            <span>홈으로 돌아가기</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2403,10 +2610,205 @@ function goto(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('off'));
   document.getElementById('screen-' + id).classList.remove('off');
   stopRecTimer();
-  if (id === 'tasks')  renderTasks();
-  if (id === 'all-ex') renderAllEx();
-  if (id === 'result') renderResult();
-  if (id === 'rppg')   resetRppg();
+  if (id === 'tasks')     renderTasks();
+  if (id === 'all-ex')   renderAllEx();
+  if (id === 'result')   renderResult();
+  if (id === 'rppg')     resetRppg();
+  if (id === 'severity') resetSeverity();
+}
+
+/* ══════════════════════════════════════════════════════════
+   중증도 진단 시스템
+══════════════════════════════════════════════════════════ */
+const SEV_VOWELS = [
+  {word:'아', instruction:'"아~" 소리를 길게 내어 주세요'},
+  {word:'이', instruction:'"이~" 소리를 길게 내어 주세요'},
+  {word:'우', instruction:'"우~" 소리를 길게 내어 주세요'}
+];
+const SEV_DDK = [
+  {word:'퍼터커', instruction:'"퍼·터·커"를 빠르게 반복해서 말해 주세요'}
+];
+const SEV_WORDS_RAW = ['나무','목도리','꽃','김밥','바지','사탕','풍선','국자','토끼','코끼리',
+  '해바라기','연필','호랑이','라면','냉장고','단추','곰','가방','책상','자동차',
+  '빨간색','그네','기차','접시','로봇','짜장면','포크'];
+const SEV_WORDS = SEV_WORDS_RAW.map(w => ({word:w, instruction:'"'+w+'" 단어를 소리 내어 읽어 주세요'}));
+
+const SEV_TASKS = [
+  {name:'모음 발성', list: SEV_VOWELS, badge:['#FFF0D6','#E07B00']},
+  {name:'퍼터커 발음', list: SEV_DDK, badge:['#EEF2FF','var(--primary)']},
+  {name:'단어 읽기', list: SEV_WORDS, badge:['#E8F5E9','#2E7D32']}
+];
+
+let sevState = {taskIdx:0, step:0, recording:false, timer:null, waveTimer:null, sec:0, done:[false,false,false]};
+
+function resetSeverity() {
+  sevState = {taskIdx:0, step:0, recording:false, timer:null, waveTimer:null, sec:0, done:[false,false,false]};
+  document.getElementById('sev-list-view').style.display = '';
+  document.getElementById('sev-rec-view').style.display = 'none';
+  document.getElementById('sev-complete-view').style.display = 'none';
+  renderSevList();
+}
+
+function renderSevList() {
+  SEV_TASKS.forEach((t, i) => {
+    const card = document.getElementById('sev-card-'+i);
+    const badge = document.getElementById('sev-badge-'+i);
+    card.className = 'sev-task-card';
+    card.style.opacity = '';
+    if (sevState.done[i]) {
+      card.classList.add('done');
+      badge.style.display = 'inline-block';
+      badge.style.background = '#E8F5E9'; badge.style.color = '#16A34A';
+      badge.textContent = '완료';
+    } else if (i === sevState.taskIdx) {
+      card.classList.add('active');
+      badge.style.display = 'inline-block';
+      badge.style.background = '#FFF0D6'; badge.style.color = '#E07B00';
+      badge.textContent = '진행중';
+    } else {
+      card.style.opacity = '.55';
+      badge.style.display = 'none';
+    }
+  });
+}
+
+function startSevTask(idx) {
+  if (sevState.done[idx]) return;
+  sevState.taskIdx = idx;
+  sevState.step = 0;
+  document.getElementById('sev-list-view').style.display = 'none';
+  document.getElementById('sev-rec-view').style.display = 'flex';
+  renderSevStep();
+}
+
+function backToSevList() {
+  stopSevAll();
+  document.getElementById('sev-rec-view').style.display = 'none';
+  document.getElementById('sev-list-view').style.display = '';
+  renderSevList();
+}
+
+function renderSevStep() {
+  const task = SEV_TASKS[sevState.taskIdx];
+  const list = task.list;
+  const d = list[sevState.step];
+  const total = list.length;
+  document.getElementById('sev-rec-title').textContent = task.name;
+  const rb = document.getElementById('sev-rec-badge');
+  rb.style.background = task.badge[0]; rb.style.color = task.badge[1];
+  rb.textContent = (sevState.step+1) + ' / ' + total;
+  const pct = Math.round((sevState.step / total) * 100);
+  document.getElementById('sev-prog-bar').style.width = pct + '%';
+  document.getElementById('sev-prog-num').textContent = pct + '%';
+  document.getElementById('sev-word').textContent = d.word;
+  document.getElementById('sev-instruction').textContent = d.instruction;
+  setSevFeedback('idle');
+  setSevMicIdle();
+  document.getElementById('sev-submit-btn').disabled = true;
+  document.getElementById('sev-submit-label').textContent =
+    (sevState.step + 1 >= total) ? '완료하기' : '제출하기';
+  drawSevWaveIdle();
+}
+
+function setSevFeedback(s, msg) {
+  const fb = document.getElementById('sev-feedback');
+  const txt = document.getElementById('sev-fb-text');
+  const icon = document.getElementById('sev-fb-icon');
+  if (s === 'idle')      { fb.style.background='#F4F6FF'; txt.style.color='var(--primary)'; icon.style.background='var(--primary)'; txt.textContent='마이크 버튼을 눌러 녹음을 시작하세요'; }
+  else if (s === 'recording') { fb.style.background='#FFF0F0'; txt.style.color='#C0392B'; icon.style.background='#E24B4A'; txt.textContent = msg || '녹음 중입니다...'; }
+  else if (s === 'done') { fb.style.background='#E8F5E9'; txt.style.color='#2E7D32'; icon.style.background='#2E7D32'; txt.textContent = msg || '녹음 완료! 제출하기를 눌러주세요'; }
+  else if (s === 'short') { fb.style.background='#FFF4E0'; txt.style.color='#7A4F00'; icon.style.background='#F5A623'; txt.textContent='조금 더 길게 소리를 내보세요'; }
+}
+
+function setSevMicIdle() {
+  const btn = document.getElementById('sev-mic-btn');
+  btn.classList.remove('recording');
+  document.getElementById('sev-mic-label').textContent = '눌러서 말하기';
+  sevState.recording = false;
+}
+
+function stopSevAll() {
+  if (sevState.timer) { clearInterval(sevState.timer); sevState.timer = null; }
+  if (sevState.waveTimer) { clearInterval(sevState.waveTimer); sevState.waveTimer = null; }
+  sevState.recording = false;
+}
+
+function drawSevWaveIdle() {
+  const c = document.getElementById('sevWaveCanvas'), ctx = c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height); ctx.fillStyle = '#EEF2FF';
+  const bars=28, bw=5, gap=3, tot=bars*(bw+gap)-gap, sx=(c.width-tot)/2;
+  for (let i=0;i<bars;i++) { ctx.beginPath(); ctx.roundRect(sx+i*(bw+gap),(c.height-4)/2,bw,4,2); ctx.fill(); }
+}
+
+function drawSevWaveActive() {
+  const c = document.getElementById('sevWaveCanvas'), ctx = c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  const bars=28, bw=5, gap=3, tot=bars*(bw+gap)-gap, sx=(c.width-tot)/2;
+  for (let i=0;i<bars;i++) {
+    const h = Math.max(4, Math.random()*26+4);
+    ctx.fillStyle = 'rgba(59,91,219,'+(0.4+Math.random()*0.6)+')';
+    ctx.beginPath(); ctx.roundRect(sx+i*(bw+gap),(c.height-h)/2,bw,h,2); ctx.fill();
+  }
+}
+
+function toggleSevRec() {
+  if (!sevState.recording) {
+    sevState.recording = true;
+    document.getElementById('sev-mic-btn').classList.add('recording');
+    document.getElementById('sev-mic-label').textContent = '탭하여 완료';
+    sevState.sec = 0;
+    setSevFeedback('recording', '녹음 중... 소리를 내어 주세요');
+    sevState.waveTimer = setInterval(drawSevWaveActive, 80);
+    sevState.timer = setInterval(() => {
+      sevState.sec++;
+      if (sevState.sec < 2) setSevFeedback('recording', '조금 더 길게 소리를 내보세요');
+      else setSevFeedback('recording', sevState.sec + '초 녹음 중...');
+    }, 1000);
+  } else {
+    stopSevAll();
+    drawSevWaveIdle();
+    if (sevState.sec < 2) {
+      setSevFeedback('short');
+      setSevMicIdle();
+    } else {
+      setSevFeedback('done', '녹음 완료! 제출하기를 눌러주세요');
+      setSevMicIdle();
+      document.getElementById('sev-submit-btn').disabled = false;
+    }
+  }
+}
+
+function sevNextStep() {
+  const task = SEV_TASKS[sevState.taskIdx];
+  const total = task.list.length;
+  if (sevState.step + 1 >= total) {
+    // 현재 과제 완료
+    sevState.done[sevState.taskIdx] = true;
+    // 다음 미완료 과제 찾기
+    const nextIdx = sevState.done.indexOf(false);
+    if (nextIdx < 0) {
+      // 모든 과제 완료 → 완료 화면
+      showSevComplete();
+    } else {
+      sevState.taskIdx = nextIdx;
+      backToSevList();
+    }
+  } else {
+    sevState.step++;
+    renderSevStep();
+  }
+}
+
+function showSevComplete() {
+  document.getElementById('sev-rec-view').style.display = 'none';
+  document.getElementById('sev-list-view').style.display = 'none';
+  document.getElementById('sev-complete-view').style.display = 'flex';
+  // 2초 후 예상 중증도 표시 (시뮬레이션)
+  const levels = ['경도','중등도','중도'];
+  const sevIdx = ['mild','moderate','severe'].indexOf(sev);
+  setTimeout(() => {
+    document.getElementById('sev-result-level').textContent = levels[sevIdx >= 0 ? sevIdx : 0];
+  }, 2000);
 }
 
 /* ══════════════════════════════════════════════════════════
