@@ -1660,39 +1660,72 @@
   <!-- ── 중증도 진단 ─────────────────────────────────────── -->
   <div class="screen off" id="screen-severity">
     <!-- 과제 목록 뷰 -->
-    <div id="sev-list-view">
+    <div id="sev-list-view" style="display:flex;flex-direction:column;flex:1;min-height:0;">
       <div class="sbar" style="padding:18px 22px 14px;">
         <span onclick="goto('home')" style="cursor:pointer;font-size:18px;">❮</span>
         <span style="font-size:var(--fs-lg);font-weight:700;">중증도 진단</span>
-        <span style="background:#EEF2FF;color:var(--primary);font-size:13px;font-weight:600;padding:6px 12px;border-radius:20px;">1 / 2단계</span>
+        <span></span>
       </div>
       <div class="body" style="padding:20px;">
-        <div style="font-size:14px;font-weight:600;color:var(--t3);margin-bottom:12px;">수행 과제 목록</div>
+        <!-- 안내 카드 -->
+        <div style="background:linear-gradient(135deg,#EEF2FF,#E8EAFF);border-radius:18px;padding:22px 20px;text-align:center;margin-bottom:16px;">
+          <div style="font-size:20px;font-weight:800;color:var(--t1);line-height:1.4;">나의 말하기 상태를<br>확인해볼까요?</div>
+          <div style="display:flex;justify-content:center;gap:8px;margin-top:12px;">
+            <span style="background:white;color:var(--t2);font-size:13px;font-weight:600;padding:5px 12px;border-radius:20px;">3가지 과제</span>
+            <span style="background:white;color:var(--t2);font-size:13px;font-weight:600;padding:5px 12px;border-radius:20px;">약 5분 소요</span>
+          </div>
+        </div>
+
+        <!-- 전체 진행률 -->
+        <div style="margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:14px;font-weight:700;color:var(--t1);" id="sev-overall-label">과제 1 / 3</span>
+            <span style="font-size:13px;font-weight:600;color:var(--primary);" id="sev-overall-pct">0%</span>
+          </div>
+          <div style="background:#EEF2FF;border-radius:999px;height:6px;">
+            <div id="sev-overall-bar" style="background:var(--primary);height:6px;border-radius:999px;transition:width .4s;width:0%;"></div>
+          </div>
+        </div>
+
+        <!-- 과제 카드 목록 -->
         <div class="sev-task-list">
           <div class="sev-task-card active" id="sev-card-0" onclick="startSevTask(0)">
             <div class="sev-task-num">1</div>
             <div style="flex:1;">
-              <div style="display:flex;align-items:center;"><span class="sev-task-title">모음 발성</span><span class="sev-task-badge" id="sev-badge-0" style="background:#FFF0D6;color:#E07B00;">진행중</span></div>
+              <div style="display:flex;align-items:center;gap:8px;"><span class="sev-task-title">모음 발성</span><span class="sev-task-badge" id="sev-badge-0" style="background:#FFF0D6;color:#E07B00;">진행중</span></div>
               <div class="sev-task-desc">아·이·우 소리를 하나씩 길게 내어요</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:3px;">예상 1분</div>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
           <div class="sev-task-card" id="sev-card-1" onclick="startSevTask(1)" style="opacity:.55;">
             <div class="sev-task-num">2</div>
             <div style="flex:1;">
-              <div style="display:flex;align-items:center;"><span class="sev-task-title">퍼터커 발음</span><span class="sev-task-badge" id="sev-badge-1" style="display:none;"></span></div>
+              <div style="display:flex;align-items:center;gap:8px;"><span class="sev-task-title">퍼터커 발음</span><span class="sev-task-badge" id="sev-badge-1" style="display:none;"></span></div>
               <div class="sev-task-desc">퍼·터·커를 빠르게 반복해서 말해요</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:3px;">예상 1분</div>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
           <div class="sev-task-card" id="sev-card-2" onclick="startSevTask(2)" style="opacity:.55;">
             <div class="sev-task-num">3</div>
             <div style="flex:1;">
-              <div style="display:flex;align-items:center;"><span class="sev-task-title">단어 읽기</span><span class="sev-task-badge" id="sev-badge-2" style="display:none;"></span></div>
+              <div style="display:flex;align-items:center;gap:8px;"><span class="sev-task-title">단어 읽기</span><span class="sev-task-badge" id="sev-badge-2" style="display:none;"></span></div>
               <div class="sev-task-desc">화면에 나오는 단어를 소리 내어 읽어요</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:3px;">예상 3분</div>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
+        </div>
+
+        <!-- 시작 버튼 -->
+        <button id="sev-start-btn" onclick="startSevNext()" style="width:100%;padding:16px;background:var(--primary);color:white;border:none;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:20px;">
+          첫 번째 과제 시작
+        </button>
+
+        <!-- 격려 메시지 -->
+        <div style="text-align:center;padding:12px 0 20px;">
+          <div style="font-size:13px;color:var(--t3);line-height:1.6;">편하게 하시면 돼요. 틀려도 괜찮아요!</div>
         </div>
       </div>
     </div>
@@ -2650,6 +2683,22 @@ function resetSeverity() {
 }
 
 function renderSevList() {
+  const doneCount = sevState.done.filter(Boolean).length;
+  const nextIdx = sevState.done.indexOf(false);
+  const pct = Math.round((doneCount / 3) * 100);
+
+  // 전체 진행률
+  document.getElementById('sev-overall-label').textContent = doneCount >= 3 ? '모든 과제 완료!' : '과제 ' + (doneCount + 1) + ' / 3';
+  document.getElementById('sev-overall-pct').textContent = pct + '%';
+  document.getElementById('sev-overall-bar').style.width = pct + '%';
+
+  // 시작 버튼 텍스트
+  const startBtn = document.getElementById('sev-start-btn');
+  if (doneCount === 0) startBtn.textContent = '첫 번째 과제 시작';
+  else if (doneCount < 3) startBtn.textContent = '다음 과제 시작';
+  else startBtn.textContent = '진단 결과 보기';
+
+  // 카드 상태
   SEV_TASKS.forEach((t, i) => {
     const card = document.getElementById('sev-card-'+i);
     const badge = document.getElementById('sev-badge-'+i);
@@ -2660,7 +2709,7 @@ function renderSevList() {
       badge.style.display = 'inline-block';
       badge.style.background = '#E8F5E9'; badge.style.color = '#16A34A';
       badge.textContent = '완료';
-    } else if (i === sevState.taskIdx) {
+    } else if (i === nextIdx) {
       card.classList.add('active');
       badge.style.display = 'inline-block';
       badge.style.background = '#FFF0D6'; badge.style.color = '#E07B00';
@@ -2670,6 +2719,15 @@ function renderSevList() {
       badge.style.display = 'none';
     }
   });
+}
+
+function startSevNext() {
+  const nextIdx = sevState.done.indexOf(false);
+  if (nextIdx < 0) {
+    showSevComplete();
+  } else {
+    startSevTask(nextIdx);
+  }
 }
 
 function startSevTask(idx) {
