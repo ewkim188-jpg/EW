@@ -568,8 +568,7 @@
       display:inline-block; margin-left:8px;
     }
     .sev-mic-btn {
-      width:140px; height:140px; border-radius:50%; background:var(--primary);
-      transition: width .3s, height .3s;
+      width:180px; height:180px; border-radius:50%; background:var(--primary);
       border:none; cursor:pointer; display:flex; flex-direction:column;
       align-items:center; justify-content:center; gap:8px; transition:all .2s;
     }
@@ -1743,10 +1742,10 @@
       <!-- 메인 영역: 녹음 대기/진행 -->
       <div id="sev-rec-main" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px;text-align:center;">
         <div class="sev-word" id="sev-word" style="font-size:72px;font-weight:800;margin-bottom:8px;"></div>
-        <div class="sev-instruction" id="sev-instruction" style="font-size:16px;margin-bottom:28px;"></div>
-        <button class="sev-mic-btn" id="sev-mic-btn" onclick="toggleSevRec()" style="width:140px;height:140px;">
-          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-          <span class="sev-mic-label" id="sev-mic-label" style="font-size:15px;">눌러서 말하기</span>
+        <div class="sev-instruction" id="sev-instruction" style="font-size:18px;margin-bottom:28px;"></div>
+        <button class="sev-mic-btn" id="sev-mic-btn" onclick="toggleSevRec()" style="width:180px;height:180px;">
+          <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span class="sev-mic-label" id="sev-mic-label" style="font-size:16px;">눌러서 말하기</span>
         </button>
         <div id="sev-fb-text" style="font-size:15px;color:var(--t3);margin-top:18px;min-height:24px;transition:color .3s;">마이크를 누르고 소리를 내보세요</div>
       </div>
@@ -2788,23 +2787,8 @@ function stopSevAll() {
   sevState.recording = false;
 }
 
-function drawSevWaveIdle() {
-  const c = document.getElementById('sevWaveCanvas'), ctx = c.getContext('2d');
-  ctx.clearRect(0,0,c.width,c.height); ctx.fillStyle = '#EEF2FF';
-  const bars=28, bw=5, gap=3, tot=bars*(bw+gap)-gap, sx=(c.width-tot)/2;
-  for (let i=0;i<bars;i++) { ctx.beginPath(); ctx.roundRect(sx+i*(bw+gap),(c.height-4)/2,bw,4,2); ctx.fill(); }
-}
-
-function drawSevWaveActive() {
-  const c = document.getElementById('sevWaveCanvas'), ctx = c.getContext('2d');
-  ctx.clearRect(0,0,c.width,c.height);
-  const bars=28, bw=5, gap=3, tot=bars*(bw+gap)-gap, sx=(c.width-tot)/2;
-  for (let i=0;i<bars;i++) {
-    const h = Math.max(4, Math.random()*26+4);
-    ctx.fillStyle = 'rgba(59,91,219,'+(0.4+Math.random()*0.6)+')';
-    ctx.beginPath(); ctx.roundRect(sx+i*(bw+gap),(c.height-h)/2,bw,h,2); ctx.fill();
-  }
-}
+function drawSevWaveIdle() {}
+function drawSevWaveActive() {}
 
 function toggleSevRec() {
   if (!sevState.recording) {
