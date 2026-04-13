@@ -1739,15 +1739,51 @@
           <div class="sev-prog-bar" id="sev-prog-bar" style="height:4px;"></div>
         </div>
       </div>
+      <!-- 환경 세팅 뷰 -->
+      <div id="sev-calibration" style="flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;padding:0 32px;text-align:center;">
+        <!-- 단계 1: 거리 안내 -->
+        <div id="sev-cal-distance" style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+          <div style="width:100px;height:100px;background:#EEF2FF;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </div>
+          <div style="font-size:22px;font-weight:800;color:var(--t1);line-height:1.4;">녹음 준비를 해볼까요?</div>
+          <div style="font-size:16px;color:var(--t2);line-height:1.7;">
+            휴대폰을 입에서<br>
+            <span style="font-size:24px;font-weight:800;color:var(--primary);">약 30cm</span><br>
+            (한 뼘 정도) 떨어뜨려 주세요
+          </div>
+          <div style="font-size:14px;color:var(--t3);margin-top:4px;">정확한 측정을 위해 필요해요</div>
+          <button onclick="startSevCalibration()" style="margin-top:20px;width:240px;padding:16px;background:var(--primary);color:white;border:none;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;">
+            준비됐어요
+          </button>
+        </div>
+        <!-- 단계 2: 소음 측정 -->
+        <div id="sev-cal-measure" style="display:none;flex-direction:column;align-items:center;gap:16px;">
+          <div id="sev-cal-circle" style="width:120px;height:120px;background:#EEF2FF;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .5s;">
+            <span id="sev-cal-countdown" style="font-size:40px;font-weight:800;color:var(--primary);">5</span>
+          </div>
+          <div style="font-size:22px;font-weight:800;color:var(--t1);">주변 소리를 듣고 있어요</div>
+          <div style="font-size:16px;color:var(--t2);line-height:1.6;">잠시만 조용히 기다려 주세요<br>금방 끝나요!</div>
+          <div style="background:#EEF2FF;border-radius:999px;height:6px;width:200px;margin-top:8px;">
+            <div id="sev-cal-bar" style="background:var(--primary);height:6px;border-radius:999px;transition:width .8s;width:0%;"></div>
+          </div>
+        </div>
+        <!-- 단계 3: 완료 -->
+        <div id="sev-cal-done" style="display:none;flex-direction:column;align-items:center;gap:16px;">
+          <div style="width:100px;height:100px;background:#E8F5E9;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:48px;">✓</div>
+          <div style="font-size:22px;font-weight:800;color:var(--t1);">준비 완료!</div>
+          <div style="font-size:16px;color:var(--t2);line-height:1.6;">환경이 세팅되었어요<br>이제 시작해볼까요?</div>
+        </div>
+      </div>
       <!-- 메인 영역: 녹음 대기/진행 -->
-      <div id="sev-rec-main" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px;text-align:center;">
+      <div id="sev-rec-main" style="flex:1;min-height:0;display:none;flex-direction:column;align-items:center;padding:0 24px;text-align:center;padding-top:40px;">
         <div class="sev-word" id="sev-word" style="font-size:72px;font-weight:800;margin-bottom:8px;"></div>
-        <div class="sev-instruction" id="sev-instruction" style="font-size:18px;margin-bottom:28px;"></div>
-        <button class="sev-mic-btn" id="sev-mic-btn" onclick="toggleSevRec()" style="width:180px;height:180px;">
+        <div class="sev-instruction" id="sev-instruction" style="font-size:18px;margin-bottom:auto;"></div>
+        <button class="sev-mic-btn" id="sev-mic-btn" onclick="toggleSevRec()" style="width:180px;height:180px;margin-bottom:8px;">
           <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
           <span class="sev-mic-label" id="sev-mic-label" style="font-size:16px;">눌러서 말하기</span>
         </button>
-        <div id="sev-fb-text" style="font-size:15px;color:var(--t3);margin-top:18px;min-height:24px;transition:color .3s;">마이크를 누르고 소리를 내보세요</div>
+        <div id="sev-fb-text" style="font-size:15px;color:var(--t3);margin-top:12px;margin-bottom:28px;min-height:24px;transition:color .3s;">마이크를 누르고 소리를 내보세요</div>
       </div>
       <!-- 메인 영역: 녹음 완료 -->
       <div id="sev-rec-done" style="flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;padding:0 24px;text-align:center;gap:12px;">
@@ -2666,6 +2702,7 @@ let sevState = {taskIdx:0, step:0, recording:false, timer:null, waveTimer:null, 
 
 function resetSeverity() {
   sevState = {taskIdx:0, step:0, recording:false, timer:null, waveTimer:null, sec:0, done:[false,false,false]};
+  sevCalibrated = false;
   document.getElementById('sev-list-view').style.display = '';
   document.getElementById('sev-rec-view').style.display = 'none';
   document.getElementById('sev-complete-view').style.display = 'none';
@@ -2720,13 +2757,55 @@ function startSevNext() {
   }
 }
 
+let sevCalibrated = false;
+
 function startSevTask(idx) {
   if (sevState.done[idx]) return;
   sevState.taskIdx = idx;
   sevState.step = 0;
   document.getElementById('sev-list-view').style.display = 'none';
   document.getElementById('sev-rec-view').style.display = 'flex';
-  renderSevStep();
+
+  if (!sevCalibrated) {
+    // 첫 과제 시작 전 환경 세팅
+    document.getElementById('sev-calibration').style.display = 'flex';
+    document.getElementById('sev-rec-main').style.display = 'none';
+    document.getElementById('sev-rec-done').style.display = 'none';
+    document.getElementById('sev-cal-distance').style.display = 'flex';
+    document.getElementById('sev-cal-measure').style.display = 'none';
+    document.getElementById('sev-cal-done').style.display = 'none';
+  } else {
+    document.getElementById('sev-calibration').style.display = 'none';
+    renderSevStep();
+  }
+}
+
+function startSevCalibration() {
+  document.getElementById('sev-cal-distance').style.display = 'none';
+  document.getElementById('sev-cal-measure').style.display = 'flex';
+  let count = 5;
+  const cdEl = document.getElementById('sev-cal-countdown');
+  const barEl = document.getElementById('sev-cal-bar');
+  cdEl.textContent = count;
+  barEl.style.width = '0%';
+
+  const iv = setInterval(() => {
+    count--;
+    cdEl.textContent = count;
+    barEl.style.width = ((5 - count) / 5 * 100) + '%';
+    if (count <= 0) {
+      clearInterval(iv);
+      // 완료 표시
+      document.getElementById('sev-cal-measure').style.display = 'none';
+      document.getElementById('sev-cal-done').style.display = 'flex';
+      sevCalibrated = true;
+      // 1.5초 후 자동으로 첫 과제로
+      setTimeout(() => {
+        document.getElementById('sev-calibration').style.display = 'none';
+        renderSevStep();
+      }, 1500);
+    }
+  }, 1000);
 }
 
 function backToSevList() {
@@ -2751,7 +2830,8 @@ function renderSevStep() {
   document.getElementById('sev-instruction').textContent = d.instruction;
   setSevFeedback('idle');
   setSevMicIdle();
-  // 녹음 대기 뷰 표시, 완료 뷰 숨김
+  // 녹음 대기 뷰 표시, 나머지 숨김
+  document.getElementById('sev-calibration').style.display = 'none';
   document.getElementById('sev-rec-main').style.display = 'flex';
   document.getElementById('sev-rec-done').style.display = 'none';
   document.getElementById('sev-submit-label').textContent =
