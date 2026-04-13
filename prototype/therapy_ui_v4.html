@@ -481,16 +481,19 @@
     .rm-title { font-size: var(--fs-md); font-weight: 700; color: var(--t1); margin-bottom: 14px; }
     .rm-emojis { display: flex; justify-content: space-around; }
     .rm-item {
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      cursor: pointer; padding: 8px 10px; border-radius: 14px;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      cursor: pointer; padding: 10px 6px; border-radius: 14px;
       border: 2px solid transparent; transition: all .2s;
+      min-width: 72px; text-align: center;
     }
     .rm-item:active { background: var(--primary-l); border-color: var(--primary); transform: scale(1.05); }
     .rm-item.selected { background: var(--primary-l); border-color: var(--primary); }
+    .rm-item.selected .rm-ico { transform: scale(1.15); }
     .rm-item.selected .rm-e { color: var(--primary); }
     .rm-item.selected .rm-l { color: var(--primary); font-weight: 700; }
-    .rm-e { font-size: 20px; font-weight: 700; color: var(--primary); }
-    .rm-l { font-size: var(--fs-xs); color: var(--t3); font-weight: 600; }
+    .rm-ico { font-size: 28px; line-height: 1; margin-bottom: 2px; transition: transform .2s; }
+    .rm-e { font-size: 13px; font-weight: 700; color: var(--t1); line-height: 1.2; }
+    .rm-l { font-size: 11px; color: var(--t3); font-weight: 500; line-height: 1.2; white-space: nowrap; }
 
     .res-home-btn {
       width: 100%; height: 64px; background: var(--primary);
@@ -1936,10 +1939,10 @@
       <div class="res-mood">
         <div class="rm-title">훈련 후 기분은 어떠세요?</div>
         <div class="rm-emojis">
-          <div class="rm-item" onclick="selectMood(this)"><div class="rm-e">힘들어요</div><div class="rm-l">아직 힘들어요</div></div>
-          <div class="rm-item" onclick="selectMood(this)"><div class="rm-e">비슷해요</div><div class="rm-l">비슷해요</div></div>
-          <div class="rm-item" onclick="selectMood(this)"><div class="rm-e">나아요</div><div class="rm-l">조금 나아요</div></div>
-          <div class="rm-item" onclick="selectMood(this)"><div class="rm-e">좋아요</div><div class="rm-l">훨씬 좋아요!</div></div>
+          <div class="rm-item" onclick="selectMood(this)"><div class="rm-ico">😔</div><div class="rm-e">힘들어요</div><div class="rm-l">아직 힘들어요</div></div>
+          <div class="rm-item" onclick="selectMood(this)"><div class="rm-ico">😐</div><div class="rm-e">비슷해요</div><div class="rm-l">변화 없어요</div></div>
+          <div class="rm-item" onclick="selectMood(this)"><div class="rm-ico">🙂</div><div class="rm-e">나아요</div><div class="rm-l">조금 나아요</div></div>
+          <div class="rm-item" onclick="selectMood(this)"><div class="rm-ico">😊</div><div class="rm-e">좋아요</div><div class="rm-l">훨씬 좋아요!</div></div>
         </div>
       </div>
 
