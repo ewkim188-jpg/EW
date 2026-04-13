@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이음 시안2 미리보기</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  background: #E8E8EE;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh;
+}
+.phone {
+  width: 375px; height: 812px;
+  border-radius: 44px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+.v2 {
+  background: #FFFFFF;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; text-align: center;
+  padding: 40px 32px; position: relative;
+}
+.v2 .logo-wrap {
+  width: 140px; height: 140px;
+  background: linear-gradient(150deg, #1E2A5E, #111833);
+  border-radius: 36px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 28px;
+  box-shadow: 0 12px 40px rgba(26,26,46,.2);
+}
+.v2 .app-name {
+  font-size: 38px; font-weight: 900; color: #1A1A2E;
+  letter-spacing: -1px; margin-bottom: 8px;
+}
+.v2 .app-tagline {
+  font-size: 17px; color: #3B5FE8; font-weight: 600;
+  margin-bottom: 8px;
+}
+.v2 .app-sub {
+  font-size: 15px; color: #9CA3AF; line-height: 1.6;
+}
+.v2 .start-btn {
+  position: absolute; bottom: 60px; left: 32px; right: 32px;
+  height: 58px; border-radius: 16px;
+  background: #3B5FE8; border: none; color: white;
+  font-size: 18px; font-weight: 700; cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 20px rgba(59,95,232,.3);
+}
+</style>
+</head>
+<body>
+
+<svg style="display:none;">
+  <defs>
+    <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5B9BF7"/>
+      <stop offset="100%" stop-color="#3B5FE8"/>
+    </linearGradient>
+  </defs>
+  <symbol id="logo-infinity-dark" viewBox="-6 -2 132 64">
+    <path d="M30,30 C30,14 20,6 10,6 C0,6 -4,16 -4,30 C-4,44 0,54 10,54 C20,54 30,46 30,30"
+          fill="none" stroke="url(#grad-blue)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M30,14 Q60,50 90,14" fill="none" stroke="url(#grad-blue)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M30,46 Q60,10 90,46" fill="none" stroke="#A0A8B8" stroke-width="8" stroke-linecap="round"/>
+    <path d="M90,30 C90,14 100,6 110,6 C120,6 124,16 124,30 C124,44 120,54 110,54 C100,54 90,46 90,30"
+          fill="none" stroke="#A0A8B8" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="106" cy="50" r="4.5" fill="#E8C547" opacity=".9"/>
+  </symbol>
+</svg>
+
+<div class="phone">
+  <div class="v2">
+    <div class="logo-wrap">
+      <svg width="80" height="40"><use href="#logo-infinity-dark"/></svg>
+    </div>
+    <div class="app-name">이음</div>
+    <div class="app-tagline">끊어진 말과 마음을 다시 잇다</div>
+    <div class="app-sub">AI 음성 분석 기반 마비말장애 재활과<br>rPPG 정서 감지를 하나로</div>
+    <button class="start-btn">시작하기</button>
+  </div>
+</div>
+
+</body>
+</html>

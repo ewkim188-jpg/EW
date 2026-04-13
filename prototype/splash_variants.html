@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이음 — 스플래시 시안 모음</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  background: #F0F0F5;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 60px;
+}
+h1 { font-size: 28px; color: #1A1A2E; margin-bottom: -20px; }
+h1 span { color: #3B5FE8; }
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  justify-content: center;
+}
+.variant-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.variant-label {
+  font-size: 18px; font-weight: 700; color: #374151;
+  background: white; padding: 6px 18px; border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.phone {
+  width: 375px; height: 812px;
+  border-radius: 44px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  position: relative;
+}
+
+/* ── 로고 SVG 공통 ── */
+.logo-svg { display: block; }
+
+/* ──────────────────────────────────────────────────────
+   시안 1: 딥 네이비 풀스크린 (로고 앱아이콘 스타일)
+────────────────────────────────────────────────────── */
+.v1 {
+  background: linear-gradient(170deg, #1E2A5E 0%, #111833 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; color: white; text-align: center;
+  padding: 40px 32px; position: relative;
+}
+.v1 .logo-wrap {
+  width: 160px; height: 160px;
+  background: rgba(255,255,255,.06);
+  border-radius: 40px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.3);
+}
+.v1 .app-name {
+  font-size: 42px; font-weight: 900; letter-spacing: -1px;
+  margin-bottom: 12px;
+}
+.v1 .app-sub {
+  font-size: 16px; opacity: .55; line-height: 1.6;
+}
+.v1 .start-btn {
+  position: absolute; bottom: 60px; left: 32px; right: 32px;
+  height: 58px; border-radius: 16px;
+  background: #3B5FE8; border: none; color: white;
+  font-size: 18px; font-weight: 700; cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 20px rgba(59,95,232,.4);
+}
+
+/* ──────────────────────────────────────────────────────
+   시안 2: 화이트 클린 (로고 중심)
+────────────────────────────────────────────────────── */
+.v2 {
+  background: #FFFFFF;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; text-align: center;
+  padding: 40px 32px; position: relative;
+}
+.v2 .logo-wrap {
+  width: 140px; height: 140px;
+  background: linear-gradient(150deg, #1E2A5E, #111833);
+  border-radius: 36px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 28px;
+  box-shadow: 0 12px 40px rgba(26,26,46,.2);
+}
+.v2 .app-name {
+  font-size: 38px; font-weight: 900; color: #1A1A2E;
+  letter-spacing: -1px; margin-bottom: 8px;
+}
+.v2 .app-tagline {
+  font-size: 17px; color: #3B5FE8; font-weight: 600;
+  margin-bottom: 8px;
+}
+.v2 .app-sub {
+  font-size: 15px; color: #9CA3AF; line-height: 1.6;
+}
+.v2 .start-btn {
+  position: absolute; bottom: 60px; left: 32px; right: 32px;
+  height: 58px; border-radius: 16px;
+  background: #3B5FE8; border: none; color: white;
+  font-size: 18px; font-weight: 700; cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 20px rgba(59,95,232,.3);
+}
+
+/* ──────────────────────────────────────────────────────
+   시안 3: 블루 그라데이션 (로고 + 큰 타이포)
+────────────────────────────────────────────────────── */
+.v3 {
+  background: linear-gradient(170deg, #3B5FE8 0%, #2A4BD4 50%, #1E2A5E 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; color: white; text-align: center;
+  padding: 40px 32px; position: relative;
+}
+.v3 .logo-mark {
+  margin-bottom: 32px;
+  opacity: .95;
+}
+.v3 .title-group { margin-bottom: 16px; }
+.v3 .app-name {
+  font-size: 52px; font-weight: 900; letter-spacing: -2px;
+  margin-bottom: 4px;
+}
+.v3 .app-name span { color: #E8C547; }
+.v3 .app-tagline {
+  font-size: 20px; font-weight: 600; opacity: .85;
+  margin-bottom: 12px;
+}
+.v3 .app-sub {
+  font-size: 15px; opacity: .5; line-height: 1.6;
+}
+.v3 .start-btn {
+  position: absolute; bottom: 60px; left: 32px; right: 32px;
+  height: 58px; border-radius: 16px;
+  background: rgba(255,255,255,.15); border: 2px solid rgba(255,255,255,.3);
+  color: white; font-size: 18px; font-weight: 700; cursor: pointer;
+  font-family: inherit; backdrop-filter: blur(10px);
+}
+
+/* ──────────────────────────────────────────────────────
+   시안 4: 미니멀 스플릿 (상단 네이비 + 하단 화이트)
+────────────────────────────────────────────────────── */
+.v4 {
+  background: #FFFFFF;
+  display: flex; flex-direction: column;
+  height: 100%; position: relative;
+}
+.v4 .top-zone {
+  flex: 0 0 55%;
+  background: linear-gradient(170deg, #1E2A5E 0%, #111833 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  border-radius: 0 0 40px 40px;
+  padding: 40px 32px;
+}
+.v4 .logo-wrap {
+  margin-bottom: 20px;
+}
+.v4 .app-name {
+  font-size: 36px; font-weight: 900; color: white;
+  letter-spacing: -1px; margin-bottom: 6px;
+}
+.v4 .app-tagline {
+  font-size: 15px; color: rgba(255,255,255,.5);
+}
+.v4 .bottom-zone {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px;
+  gap: 14px;
+}
+.v4 .feature-pill {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; padding: 16px 20px;
+  background: #F5F6FA; border-radius: 16px;
+}
+.v4 .fp-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.v4 .fp-title { font-size: 16px; font-weight: 700; color: #1A1A2E; }
+.v4 .fp-desc  { font-size: 13px; color: #9CA3AF; margin-top: 2px; }
+.v4 .start-btn {
+  position: absolute; bottom: 40px; left: 32px; right: 32px;
+  height: 58px; border-radius: 16px;
+  background: #3B5FE8; border: none; color: white;
+  font-size: 18px; font-weight: 700; cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 20px rgba(59,95,232,.3);
+}
+
+/* ──────────────────────────────────────────────────────
+   시안 5: 글래스모피즘 (블러 카드)
+────────────────────────────────────────────────────── */
+.v5 {
+  background: linear-gradient(150deg, #1A1A2E 0%, #1E2A5E 40%, #3B5FE8 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; color: white; text-align: center;
+  padding: 40px 24px; position: relative;
+  overflow: hidden;
+}
+.v5 .bg-orb1 {
+  position: absolute; width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(59,95,232,.4), transparent 70%);
+  top: -80px; right: -60px; border-radius: 50%;
+}
+.v5 .bg-orb2 {
+  position: absolute; width: 250px; height: 250px;
+  background: radial-gradient(circle, rgba(232,197,71,.2), transparent 70%);
+  bottom: 100px; left: -80px; border-radius: 50%;
+}
+.v5 .glass-card {
+  position: relative; z-index: 1;
+  background: rgba(255,255,255,.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 32px;
+  padding: 48px 32px 40px;
+  width: 100%;
+}
+.v5 .logo-wrap {
+  margin-bottom: 24px;
+}
+.v5 .app-name {
+  font-size: 44px; font-weight: 900; letter-spacing: -1px;
+  margin-bottom: 10px;
+}
+.v5 .app-name span { color: #E8C547; }
+.v5 .app-tagline {
+  font-size: 16px; opacity: .7; line-height: 1.6;
+  margin-bottom: 28px;
+}
+.v5 .features {
+  display: flex; gap: 12px; justify-content: center;
+  margin-bottom: 0;
+}
+.v5 .feat {
+  padding: 8px 16px; border-radius: 12px;
+  background: rgba(255,255,255,.1);
+  font-size: 13px; font-weight: 600; opacity: .8;
+  border: 1px solid rgba(255,255,255,.08);
+}
+.v5 .start-btn {
+  position: absolute; bottom: 60px; left: 24px; right: 24px;
+  z-index: 1;
+  height: 58px; border-radius: 16px;
+  background: #3B5FE8; border: none; color: white;
+  font-size: 18px; font-weight: 700; cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 24px rgba(59,95,232,.5);
+}
+
+/* ──────────────────────────────────────────────────────
+   시안 6: 풀스크린 타이포 (레퍼런스 나만의닥터 스타일)
+────────────────────────────────────────────────────── */
+.v6 {
+  background: #3B5FE8;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; color: white; text-align: center;
+  padding: 40px 32px; position: relative;
+}
+.v6 .award-badge {
+  font-size: 13px; opacity: .6; margin-bottom: 36px;
+  letter-spacing: .3px;
+}
+.v6 .logo-wrap {
+  margin-bottom: 28px;
+}
+.v6 .hero-text {
+  font-size: 40px; font-weight: 900; line-height: 1.3;
+  letter-spacing: -1px; margin-bottom: 16px;
+}
+.v6 .hero-text span { color: #E8C547; }
+.v6 .app-sub {
+  font-size: 15px; opacity: .6; line-height: 1.6;
+}
+.v6 .bottom-logo {
+  position: absolute; bottom: 48px;
+  font-size: 24px; font-weight: 800; opacity: .3;
+}
+.v6 .bottom-logo span { color: #E8C547; }
+</style>
+</head>
+<body>
+
+<h1>이음 스플래시 <span>시안 모음</span></h1>
+
+<!-- ═══ SVG 로고 정의 (재사용) ═══ -->
+<svg style="display:none;">
+  <defs>
+    <!-- 파란 그라데이션 -->
+    <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5B9BF7"/>
+      <stop offset="100%" stop-color="#3B5FE8"/>
+    </linearGradient>
+    <!-- 실버/화이트 그라데이션 -->
+    <linearGradient id="grad-silver" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8E8E8"/>
+      <stop offset="60%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#C0C0C0"/>
+    </linearGradient>
+    <!-- 골드 악센트 -->
+    <linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E8C547"/>
+      <stop offset="100%" stop-color="#F0D060"/>
+    </linearGradient>
+    <!-- 화이트 버전 그라데이션 -->
+    <linearGradient id="grad-white-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,.9)"/>
+      <stop offset="100%" stop-color="rgba(200,220,255,.8)"/>
+    </linearGradient>
+    <linearGradient id="grad-white-silver" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,.7)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,1)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 로고 심볼: 인피니티 (다크 배경용) -->
+  <symbol id="logo-infinity" viewBox="-6 -2 132 64">
+    <!-- 왼쪽 루프 (파란) -->
+    <path d="M30,30 C30,14 20,6 10,6 C0,6 -4,16 -4,30 C-4,44 0,54 10,54 C20,54 30,46 30,30"
+          fill="none" stroke="url(#grad-blue)" stroke-width="8" stroke-linecap="round"/>
+    <!-- 중앙 크로스 -->
+    <line x1="30" y1="30" x2="90" y2="30" stroke="url(#grad-blue)" stroke-width="0" />
+    <path d="M30,14 Q60,50 90,14" fill="none" stroke="url(#grad-blue)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M30,46 Q60,10 90,46" fill="none" stroke="url(#grad-silver)" stroke-width="8" stroke-linecap="round"/>
+    <!-- 오른쪽 루프 (실버/화이트) -->
+    <path d="M90,30 C90,14 100,6 110,6 C120,6 124,16 124,30 C124,44 120,54 110,54 C100,54 90,46 90,30"
+          fill="none" stroke="url(#grad-silver)" stroke-width="8" stroke-linecap="round"/>
+    <!-- 골드 악센트 (오른쪽 하단) -->
+    <circle cx="106" cy="50" r="4.5" fill="url(#grad-gold)" opacity=".9"/>
+  </symbol>
+
+  <!-- 로고 심볼: 인피니티 (화이트 배경용) -->
+  <symbol id="logo-infinity-dark" viewBox="-6 -2 132 64">
+    <path d="M30,30 C30,14 20,6 10,6 C0,6 -4,16 -4,30 C-4,44 0,54 10,54 C20,54 30,46 30,30"
+          fill="none" stroke="url(#grad-blue)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M30,14 Q60,50 90,14" fill="none" stroke="url(#grad-blue)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M30,46 Q60,10 90,46" fill="none" stroke="#A0A8B8" stroke-width="8" stroke-linecap="round"/>
+    <path d="M90,30 C90,14 100,6 110,6 C120,6 124,16 124,30 C124,44 120,54 110,54 C100,54 90,46 90,30"
+          fill="none" stroke="#A0A8B8" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="106" cy="50" r="4.5" fill="#E8C547" opacity=".9"/>
+  </symbol>
+
+  <!-- 로고 심볼 (큰 버전, 블루 배경용 화이트) -->
+  <symbol id="logo-infinity-white" viewBox="-6 -2 132 64">
+    <path d="M30,30 C30,14 20,6 10,6 C0,6 -4,16 -4,30 C-4,44 0,54 10,54 C20,54 30,46 30,30"
+          fill="none" stroke="url(#grad-white-blue)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M30,14 Q60,50 90,14" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M30,46 Q60,10 90,46" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M90,30 C90,14 100,6 110,6 C120,6 124,16 124,30 C124,44 120,54 110,54 C100,54 90,46 90,30"
+          fill="none" stroke="url(#grad-white-silver)" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="106" cy="50" r="4.5" fill="#E8C547" opacity=".9"/>
+  </symbol>
+</svg>
+
+
+<div class="row">
+
+  <!-- ═══════════════ 시안 1: 딥 네이비 ═══════════════ -->
+  <div class="variant-wrap">
+    <div class="variant-label">시안 1 — 딥 네이비</div>
+    <div class="phone">
+      <div class="v1">
+        <div class="logo-wrap">
+          <svg class="logo-svg" width="100" height="50"><use href="#logo-infinity"/></svg>
+        </div>
+        <div class="app-name">이음</div>
+        <div class="app-sub">끊어진 말과 마음을 다시 잇는<br>AI 통합 케어 플랫폼</div>
+        <button class="start-btn">시작하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 시안 2: 화이트 클린 ═══════════════ -->
+  <div class="variant-wrap">
+    <div class="variant-label">시안 2 — 화이트 클린</div>
+    <div class="phone">
+      <div class="v2">
+        <div class="logo-wrap">
+          <svg class="logo-svg" width="80" height="40"><use href="#logo-infinity-dark"/></svg>
+        </div>
+        <div class="app-name">이음</div>
+        <div class="app-tagline">끊어진 말과 마음을 다시 잇다</div>
+        <div class="app-sub">AI 음성 분석 기반 마비말장애 재활과<br>rPPG 정서 감지를 하나로</div>
+        <button class="start-btn">시작하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 시안 3: 블루 그라데이션 ═══════════════ -->
+  <div class="variant-wrap">
+    <div class="variant-label">시안 3 — 블루 그라데이션</div>
+    <div class="phone">
+      <div class="v3">
+        <div class="logo-mark">
+          <svg class="logo-svg" width="120" height="60"><use href="#logo-infinity-white"/></svg>
+        </div>
+        <div class="title-group">
+          <div class="app-name">이<span>음</span></div>
+          <div class="app-tagline">끊어진 말과 마음을 다시 잇다</div>
+        </div>
+        <div class="app-sub">AI 기반 마비말장애 재활 + 정서 통합 케어</div>
+        <button class="start-btn">시작하기</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="row">
+
+  <!-- ═══════════════ 시안 4: 스플릿 레이아웃 ═══════════════ -->
+  <div class="variant-wrap">
+    <div class="variant-label">시안 4 — 스플릿 카드</div>
+    <div class="phone">
+      <div class="v4">
+        <div class="top-zone">
+          <div class="logo-wrap">
+            <svg class="logo-svg" width="110" height="55"><use href="#logo-infinity"/></svg>
+          </div>
+          <div class="app-name">이음</div>
+          <div class="app-tagline">끊어진 말과 마음을 다시 잇다</div>
+        </div>
+        <div class="bottom-zone">
+          <div class="feature-pill">
+            <div class="fp-icon" style="background:#EBF0FD;color:#3B5FE8;">🗣️</div>
+            <div>
+              <div class="fp-title">말이음</div>
+              <div class="fp-desc">AI 음성 분석 기반 언어 재활</div>
+            </div>
+          </div>
+          <div class="feature-pill">
+            <div class="fp-icon" style="background:#FEF9E7;color:#E8C547;">💛</div>
+            <div>
+              <div class="fp-title">마음이음</div>
+              <div class="fp-desc">rPPG 기반 정서 감지 및 우울증 관리</div>
+            </div>
+          </div>
+        </div>
+        <button class="start-btn">시작하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 시안 5: 글래스모피즘 ═══════════════ -->
+  <div class="variant-wrap">
+    <div class="variant-label">시안 5 — 글래스모피즘</div>
+    <div class="phone">
+      <div class="v5">
+        <div class="bg-orb1"></div>
+        <div class="bg-orb2"></div>
+        <div class="glass-card">
+          <div class="logo-wrap">
+            <svg class="logo-svg" width="100" height="50"><use href="#logo-infinity"/></svg>
+          </div>
+          <div class="app-name">이<span>음</span></div>
+          <div class="app-tagline">끊어진 말과 마음을 다시 잇는<br>AI 통합 케어 플랫폼</div>
+          <div class="features">
+            <div class="feat">🗣️ 말이음</div>
+            <div class="feat">💛 마음이음</div>
+          </div>
+        </div>
+        <button class="start-btn">시작하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 시안 6: 풀 타이포 (레퍼런스 스타일) ═══════════════ -->
+  <div class="variant-wrap">
+    <div class="variant-label">시안 6 — 레퍼런스 스타일</div>
+    <div class="phone">
+      <div class="v6">
+        <div class="award-badge">🏅 AI 기반 마비말장애 재활 + 정서 통합 케어</div>
+        <div class="logo-wrap">
+          <svg class="logo-svg" width="130" height="65"><use href="#logo-infinity-white"/></svg>
+        </div>
+        <div class="hero-text">끊어진<br>말과 마음을<br>다시 <span>잇다</span></div>
+        <div class="app-sub">AI 음성 분석 기반 언어 재활과<br>rPPG 정서 감지를 하나의 앱으로</div>
+        <div class="bottom-logo">이<span>음</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

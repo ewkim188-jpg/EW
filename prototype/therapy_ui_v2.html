@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>말벗 — UI 프로토타입 v2 (50+ / rPPG)</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* ── DESIGN TOKENS ─────────────────────────────────────── */
+    :root {
+      --primary:   #4A67F5;
+      --primary-d: #2C4BE0;
+      --primary-l: #EEF1FE;
+      --bg:        #F4F5FA;
+      --card:      #FFFFFF;
+      --accent:    #F4A132;
+      --green:     #22C55E;
+      --green-l:   #DCFCE7;
+      --red:       #EF4444;
+      --red-l:     #FEE2E2;
+      --purple:    #8B5CF6;
+      --purple-l:  #EDE9FE;
+      --t1: #111827;   /* 제목 */
+      --t2: #374151;   /* 본문 */
+      --t3: #6B7280;   /* 보조 */
+      --t4: #9CA3AF;   /* 흐림 */
+      --border: #E5E7EB;
+
+      /* 50+ 폰트 크기 */
+      --fs-xs:  14px;
+      --fs-sm:  16px;
+      --fs-md:  18px;
+      --fs-lg:  22px;
+      --fs-xl:  26px;
+      --fs-2xl: 32px;
+
+      /* 터치 최소 높이 */
+      --touch: 60px;
+    }
+
+    /* ── PROTOTYPE BAR ─────────────────────────────────────── */
+    #proto {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+      background: #111827; padding: 8px 14px;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      font-family: monospace;
+    }
+    .pl { color: #9CA3AF; font-size: 11px; white-space: nowrap; }
+    .pb {
+      padding: 4px 10px; border: 1px solid #374151; background: transparent;
+      color: #9CA3AF; border-radius: 20px; font-size: 11px; cursor: pointer;
+      font-family: -apple-system, sans-serif; transition: all .15s;
+    }
+    .pb.on { background: var(--accent); border-color: var(--accent); color: #111; font-weight: 700; }
+    .pdiv { width: 1px; height: 16px; background: #374151; }
+    .ps {
+      padding: 4px 10px; border: 1px solid #374151; background: transparent;
+      color: #9CA3AF; border-radius: 20px; font-size: 11px; cursor: pointer;
+      font-family: -apple-system, sans-serif;
+    }
+    .ps:hover { border-color: var(--primary); color: #6B8FF5; }
+
+    /* ── PAGE LAYOUT ───────────────────────────────────────── */
+    body {
+      background: #1F2937;
+      min-height: 100vh;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 68px 16px 40px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+                   'Noto Sans KR', sans-serif;
+    }
+
+    /* ── PHONE SHELL ───────────────────────────────────────── */
+    #phone {
+      width: 390px; height: 780px;
+      background: var(--bg); border-radius: 44px;
+      overflow: hidden; position: relative;
+      box-shadow: 0 0 0 2px #374151, 0 40px 80px rgba(0,0,0,.7);
+      flex-shrink: 0;
+    }
+
+    /* ── SCREEN ────────────────────────────────────────────── */
+    .screen {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      background: var(--bg);
+    }
+    .screen.off { display: none; }
+
+    /* ── STATUS BAR ────────────────────────────────────────── */
+    .sbar {
+      background: var(--primary); color: white; flex-shrink: 0;
+      padding: 10px 22px 8px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: var(--fs-xs); font-weight: 600; letter-spacing: .3px;
+    }
+
+    /* ── TOP NAV ───────────────────────────────────────────── */
+    .topnav {
+      background: white; flex-shrink: 0;
+      padding: 14px 20px;
+      display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tn-back {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--primary-l); display: flex; align-items: center; justify-content: center;
+      font-size: 20px; cursor: pointer; flex-shrink: 0;
+    }
+    .tn-title { font-size: var(--fs-lg); font-weight: 700; color: var(--t1); }
+    .tn-sub   { font-size: var(--fs-sm); color: var(--t3); margin-top: 1px; }
+
+    /* ── SCROLL AREA ───────────────────────────────────────── */
+    .body { flex: 1; overflow-y: auto; padding: 20px; }
+    .body::-webkit-scrollbar { width: 0; }
+
+    /* ── BOTTOM NAV ────────────────────────────────────────── */
+    .bnav {
+      background: white; flex-shrink: 0;
+      padding: 8px 0 22px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-around;
+    }
+    .bni {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 4px; cursor: pointer; padding: 4px 10px;
+    }
+    .bni .ico  { font-size: 24px; }
+    .bni .lbl  { font-size: var(--fs-xs); color: var(--t4); font-weight: 500; }
+    .bni.on .lbl { color: var(--primary); }
+    .bni.on .ico { filter: none; }
+
+    /* ── COMMON CARD ───────────────────────────────────────── */
+    .card {
+      background: white; border-radius: 18px; padding: 18px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.07);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SCREEN 1 — 홈
+    ══════════════════════════════════════════════════════════ */
+    .home-header {
+      background: var(--primary); border-radius: 20px;
+      padding: 22px; margin-bottom: 18px; color: white;
+    }
+    .hh-app  { font-size: var(--fs-sm); opacity: .8; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .hh-name { font-size: var(--fs-xl); font-weight: 700; margin-bottom: 14px; line-height: 1.3; }
+    .hh-streak {
+      background: rgba(255,255,255,.18); border-radius: 14px;
+      padding: 10px 14px; display: flex; align-items: center; gap: 12px;
+    }
+    .hs-n  { font-size: var(--fs-2xl); font-weight: 700; color: var(--accent); }
+    .hs-t  { font-size: var(--fs-sm); opacity: .9; line-height: 1.4; }
+
+    .home-menu-card {
+      background: white; border-radius: 18px; padding: 18px 20px;
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 16px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.07); cursor: pointer;
+      min-height: var(--touch); transition: box-shadow .15s;
+    }
+    .home-menu-card:active { box-shadow: 0 2px 12px rgba(74,103,245,.2); }
+    .menu-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; flex-shrink: 0;
+    }
+    .menu-text { flex: 1; }
+    .menu-title { font-size: var(--fs-md); font-weight: 700; color: var(--t1); margin-bottom: 3px; }
+    .menu-desc  { font-size: var(--fs-sm); color: var(--t3); line-height: 1.4; }
+    .menu-badge {
+      padding: 5px 12px; border-radius: 20px;
+      font-size: var(--fs-xs); font-weight: 700; white-space: nowrap;
+    }
+    .home-start {
+      width: 100%; height: 64px; background: var(--primary);
+      color: white; border: none; border-radius: 18px;
+      font-size: var(--fs-lg); font-weight: 700; cursor: pointer;
+      margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 10px;
+      box-shadow: 0 4px 14px rgba(74,103,245,.4);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SCREEN 2 — rPPG 우울 측정
+    ══════════════════════════════════════════════════════════ */
+    .rppg-guide {
+      background: var(--primary); border-radius: 20px;
+      padding: 20px; margin-bottom: 20px; color: white; text-align: center;
+    }
+    .rg-title { font-size: var(--fs-xl); font-weight: 700; margin-bottom: 6px; }
+    .rg-sub   { font-size: var(--fs-md); opacity: .85; line-height: 1.5; }
+
+    .rppg-camera {
+      position: relative; margin: 0 auto 20px; width: 200px; height: 200px;
+    }
+    .rppg-face {
+      width: 200px; height: 200px; border-radius: 50%;
+      background: #1F2937;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 80px; position: relative; overflow: hidden;
+      border: 4px solid var(--primary);
+    }
+    .rppg-ring {
+      position: absolute; inset: -8px;
+      border-radius: 50%; border: 4px solid transparent;
+      border-top-color: var(--primary);
+      border-right-color: var(--accent);
+      animation: spin 2s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .rppg-pulse {
+      position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+      background: var(--red); color: white;
+      padding: 4px 12px; border-radius: 12px;
+      font-size: var(--fs-xs); font-weight: 700;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .rppg-pulse span { animation: pulse-blink 1s ease-in-out infinite; }
+    @keyframes pulse-blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .rppg-progress-wrap { margin-bottom: 20px; }
+    .rppg-prog-label {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 8px;
+    }
+    .rpl-text { font-size: var(--fs-md); font-weight: 600; color: var(--t1); }
+    .rpl-sec  { font-size: var(--fs-lg); font-weight: 700; color: var(--primary); }
+    .rppg-bar { height: 12px; background: var(--border); border-radius: 6px; overflow: hidden; }
+    .rppg-fill {
+      height: 100%; border-radius: 6px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width .5s ease;
+    }
+
+    .rppg-tips {
+      background: white; border-radius: 18px; padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+    .rppg-tip-title { font-size: var(--fs-sm); font-weight: 700; color: var(--t1); margin-bottom: 10px; }
+    .rppg-tip-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid var(--border); font-size: var(--fs-sm);
+      line-height: 1.5; color: var(--t2);
+    }
+    .rppg-tip-item:last-child { border: none; padding-bottom: 0; }
+
+    .rppg-result {
+      background: white; border-radius: 20px; padding: 22px;
+      text-align: center; margin-bottom: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    .rr-title { font-size: var(--fs-sm); color: var(--t3); margin-bottom: 6px; }
+    .rr-level { font-size: var(--fs-2xl); font-weight: 700; margin-bottom: 4px; }
+    .rr-hrv   { font-size: var(--fs-sm); color: var(--t3); }
+    .rr-next  {
+      width: 100%; height: 64px; border: none; border-radius: 18px;
+      font-size: var(--fs-lg); font-weight: 700; cursor: pointer; color: white;
+      background: var(--primary);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SCREEN 3 — 오늘의 훈련 목록
+    ══════════════════════════════════════════════════════════ */
+    .task-state-bar {
+      background: white; border-radius: 18px; padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .tsb-pill {
+      flex: 1; text-align: center; padding: 10px; border-radius: 12px;
+    }
+    .tsb-val { font-size: var(--fs-lg); font-weight: 700; }
+    .tsb-lbl { font-size: var(--fs-xs); color: var(--t3); margin-top: 2px; }
+
+    .strategy-card {
+      border-radius: 18px; padding: 18px; margin-bottom: 18px;
+    }
+    .sc-tag { font-size: var(--fs-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; opacity: .8; }
+    .sc-msg { font-size: var(--fs-lg); font-weight: 700; margin-bottom: 10px; line-height: 1.4; }
+    .sc-chips { display: flex; gap: 8px; }
+    .sc-chip  { padding: 5px 12px; background: rgba(255,255,255,.25); border-radius: 12px; font-size: var(--fs-sm); }
+
+    .sec-hdr {
+      display: flex; align-items: center; gap: 8px;
+      margin: 16px 0 10px;
+    }
+    .sec-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .sec-lbl { font-size: var(--fs-sm); font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .5px; }
+
+    /* 미니 평가 카드 */
+    .mini-card {
+      background: var(--purple-l); border-radius: 16px;
+      padding: 16px 18px; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 14px; cursor: pointer;
+      border: 2px solid #D8B4FE;
+    }
+    .mini-icon { font-size: 28px; flex-shrink: 0; }
+    .mini-body { flex: 1; }
+    .mini-name { font-size: var(--fs-md); font-weight: 700; color: var(--purple); }
+    .mini-desc { font-size: var(--fs-sm); color: var(--t3); margin-top: 3px; }
+    .mini-chip { margin-top: 6px; display: inline-block; background: var(--purple); color: white; padding: 3px 10px; border-radius: 10px; font-size: var(--fs-xs); font-weight: 600; }
+
+    /* 운동 카드 */
+    .ex-card {
+      background: white; border-radius: 16px;
+      padding: 16px 18px; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; min-height: var(--touch);
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      border-left: 5px solid transparent;
+      transition: box-shadow .15s;
+    }
+    .ex-card:active { box-shadow: 0 3px 12px rgba(0,0,0,.12); }
+    .ex-card.gb { border-left-color: var(--primary); }
+    .ex-card.ga { border-left-color: var(--accent); }
+    .ex-card.gp { border-left-color: #EC4899; }
+    .ex-ico { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+    .ex-ico.gb { background: var(--primary-l); }
+    .ex-ico.ga { background: #FEF3C7; }
+    .ex-ico.gp { background: #FCE7F3; }
+    .ex-b { flex: 1; min-width: 0; }
+    .ex-name { font-size: var(--fs-md); font-weight: 700; color: var(--t1); margin-bottom: 3px; }
+    .ex-desc { font-size: var(--fs-sm); color: var(--t3); line-height: 1.4; }
+    .ex-tags { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .tag { padding: 3px 10px; border-radius: 10px; font-size: var(--fs-xs); font-weight: 600; }
+    .tag-a { background: var(--green-l); color: #16A34A; }
+    .tag-s { background: #FEF3C7; color: #D97706; }
+    .tag-d { background: var(--border); color: var(--t3); }
+    .ex-arr { font-size: 22px; color: var(--t4); flex-shrink: 0; }
+
+    .start-btn {
+      width: 100%; height: 64px; background: var(--primary);
+      color: white; border: none; border-radius: 18px;
+      font-size: var(--fs-lg); font-weight: 700; cursor: pointer;
+      margin-top: 16px; margin-bottom: 10px;
+      box-shadow: 0 4px 14px rgba(74,103,245,.4);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SCREEN 4 — 운동 실행
+    ══════════════════════════════════════════════════════════ */
+    .ex-run-top {
+      background: var(--primary); padding: 20px 22px;
+      flex-shrink: 0; color: white;
+    }
+    .ert-step { font-size: var(--fs-sm); opacity: .75; margin-bottom: 4px; }
+    .ert-name { font-size: var(--fs-xl); font-weight: 700; margin-bottom: 4px; }
+    .ert-grp  { font-size: var(--fs-sm); opacity: .8; margin-bottom: 14px; }
+    .ert-prog { background: rgba(255,255,255,.2); height: 6px; border-radius: 3px; }
+    .ert-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width .4s; }
+
+    .ex-run-viz {
+      background: white; margin: 16px; border-radius: 22px;
+      padding: 22px; display: flex; flex-direction: column; align-items: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    .erv-icon  { font-size: 60px; margin-bottom: 8px; }
+    .erv-hint  { font-size: var(--fs-sm); color: var(--t3); font-weight: 600; margin-bottom: 4px; }
+    .erv-timer { font-size: 54px; font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; margin-bottom: 4px; }
+    .erv-tlbl  { font-size: var(--fs-sm); color: var(--t3); margin-bottom: 12px; }
+    .wave { width: 100%; height: 44px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+    .wb { width: 5px; background: var(--primary); border-radius: 3px; animation: wv 1.2s ease-in-out infinite; }
+    @keyframes wv { 0%,100%{height:6px;opacity:.3} 50%{height:36px;opacity:1} }
+
+    .ex-run-instr {
+      background: var(--primary-l); border-radius: 16px;
+      padding: 14px 18px; margin: 0 16px 14px;
+      font-size: var(--fs-md); color: var(--t1); line-height: 1.6;
+    }
+    .eri-title { font-weight: 700; color: var(--primary); margin-bottom: 4px; font-size: var(--fs-md); }
+
+    .ex-run-meters { display: flex; gap: 10px; margin: 0 16px 12px; }
+    .erm {
+      flex: 1; background: white; border-radius: 16px; padding: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06); text-align: center;
+    }
+    .erm-v { font-size: var(--fs-xl); font-weight: 700; color: var(--primary); }
+    .erm-l { font-size: var(--fs-xs); color: var(--t3); margin-top: 3px; }
+
+    .ex-run-feedback {
+      background: var(--green-l); border-radius: 14px;
+      padding: 12px 18px; margin: 0 16px 14px;
+      font-size: var(--fs-md); font-weight: 600; color: #15803D;
+      text-align: center; line-height: 1.4;
+    }
+
+    .ex-run-btns { display: flex; gap: 10px; padding: 0 16px 16px; }
+    .erb-stop {
+      flex: 1; height: 60px; background: white; color: var(--red);
+      border: 2px solid var(--red); border-radius: 16px;
+      font-size: var(--fs-md); font-weight: 700; cursor: pointer;
+    }
+    .erb-next {
+      flex: 2; height: 60px; background: var(--primary); color: white;
+      border: none; border-radius: 16px;
+      font-size: var(--fs-md); font-weight: 700; cursor: pointer;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SCREEN 5 — 결과
+    ══════════════════════════════════════════════════════════ */
+    .res-hero {
+      background: var(--primary); padding: 30px 22px 22px;
+      flex-shrink: 0; color: white; text-align: center;
+    }
+    .rh-emoji { font-size: 60px; margin-bottom: 8px; }
+    .rh-title { font-size: var(--fs-xl); font-weight: 700; margin-bottom: 4px; }
+    .rh-sub   { font-size: var(--fs-md); opacity: .85; }
+
+    .res-stats { display: flex; gap: 10px; margin-bottom: 16px; }
+    .rst { flex: 1; background: white; border-radius: 16px; padding: 14px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    .rst-v { font-size: var(--fs-xl); font-weight: 700; }
+    .rst-l { font-size: var(--fs-xs); color: var(--t3); margin-top: 3px; }
+
+    .res-sec-title { font-size: var(--fs-sm); font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+    .res-ex-row {
+      background: white; border-radius: 14px; padding: 14px 16px;
+      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .rer-ico { font-size: 26px; flex-shrink: 0; }
+    .rer-b { flex: 1; }
+    .rer-name { font-size: var(--fs-md); font-weight: 700; color: var(--t1); }
+    .rer-met  { font-size: var(--fs-sm); color: var(--t3); margin-top: 2px; }
+    .rer-up   { font-size: var(--fs-sm); font-weight: 700; color: var(--green); }
+    .rer-same { font-size: var(--fs-sm); font-weight: 600; color: var(--t4); }
+    .rer-badge { background: var(--green-l); color: #16A34A; padding: 3px 8px; border-radius: 8px; font-size: var(--fs-xs); font-weight: 600; margin-top: 3px; display: inline-block; }
+
+    .res-msg-card {
+      background: #FFF7ED; border-radius: 18px; padding: 18px;
+      margin-bottom: 16px; display: flex; gap: 12px; align-items: flex-start;
+    }
+    .rmc-ico { font-size: 24px; flex-shrink: 0; }
+    .rmc-txt { font-size: var(--fs-md); color: var(--t2); line-height: 1.7; }
+
+    .res-mood {
+      background: white; border-radius: 18px; padding: 18px; margin-bottom: 16px;
+    }
+    .rm-title { font-size: var(--fs-md); font-weight: 700; color: var(--t1); margin-bottom: 14px; }
+    .rm-emojis { display: flex; justify-content: space-around; }
+    .rm-item {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      cursor: pointer; padding: 8px 10px; border-radius: 14px;
+      border: 2px solid transparent; transition: all .2s;
+    }
+    .rm-item:active { background: var(--primary-l); border-color: var(--primary); transform: scale(1.1); }
+    .rm-e { font-size: 36px; }
+    .rm-l { font-size: var(--fs-xs); color: var(--t3); font-weight: 600; }
+
+    .res-home-btn {
+      width: 100%; height: 64px; background: var(--primary);
+      color: white; border: none; border-radius: 18px;
+      font-size: var(--fs-lg); font-weight: 700; cursor: pointer;
+    }
+
+    /* ── MISC ──────────────────────────────────────────────── */
+    .badge { padding: 4px 12px; border-radius: 20px; font-size: var(--fs-xs); font-weight: 700; }
+    .b-dep-h { background: #FEE2E2; color: #DC2626; }
+    .b-dep-m { background: #FEF3C7; color: #D97706; }
+    .b-dep-l { background: var(--green-l); color: #16A34A; }
+    .b-sev-s { background: var(--purple-l); color: var(--purple); }
+    .b-sev-m { background: var(--primary-l); color: var(--primary); }
+    .b-sev-e { background: var(--green-l); color: #16A34A; }
+
+    /* rPPG result states */
+    .rr-high   { color: var(--red); }
+    .rr-mid    { color: var(--accent); }
+    .rr-low    { color: var(--green); }
+  </style>
+</head>
+<body>
+
+<!-- ══ PROTOTYPE CONTROLS ══════════════════════════════════ -->
+<div id="proto">
+  <span class="pl">🎛 우울(rPPG):</span>
+  <button class="pb on" id="d-high" onclick="setDep('high')">높음</button>
+  <button class="pb"    id="d-mid"  onclick="setDep('mid')">중간</button>
+  <button class="pb"    id="d-low"  onclick="setDep('low')">낮음</button>
+  <div class="pdiv"></div>
+  <span class="pl">🔬 중증도:</span>
+  <button class="pb on" id="s-severe"   onclick="setSev('severe')">중도</button>
+  <button class="pb"    id="s-moderate" onclick="setSev('moderate')">중등도</button>
+  <button class="pb"    id="s-mild"     onclick="setSev('mild')">경도</button>
+  <div class="pdiv"></div>
+  <span class="pl">📱:</span>
+  <button class="ps" onclick="goto('home')">홈</button>
+  <button class="ps" onclick="goto('rppg')">rPPG측정</button>
+  <button class="ps" onclick="goto('tasks')">훈련목록</button>
+  <button class="ps" onclick="goto('run')">운동실행</button>
+  <button class="ps" onclick="goto('result')">결과</button>
+</div>
+
+<!-- ══ PHONE ═══════════════════════════════════════════════ -->
+<div id="phone">
+
+  <!-- ── S1: 홈 ──────────────────────────────────────────── -->
+  <div class="screen" id="screen-home">
+    <div class="sbar"><span>말벗</span><span>9:41 ☀️</span></div>
+    <div class="body">
+
+      <div class="home-header">
+        <div class="hh-app">🎤 말벗</div>
+        <div class="hh-name">안녕하세요, 김민준님 👋<br>오늘도 함께 해봐요</div>
+        <div class="hh-streak">
+          <span class="hs-n">🔥 12</span>
+          <div>
+            <div class="hs-t" style="font-weight:700;">일 연속 훈련 중</div>
+            <div class="hs-t" style="opacity:.75;">어제도 잘 하셨어요!</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-menu-card" onclick="goto('rppg')">
+        <div class="menu-icon" style="background:#EEF1FE;">🎯</div>
+        <div class="menu-text">
+          <div class="menu-title">중증도 진단</div>
+          <div class="menu-desc">발성·조음·자음 정확도 측정</div>
+        </div>
+        <div class="menu-badge" style="background:var(--primary-l);color:var(--primary);">1단계</div>
+      </div>
+
+      <div class="home-menu-card" onclick="goto('tasks')">
+        <div class="menu-icon" style="background:#FEF3C7;">📈</div>
+        <div class="menu-text">
+          <div class="menu-title">맞춤 훈련</div>
+          <div class="menu-desc">진단 결과 기반 개인화 훈련</div>
+        </div>
+        <div class="menu-badge" style="background:#FEF3C7;color:#D97706;">2단계</div>
+      </div>
+
+      <div class="home-menu-card">
+        <div class="menu-icon" style="background:var(--green-l);">📊</div>
+        <div class="menu-text">
+          <div class="menu-title">변화 추적</div>
+          <div class="menu-desc">일별·주별 개선 기록 확인</div>
+        </div>
+        <div class="menu-badge" style="background:var(--green-l);color:#16A34A;">3단계</div>
+      </div>
+
+      <button class="home-start" onclick="goto('rppg')">
+        🎤 시작하기
+      </button>
+
+    </div>
+    <div class="bnav">
+      <div class="bni on"><div class="ico">🏠</div><div class="lbl">홈</div></div>
+      <div class="bni" onclick="goto('tasks')"><div class="ico">🏋️</div><div class="lbl">재활훈련</div></div>
+      <div class="bni"><div class="ico">📊</div><div class="lbl">기록</div></div>
+      <div class="bni"><div class="ico">⚙️</div><div class="lbl">설정</div></div>
+    </div>
+  </div>
+
+  <!-- ── S2: rPPG 우울 측정 ───────────────────────────────── -->
+  <div class="screen off" id="screen-rppg">
+    <div class="sbar">
+      <span onclick="goto('home')" style="cursor:pointer;">← 뒤로</span>
+      <span>오늘 상태 측정</span><span></span>
+    </div>
+    <div class="body">
+
+      <!-- 측정 전 -->
+      <div id="rppg-before">
+        <div class="rppg-guide">
+          <div class="rg-title">📷 카메라로 측정해요</div>
+          <div class="rg-sub">얼굴을 화면에 맞추고<br>30초 동안 가만히 계세요</div>
+        </div>
+
+        <div style="text-align:center; margin-bottom:20px;">
+          <div class="rppg-camera">
+            <div class="rppg-face">😊</div>
+            <div class="rppg-ring"></div>
+            <div class="rppg-pulse">
+              <span>♥</span> 대기 중
+            </div>
+          </div>
+        </div>
+
+        <div class="rppg-tips">
+          <div class="rppg-tip-title">측정 전 확인해 주세요</div>
+          <div class="rppg-tip-item">
+            <span style="font-size:20px;">💡</span>
+            <span>밝은 곳에서 측정하면 더 정확해요</span>
+          </div>
+          <div class="rppg-tip-item">
+            <span style="font-size:20px;">📱</span>
+            <span>화면을 얼굴 정면에서 30cm 거리에 두세요</span>
+          </div>
+          <div class="rppg-tip-item">
+            <span style="font-size:20px;">🚶</span>
+            <span>움직이지 않고 편안히 앉아 주세요</span>
+          </div>
+        </div>
+
+        <button onclick="startRppg()"
+          style="width:100%;height:64px;background:var(--primary);color:white;
+                 border:none;border-radius:18px;font-size:var(--fs-lg);
+                 font-weight:700;cursor:pointer;
+                 box-shadow:0 4px 14px rgba(74,103,245,.4);">
+          측정 시작하기
+        </button>
+      </div>
+
+      <!-- 측정 중 -->
+      <div id="rppg-during" style="display:none;">
+        <div class="rppg-guide" style="background:#1F2937;">
+          <div class="rg-title">측정 중... 가만히 계세요 🙂</div>
+          <div class="rg-sub">심박 변동성(HRV)을 분석합니다</div>
+        </div>
+
+        <div style="text-align:center; margin-bottom:20px;">
+          <div class="rppg-camera">
+            <div class="rppg-face" style="border-color:var(--accent);">😐</div>
+            <div class="rppg-ring" style="border-top-color:var(--accent);border-right-color:var(--green);"></div>
+            <div class="rppg-pulse" style="background:var(--red);">
+              <span>♥</span> <span id="bpm-val">72</span> bpm
+            </div>
+          </div>
+        </div>
+
+        <div class="rppg-progress-wrap">
+          <div class="rppg-prog-label">
+            <span class="rpl-text">측정 진행 중</span>
+            <span class="rpl-sec"><span id="rppg-sec">30</span>초</span>
+          </div>
+          <div class="rppg-bar">
+            <div class="rppg-fill" id="rppg-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="card" style="text-align:center; padding:20px;">
+          <div style="font-size:var(--fs-sm);color:var(--t3);margin-bottom:8px;">실시간 분석 중</div>
+          <div style="display:flex;justify-content:space-around;">
+            <div><div style="font-size:var(--fs-xl);font-weight:700;color:var(--primary);" id="live-hrv">—</div><div style="font-size:var(--fs-xs);color:var(--t3);">HRV (ms)</div></div>
+            <div><div style="font-size:var(--fs-xl);font-weight:700;color:var(--accent);" id="live-bpm">—</div><div style="font-size:var(--fs-xs);color:var(--t3);">심박수 (bpm)</div></div>
+            <div><div style="font-size:var(--fs-xl);font-weight:700;color:var(--green);" id="live-stress">—</div><div style="font-size:var(--fs-xs);color:var(--t3);">스트레스</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 측정 결과 -->
+      <div id="rppg-after" style="display:none;">
+        <div class="rppg-result">
+          <div class="rr-title">오늘의 심리 상태 (rPPG 결과)</div>
+          <div class="rr-level" id="rr-level-text">—</div>
+          <div class="rr-hrv" id="rr-hrv-text">HRV — ms | 심박수 — bpm</div>
+          <div id="rr-desc" style="font-size:var(--fs-md);color:var(--t2);margin:12px 0;line-height:1.6;"></div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div style="font-size:var(--fs-sm);font-weight:700;color:var(--t1);margin-bottom:12px;">오늘의 훈련 처방 미리보기</div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="font-size:36px;" id="rr-preview-icon">😟</div>
+            <div>
+              <div style="font-size:var(--fs-md);font-weight:700;color:var(--t1);" id="rr-preview-strat">—</div>
+              <div style="font-size:var(--fs-sm);color:var(--t3);margin-top:3px;" id="rr-preview-dur">—</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="rr-next" onclick="goto('tasks')">
+          오늘의 훈련 보러가기 →
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── S3: 오늘의 훈련 목록 ─────────────────────────────── -->
+  <div class="screen off" id="screen-tasks">
+    <div class="sbar">
+      <span onclick="goto('rppg')" style="cursor:pointer;">← 뒤로</span>
+      <span>오늘의 훈련</span>
+      <span style="font-size:11px;opacity:.7;">말벗</span>
+    </div>
+    <div class="body">
+      <!-- 상태 바 -->
+      <div class="task-state-bar" id="task-statebar"></div>
+
+      <!-- 전략 카드 -->
+      <div class="strategy-card" id="strat-card">
+        <div class="sc-tag" id="sc-tag"></div>
+        <div class="sc-msg" id="sc-msg"></div>
+        <div class="sc-chips">
+          <span class="sc-chip" id="sc-dur"></span>
+          <span class="sc-chip" id="sc-cnt"></span>
+        </div>
+      </div>
+
+      <!-- 미니 평가 -->
+      <div class="sec-hdr">
+        <div class="sec-dot" style="background:var(--purple);"></div>
+        <div class="sec-lbl">준비 운동 — 미니 평가 (60초)</div>
+      </div>
+      <div class="mini-card" onclick="openEx('mini')">
+        <div class="mini-icon">⚡</div>
+        <div class="mini-body">
+          <div class="mini-name">미니 평가 과제</div>
+          <div class="mini-desc">"아~~~" 3초 + /퍼터커/ 5회 + 기준 단어 5개</div>
+          <span class="mini-chip">🤖 자동 측정 · 매일 동일</span>
+        </div>
+        <div class="ex-arr">›</div>
+      </div>
+
+      <!-- 운동 목록 -->
+      <div id="task-list"></div>
+
+      <button class="start-btn" onclick="goto('run')">세션 시작하기 🎤</button>
+      <div style="text-align:center;font-size:var(--fs-sm);color:var(--t4);padding-bottom:8px;">오늘도 할 수 있어요 💙</div>
+    </div>
+    <div class="bnav">
+      <div class="bni" onclick="goto('home')"><div class="ico">🏠</div><div class="lbl">홈</div></div>
+      <div class="bni on"><div class="ico">🏋️</div><div class="lbl">재활훈련</div></div>
+      <div class="bni"><div class="ico">📊</div><div class="lbl">기록</div></div>
+      <div class="bni"><div class="ico">⚙️</div><div class="lbl">설정</div></div>
+    </div>
+  </div>
+
+  <!-- ── S4: 운동 실행 ────────────────────────────────────── -->
+  <div class="screen off" id="screen-run">
+    <div class="ex-run-top" id="ex-run-top">
+      <div class="ert-step" id="ert-step">1 / 4 번째 운동</div>
+      <div class="ert-name" id="ert-name">🎵 지속발성</div>
+      <div class="ert-grp"  id="ert-grp">호흡/발성 그룹 · 자동 측정</div>
+      <div class="ert-prog"><div class="ert-fill" id="ert-fill" style="width:25%"></div></div>
+    </div>
+
+    <div class="ex-run-viz">
+      <div class="erv-icon" id="erv-icon">🎵</div>
+      <div class="erv-hint">녹음 중...</div>
+      <div class="erv-timer" id="erv-timer">0:00</div>
+      <div class="erv-tlbl" id="erv-tlbl">발성 지속 시간</div>
+      <div class="wave">
+        <div class="wb" style="animation-delay:.0s"></div>
+        <div class="wb" style="animation-delay:.1s"></div>
+        <div class="wb" style="animation-delay:.2s"></div>
+        <div class="wb" style="animation-delay:.3s"></div>
+        <div class="wb" style="animation-delay:.15s"></div>
+        <div class="wb" style="animation-delay:.25s"></div>
+        <div class="wb" style="animation-delay:.05s"></div>
+        <div class="wb" style="animation-delay:.35s"></div>
+        <div class="wb" style="animation-delay:.2s"></div>
+        <div class="wb" style="animation-delay:.1s"></div>
+      </div>
+    </div>
+
+    <div class="ex-run-instr">
+      <div class="eri-title" id="eri-title">하는 방법</div>
+      <div id="eri-body">"아~~~" 소리를 최대한 길게, 안정적으로 유지하세요. 끊기지 않게 이어가는 것이 핵심입니다.</div>
+    </div>
+
+    <div class="ex-run-meters">
+      <div class="erm"><div class="erm-v" id="m1v">3.8초</div><div class="erm-l" id="m1l">발성시간</div></div>
+      <div class="erm"><div class="erm-v" id="m2v">14dB</div><div class="erm-l" id="m2l">HNR</div></div>
+      <div class="erm"><div class="erm-v" id="m3v">양호</div><div class="erm-l" id="m3l">안정성</div></div>
+    </div>
+
+    <div class="ex-run-feedback" id="run-feedback">
+      잘 하고 있어요! 지난번보다 0.4초 더 길어졌어요 🎉
+    </div>
+
+    <div class="ex-run-btns">
+      <button class="erb-stop" onclick="goto('tasks')">멈춤</button>
+      <button class="erb-next" onclick="goto('result')">완료 · 다음 →</button>
+    </div>
+  </div>
+
+  <!-- ── S5: 세션 완료 ────────────────────────────────────── -->
+  <div class="screen off" id="screen-result">
+    <div class="res-hero">
+      <div class="rh-emoji">🎉</div>
+      <div class="rh-title">오늘도 해냈어요!</div>
+      <div class="rh-sub" id="rh-sub">총 5~7분 · 3가지 운동 완료</div>
+    </div>
+    <div class="body">
+
+      <div class="res-stats">
+        <div class="rst"><div class="rst-v" id="rs-done" style="color:var(--primary)">3/3</div><div class="rst-l">운동 완료</div></div>
+        <div class="rst"><div class="rst-v" style="color:var(--green)">🔥 13</div><div class="rst-l">일 연속</div></div>
+        <div class="rst"><div class="rst-v" id="rs-pct" style="color:var(--accent)">↑+5%</div><div class="rst-l">지난 세션 대비</div></div>
+      </div>
+
+      <div class="res-sec-title">운동별 결과</div>
+      <div id="result-list"></div>
+
+      <div class="res-msg-card">
+        <div class="rmc-ico">💙</div>
+        <div class="rmc-txt" id="res-msg">오늘도 했다는 사실이 치료예요.</div>
+      </div>
+
+      <div class="res-mood">
+        <div class="rm-title">훈련 후 기분은 어떠세요?</div>
+        <div class="rm-emojis">
+          <div class="rm-item"><div class="rm-e">😔</div><div class="rm-l">아직 힘들어요</div></div>
+          <div class="rm-item"><div class="rm-e">😐</div><div class="rm-l">비슷해요</div></div>
+          <div class="rm-item"><div class="rm-e">🙂</div><div class="rm-l">조금 나아요</div></div>
+          <div class="rm-item"><div class="rm-e">😊</div><div class="rm-l">훨씬 좋아요!</div></div>
+        </div>
+      </div>
+
+      <button class="res-home-btn" onclick="goto('home')">홈으로 돌아가기</button>
+    </div>
+  </div>
+
+</div><!-- #phone -->
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════════════════ */
+const EX = {
+  1:  {n:"자세교정",    e:"🪑",g:"gb",gn:"호흡/발성",d:"올바른 발성 자세 만들기",       detail:"발뒤꿈치 바닥, 등 곧게, 어깨 편안히, 턱 살짝 당기기",  dur:"1~2분",t:"self",m:null},
+  2:  {n:"구강운동",    e:"👄",g:"ga",gn:"조음",       d:"입술·혀·턱 협응 훈련",         detail:"입술 오므리기 5회 → 혀 내밀기 5회 → 큰입 벌리기 5회", dur:"2~3분",t:"self",m:null},
+  3:  {n:"지속발성",    e:"🎵",g:"gb",gn:"호흡/발성",  d:'"아~~~" 지속적으로 길게',       detail:'"아" 소리를 최대한 오래, 안정적으로 유지하세요',         dur:"3분",  t:"auto",m:"MPT · HNR · 음도안정성"},
+  4:  {n:"글라이딩 ↑",  e:"📈",g:"gb",gn:"호흡/발성",  d:"낮은 음 → 높은 음 올리기",     detail:"편안한 음도에서 천천히 위로 올려가기",                   dur:"2~3분",t:"auto",m:"F0 변화범위 (Hz)"},
+  5:  {n:"글라이딩 ↓",  e:"📉",g:"gb",gn:"호흡/발성",  d:"높은 음 → 낮은 음 내리기",     detail:"높은 음에서 천천히 아래로 내려가기",                      dur:"2~3분",t:"auto",m:"F0 변화범위 (Hz)"},
+  6:  {n:"피치조절",    e:"🎼",g:"gb",gn:"호흡/발성",  d:"목표 음도 정확히 맞추기",      detail:"화면의 목표 음도에 맞춰 발성하세요",                      dur:"3분",  t:"auto",m:"목표 F0 오차 (Hz)"},
+  7:  {n:"볼륨업",      e:"📢",g:"gb",gn:"호흡/발성",  d:"최대한 크게 발성하기",         detail:'"아!" 소리를 힘차고 크게 — LSVT LOUD 방식',             dur:"2~3분",t:"auto",m:"음량 (dB)"},
+  8:  {n:"성문폐쇄",    e:"🔒",g:"gb",gn:"호흡/발성",  d:"성대 닫힘 강화 훈련",         detail:'"이!" 시작 때 성대를 확실히 닫는 느낌으로',              dur:"2분",  t:"auto",m:"Voice Onset Time · HNR"},
+  9:  {n:"하품-한숨",   e:"😮‍💨",g:"gb",gn:"호흡/발성",d:"크게 하품 후 한숨 내쉬기",    detail:"하품 → 깊이 들이쉬고 → '하~' 한숨 3회",                 dur:"2~3분",t:"auto",m:"호기 지속시간 (초)"},
+  10: {n:"대조훈련",    e:"🔄",g:"ga",gn:"조음",       d:"최소대립쌍 구별해 말하기",     detail:'"발/팔", "달/탈" — 비슷한 단어 정확히 구별',             dur:"3~4분",t:"auto",m:"STT 명료도 정확도"},
+  11: {n:"대립강세",    e:"💬",g:"gp",gn:"운율",       d:"강세 위치를 바꾸어 말하기",    detail:'"나는 사과를 먹었다" — 3가지 강세 패턴',                 dur:"3분",  t:"auto",m:"강세 패턴 정확도"},
+  12: {n:"호흡운동",    e:"💨",g:"gb",gn:"호흡/발성",  d:"발성을 위한 호흡 조절",       detail:"코 3초 들이쉬기 → 입으로 5초 내쉬기 × 5회",             dur:"2~3분",t:"auto",m:"호기 지속시간 (초)"},
+  13: {n:"탭핑",        e:"👋",g:"gp",gn:"운율",       d:"리듬에 맞춰 손 두드리며 말하기",detail:"테이블 두드리며 음절 박자에 맞춰 발화",                  dur:"3분",  t:"auto",m:"발화 타이밍 정확도"},
+  14: {n:"천천히읽기",  e:"🐢",g:"gp",gn:"운율",       d:"의도적으로 속도 줄여 읽기",    detail:"평소보다 2배 천천히, 또렷하게 문장 읽기",                dur:"3~5분",t:"auto",m:"말속도 (단어/분)"},
+  15: {n:"크게읽기",    e:"🔊",g:"gp",gn:"운율",       d:"최대 음량으로 문장 읽기",      detail:'"LOUD!" 느낌으로 문장 읽기 (LSVT LOUD)',                dur:"3~5분",t:"auto",m:"dB · STT 명료도"},
+  16: {n:"DDK 직접훈련",e:"🔁",g:"ga",gn:"조음",       d:"/퍼터커/ 빠르게 반복",        detail:'"/퍼터커/" 최대한 빠르고 정확하게 5회 반복',             dur:"3분",  t:"auto",m:"음절 속도 (Hz) · STT"},
+};
+
+const RPPG = {
+  high: { hrv:18, bpm:88, stress:"높음", lvl:"스트레스 높음", cls:"rr-high",
+    icon:"😟", desc:"심박 변동성이 낮게 측정됐어요. 오늘은 가볍게 시작해볼게요." },
+  mid:  { hrv:38, bpm:74, stress:"보통", lvl:"스트레스 보통", cls:"rr-mid",
+    icon:"😐", desc:"심박 변동성이 보통 수준이에요. 균형 있는 훈련을 권장해요." },
+  low:  { hrv:58, bpm:65, stress:"낮음",  lvl:"스트레스 낮음",  cls:"rr-low",
+    icon:"😊", desc:"심박 변동성이 높게 측정됐어요. 컨디션이 좋네요! 열심히 해봐요." },
+};
+
+const COMBOS = {
+  "high-severe":   {depC:"#DC2626",stratBg:"#FEF2F2",stratText:"#DC2626",
+    tag:"rPPG 높음 + 중도", strat:"최소 과제 + 기초 자극 유지",
+    msg:"오늘은 이것만으로도 충분해요 💙", dur:"5~7분", ids:[1,12,2],
+    results:[{e:"🪑",n:"자세교정",met:"자가확인 ✓",   ch:"완료",   up:false},
+             {e:"💨",n:"호흡운동",met:"호기 4.1초",   ch:"↑+0.3초",up:true},
+             {e:"👄",n:"구강운동",met:"자가확인 ✓",   ch:"완료",   up:false}],
+    resMsg:"오늘 최소 과제를 완료했어요.<br><strong>오늘도 했다는 사실</strong>이 치료예요.", pct:"↑+3%"},
+
+  "high-moderate": {depC:"#DC2626",stratBg:"#FEF2F2",stratText:"#DC2626",
+    tag:"rPPG 높음 + 중등도", strat:"기초 발성 + 성공 경험 중심",
+    msg:"천천히, 한 번만 해볼까요? 🌱", dur:"7~10분", ids:[1,2,3,12],
+    results:[{e:"🪑",n:"자세교정",met:"자가확인 ✓",   ch:"완료",   up:false},
+             {e:"👄",n:"구강운동",met:"자가확인 ✓",   ch:"완료",   up:false},
+             {e:"🎵",n:"지속발성",met:"MPT 3.2초",    ch:"↑+0.5초",up:true},
+             {e:"💨",n:"호흡운동",met:"호기 4.0초",   ch:"↑+0.2초",up:true}],
+    resMsg:"지속발성이 0.5초 더 길어졌어요!<br><strong>정말 잘 하고 있어요 💙</strong>", pct:"↑+5%"},
+
+  "high-mild":     {depC:"#DC2626",stratBg:"#FEF2F2",stratText:"#DC2626",
+    tag:"rPPG 높음 + 경도", strat:"가벼운 발성 + 성공 보장",
+    msg:"가볍게 시작해봐요, 충분해요 🌱", dur:"8~10분", ids:[2,3,9,7],
+    results:[{e:"👄",n:"구강운동",met:"자가확인 ✓",  ch:"완료",   up:false},
+             {e:"🎵",n:"지속발성",met:"MPT 4.1초",   ch:"↑+0.8초",up:true},
+             {e:"😮‍💨",n:"하품-한숨",met:"호기 3.8초", ch:"↑+0.3초",up:true},
+             {e:"📢",n:"볼륨업",  met:"68dB",        ch:"↑+3dB",  up:true}],
+    resMsg:"발성이 많이 좋아졌어요!<br><strong>지속발성 +0.8초</strong> 달성 🎉", pct:"↑+8%"},
+
+  "mid-severe":    {depC:"#D97706",stratBg:"#FFFBEB",stratText:"#D97706",
+    tag:"rPPG 보통 + 중도", strat:"기초 + 발성 훈련",
+    msg:"기초부터 차근차근 쌓아가요", dur:"10~13분", ids:[1,12,2,3,8],
+    results:[{e:"🪑",n:"자세교정",met:"자가확인 ✓",  ch:"완료",   up:false},
+             {e:"💨",n:"호흡운동",met:"호기 4.5초",  ch:"↑+0.5초",up:true},
+             {e:"👄",n:"구강운동",met:"자가확인 ✓",  ch:"완료",   up:false},
+             {e:"🎵",n:"지속발성",met:"MPT 3.8초",   ch:"↑+0.4초",up:true},
+             {e:"🔒",n:"성문폐쇄",met:"VoiceOnset 양호",ch:"유지", up:false}],
+    resMsg:"오늘 5가지 운동을 완료했어요!<br><strong>호흡 + 발성</strong> 모두 좋아지고 있어요 💪", pct:"↑+6%"},
+
+  "mid-moderate":  {depC:"#D97706",stratBg:"#FFFBEB",stratText:"#D97706",
+    tag:"rPPG 보통 + 중등도", strat:"균형형 훈련 — 발성 + 조음",
+    msg:"오늘은 균형 있게 훈련해요!", dur:"12~15분", ids:[3,4,5,2,16],
+    results:[{e:"🎵",n:"지속발성",  met:"MPT 4.2초",     ch:"↑+0.4초",up:true},
+             {e:"📈",n:"글라이딩 ↑",met:"F0 범위 82Hz",  ch:"↑+8Hz",  up:true},
+             {e:"📉",n:"글라이딩 ↓",met:"F0 범위 75Hz",  ch:"유지",   up:false},
+             {e:"👄",n:"구강운동",  met:"자가확인 ✓",    ch:"완료",   up:false},
+             {e:"🔁",n:"DDK 직접훈련",met:"4.1Hz·78%",   ch:"↑+6%",   up:true}],
+    resMsg:"DDK 정확도가 6% 올랐어요!<br><strong>조음이 점점 또렷해지고 있어요</strong> 🎉", pct:"↑+9%"},
+
+  "mid-mild":      {depC:"#D97706",stratBg:"#FFFBEB",stratText:"#D97706",
+    tag:"rPPG 보통 + 경도", strat:"발성 + 조음 + 운율 골고루",
+    msg:"조금 더 도전해봐요, 잘 하고 있어요!", dur:"13~15분", ids:[3,6,7,10,14,11],
+    results:[{e:"🎵",n:"지속발성", met:"MPT 5.0초",       ch:"↑+0.6초",up:true},
+             {e:"🎼",n:"피치조절", met:"오차 ±12Hz",      ch:"↑개선",  up:true},
+             {e:"📢",n:"볼륨업",   met:"72dB",            ch:"↑+4dB",  up:true},
+             {e:"🔄",n:"대조훈련", met:"STT 82%",         ch:"↑+5%",   up:true},
+             {e:"🐢",n:"천천히읽기",met:"92단어/분",       ch:"↓-8✓",   up:true},
+             {e:"💬",n:"대립강세", met:"강세 75%",        ch:"↑+8%",   up:true}],
+    resMsg:"6가지 모두 완료! 발성·조음·운율을<br><strong>골고루 훈련한 완벽한 세션</strong>이에요 🏆", pct:"↑+11%"},
+
+  "low-severe":    {depC:"#16A34A",stratBg:"#F0FDF4",stratText:"#16A34A",
+    tag:"rPPG 낮음 + 중도", strat:"강도 있는 기초 훈련",
+    msg:"오늘 컨디션 최고! 열심히 해봐요 💪", dur:"15~18분", ids:[1,12,2,3,16,8],
+    results:[{e:"🪑",n:"자세교정",  met:"자가확인 ✓",    ch:"완료",   up:false},
+             {e:"💨",n:"호흡운동",  met:"호기 5.2초",    ch:"↑+0.7초",up:true},
+             {e:"👄",n:"구강운동",  met:"자가확인 ✓",    ch:"완료",   up:false},
+             {e:"🎵",n:"지속발성",  met:"MPT 4.5초",     ch:"↑+0.5초",up:true},
+             {e:"🔁",n:"DDK 직접훈련",met:"3.8Hz·72%",   ch:"↑+8%",   up:true},
+             {e:"🔒",n:"성문폐쇄",  met:"VoiceOnset 양호",ch:"↑개선",  up:true}],
+    resMsg:"6가지 완료! 컨디션이 좋은 날<br><strong>최대한 활용한 훌륭한 세션</strong>이에요 💪", pct:"↑+12%"},
+
+  "low-moderate":  {depC:"#16A34A",stratBg:"#F0FDF4",stratText:"#16A34A",
+    tag:"rPPG 낮음 + 중등도", strat:"전 영역 도전 훈련",
+    msg:"오늘 최고예요! 전부 도전해봐요 🔥", dur:"18~20분", ids:[3,4,5,7,16,10,11],
+    results:[{e:"🎵",n:"지속발성",  met:"MPT 5.5초",      ch:"↑+0.9초",up:true},
+             {e:"📈",n:"글라이딩 ↑",met:"F0 범위 95Hz",   ch:"↑+12Hz", up:true},
+             {e:"📉",n:"글라이딩 ↓",met:"F0 범위 88Hz",   ch:"↑+10Hz", up:true},
+             {e:"📢",n:"볼륨업",    met:"76dB",           ch:"↑+6dB",  up:true},
+             {e:"🔁",n:"DDK 직접훈련",met:"4.8Hz·85%",    ch:"↑+10%",  up:true},
+             {e:"🔄",n:"대조훈련",  met:"STT 88%",        ch:"↑+7%",   up:true},
+             {e:"💬",n:"대립강세",  met:"강세 82%",       ch:"↑+12%",  up:true}],
+    resMsg:"7가지 운동 전부 완료!<br><strong>이번 세션 최고 기록</strong>이에요 🏆🔥", pct:"↑+15%"},
+
+  "low-mild":      {depC:"#16A34A",stratBg:"#F0FDF4",stratText:"#16A34A",
+    tag:"rPPG 낮음 + 경도", strat:"최대 강도 재활",
+    msg:"오늘은 최대 강도로! 당신 최고예요 🏆", dur:"20~25분", ids:[3,4,5,6,7,16,10,14],
+    results:[{e:"🎵",n:"지속발성",  met:"MPT 6.2초",      ch:"↑+1.1초",up:true},
+             {e:"📈",n:"글라이딩 ↑",met:"F0 범위 108Hz",  ch:"↑+15Hz", up:true},
+             {e:"📉",n:"글라이딩 ↓",met:"F0 범위 100Hz",  ch:"↑+12Hz", up:true},
+             {e:"🎼",n:"피치조절",  met:"오차 ±8Hz",      ch:"↑최고",  up:true},
+             {e:"📢",n:"볼륨업",    met:"80dB",           ch:"↑+8dB",  up:true},
+             {e:"🔁",n:"DDK 직접훈련",met:"5.5Hz·91%",    ch:"↑+12%",  up:true},
+             {e:"🔄",n:"대조훈련",  met:"STT 92%",        ch:"↑+9%",   up:true},
+             {e:"🐢",n:"천천히읽기",met:"85단어/분",       ch:"↓-14✓",  up:true}],
+    resMsg:"8가지 모두 완료!<br><strong>모든 지표 개인 최고 기록</strong>이에요 🏆🔥✨", pct:"↑+18%"},
+};
+
+/* ══════════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════════ */
+let dep = 'high', sev = 'severe';
+let timerIv = null, timerSec = 0;
+let rppgIv   = null, rppgSec = 0;
+let bpmIv    = null;
+
+function key()   { return dep + '-' + sev; }
+function combo() { return COMBOS[key()]; }
+
+/* ══════════════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════════════ */
+function goto(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('off'));
+  document.getElementById('screen-' + id).classList.remove('off');
+  stopTimers();
+  if (id === 'tasks')  renderTasks();
+  if (id === 'result') renderResult();
+  if (id === 'run')    startTimer();
+  if (id === 'rppg')   resetRppg();
+}
+
+/* ══════════════════════════════════════════════════════════
+   PROTOTYPE CONTROLS
+══════════════════════════════════════════════════════════ */
+function setDep(v) {
+  dep = v;
+  ['high','mid','low'].forEach(x => document.getElementById('d-'+x).classList.remove('on'));
+  document.getElementById('d-'+v).classList.add('on');
+}
+function setSev(v) {
+  sev = v;
+  ['severe','moderate','mild'].forEach(x => document.getElementById('s-'+x).classList.remove('on'));
+  document.getElementById('s-'+v).classList.add('on');
+}
+
+/* ══════════════════════════════════════════════════════════
+   rPPG SIMULATION
+══════════════════════════════════════════════════════════ */
+function resetRppg() {
+  document.getElementById('rppg-before').style.display = 'block';
+  document.getElementById('rppg-during').style.display = 'none';
+  document.getElementById('rppg-after').style.display  = 'none';
+}
+
+function startRppg() {
+  document.getElementById('rppg-before').style.display = 'none';
+  document.getElementById('rppg-during').style.display = 'block';
+  rppgSec = 30;
+  document.getElementById('rppg-sec').textContent = 30;
+  document.getElementById('rppg-fill').style.width = '0%';
+  document.getElementById('live-hrv').textContent = '—';
+  document.getElementById('live-bpm').textContent = '—';
+  document.getElementById('live-stress').textContent = '—';
+
+  // bpm animation
+  const r = RPPG[dep];
+  let bpmCur = 95;
+  bpmIv = setInterval(() => {
+    bpmCur += (Math.random() - 0.5) * 4;
+    bpmCur = Math.max(60, Math.min(100, bpmCur));
+    document.getElementById('bpm-val').textContent = Math.round(bpmCur);
+  }, 300);
+
+  rppgIv = setInterval(() => {
+    rppgSec--;
+    const pct = ((30 - rppgSec) / 30) * 100;
+    document.getElementById('rppg-sec').textContent = rppgSec;
+    document.getElementById('rppg-fill').style.width = pct + '%';
+
+    if (rppgSec === 20) {
+      document.getElementById('live-bpm').textContent = Math.round(r.bpm + (Math.random()-0.5)*4);
+    }
+    if (rppgSec === 10) {
+      document.getElementById('live-hrv').textContent = r.hrv + Math.round((Math.random()-0.5)*4);
+      document.getElementById('live-stress').textContent = r.stress;
+    }
+    if (rppgSec <= 0) {
+      clearInterval(rppgIv);
+      clearInterval(bpmIv);
+      showRppgResult();
+    }
+  }, 1000);
+}
+
+function showRppgResult() {
+  document.getElementById('rppg-during').style.display = 'none';
+  document.getElementById('rppg-after').style.display  = 'block';
+  const r = RPPG[dep];
+  const c = combo();
+  const el = document.getElementById('rr-level-text');
+  el.textContent = r.lvl;
+  el.className   = 'rr-level ' + r.cls;
+  document.getElementById('rr-hrv-text').textContent = `HRV ${r.hrv}ms | 심박수 ${r.bpm}bpm`;
+  document.getElementById('rr-desc').textContent = r.desc;
+  document.getElementById('rr-preview-icon').textContent  = r.icon;
+  document.getElementById('rr-preview-strat').textContent = c.strat;
+  document.getElementById('rr-preview-dur').textContent   = c.dur + ' · ' + c.ids.length + '가지 운동';
+}
+
+/* ══════════════════════════════════════════════════════════
+   TASKS RENDER
+══════════════════════════════════════════════════════════ */
+function renderTasks() {
+  const c = combo();
+  const depL = {high:'스트레스 높음', mid:'스트레스 보통', low:'스트레스 낮음'};
+  const depB = {high:'b-dep-h', mid:'b-dep-m', low:'b-dep-l'};
+  const sevL = {severe:'중도', moderate:'중등도', mild:'경도'};
+  const sevB = {severe:'b-sev-s', moderate:'b-sev-m', mild:'b-sev-e'};
+
+  document.getElementById('task-statebar').innerHTML = `
+    <div class="tsb-pill" style="background:#FEF2F2;">
+      <div class="tsb-val" style="color:#DC2626;font-size:14px;">${depL[dep]}</div>
+      <div class="tsb-lbl">rPPG 측정 결과</div>
+    </div>
+    <div style="width:1px;background:var(--border);"></div>
+    <div class="tsb-pill" style="background:var(--primary-l);">
+      <div class="tsb-val" style="color:var(--primary);font-size:14px;">${sevL[sev]}</div>
+      <div class="tsb-lbl">마비말장애 중증도</div>
+    </div>`;
+
+  const sc = document.getElementById('strat-card');
+  sc.style.background = c.stratBg;
+  document.getElementById('sc-tag').textContent = c.tag;
+  document.getElementById('sc-tag').style.color = c.stratText;
+  document.getElementById('sc-msg').textContent = c.msg;
+  document.getElementById('sc-msg').style.color = c.stratText;
+  document.getElementById('sc-dur').textContent = '⏱ ' + c.dur;
+  document.getElementById('sc-cnt').textContent = '🏋️ ' + c.ids.length + '가지';
+
+  const grpNames = {'gb':'🫁 호흡 / 발성', 'ga':'👄 조음', 'gp':'🎵 운율'};
+  const dotColors = {'gb':'var(--primary)', 'ga':'var(--accent)', 'gp':'#EC4899'};
+  let html = '', lastG = '';
+  c.ids.forEach(id => {
+    const ex = EX[id];
+    if (ex.g !== lastG) {
+      lastG = ex.g;
+      html += `<div class="sec-hdr">
+        <div class="sec-dot" style="background:${dotColors[ex.g]};"></div>
+        <div class="sec-lbl">${grpNames[ex.g]}</div>
+      </div>`;
+    }
+    html += `<div class="ex-card ${ex.g}" onclick="openEx(${id})">
+      <div class="ex-ico ${ex.g}">${ex.e}</div>
+      <div class="ex-b">
+        <div class="ex-name">${ex.n}</div>
+        <div class="ex-desc">${ex.d}</div>
+        <div class="ex-tags">
+          ${ex.t==='auto'
+            ? `<span class="tag tag-a">🤖 자동측정</span>`
+            : `<span class="tag tag-s">✋ 자가확인</span>`}
+          <span class="tag tag-d">⏱ ${ex.dur}</span>
+          ${ex.m ? `<span class="tag" style="background:#EEF1FE;color:var(--primary);font-size:12px;padding:3px 8px;border-radius:8px;">${ex.m}</span>` : ''}
+        </div>
+      </div>
+      <div class="ex-arr">›</div>
+    </div>`;
+  });
+  document.getElementById('task-list').innerHTML = html;
+}
+
+function openEx(id) {
+  if (id === 'mini') {
+    document.getElementById('ert-name').textContent = '⚡ 미니 평가 과제';
+    document.getElementById('ert-grp').textContent  = '준비 운동 · 자동 측정 · 60초';
+    document.getElementById('erv-icon').textContent = '⚡';
+    document.getElementById('erv-tlbl').textContent = '측정 경과';
+    document.getElementById('eri-body').textContent = '① "아~~~" 3초 이상  ② /퍼터커/ 5회  ③ 기준 단어 5개 읽기 — 항상 같은 단어로 추이를 비교합니다.';
+    document.getElementById('m1v').textContent = '3.2초'; document.getElementById('m1l').textContent = '발성시간';
+    document.getElementById('m2v').textContent = '3.8Hz'; document.getElementById('m2l').textContent = 'DDK';
+    document.getElementById('m3v').textContent = '76%';   document.getElementById('m3l').textContent = '명료도';
+  } else {
+    const ex = EX[id];
+    document.getElementById('ert-name').textContent = ex.e + ' ' + ex.n;
+    document.getElementById('ert-grp').textContent  = ex.gn + ' · ' + (ex.t==='auto'?'자동 측정':'자가 확인');
+    document.getElementById('erv-icon').textContent = ex.e;
+    document.getElementById('erv-tlbl').textContent = '경과 시간';
+    document.getElementById('eri-body').textContent = ex.detail;
+    if (ex.m) {
+      const ps = ex.m.split(' · ');
+      document.getElementById('m1l').textContent = ps[0]||'측정값';
+      document.getElementById('m2l').textContent = ps[1]||'—';
+      document.getElementById('m3l').textContent = ps[2]||'—';
+    }
+  }
+  goto('run');
+}
+
+/* ══════════════════════════════════════════════════════════
+   TIMERS
+══════════════════════════════════════════════════════════ */
+function startTimer() {
+  timerSec = 0;
+  timerIv = setInterval(() => {
+    timerSec++;
+    const m = Math.floor(timerSec/60), s = timerSec%60;
+    document.getElementById('erv-timer').textContent = m + ':' + String(s).padStart(2,'0');
+    if (timerSec === 4) {
+      document.getElementById('m1v').textContent = '4.2초';
+      document.getElementById('run-feedback').textContent = '잘 하고 있어요! 지난번보다 0.4초 더 길어졌어요 🎉';
+    }
+  }, 1000);
+}
+function stopTimers() {
+  clearInterval(timerIv);
+  clearInterval(rppgIv);
+  clearInterval(bpmIv);
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESULT RENDER
+══════════════════════════════════════════════════════════ */
+function renderResult() {
+  const c = combo();
+  document.getElementById('rh-sub').textContent = '총 ' + c.dur + ' · ' + c.ids.length + '가지 운동 완료';
+  document.getElementById('rs-done').textContent = c.ids.length + '/' + c.ids.length;
+  document.getElementById('rs-pct').textContent  = c.pct;
+  let html = '';
+  c.results.forEach(r => {
+    html += `<div class="res-ex-row">
+      <div class="rer-ico">${r.e}</div>
+      <div class="rer-b">
+        <div class="rer-name">${r.n}</div>
+        <div class="rer-met">${r.met}</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="${r.up?'rer-up':'rer-same'}">${r.ch}</div>
+        ${r.up?'<span class="rer-badge">↑ 성장</span>':''}
+      </div>
+    </div>`;
+  });
+  document.getElementById('result-list').innerHTML = html;
+  document.getElementById('res-msg').innerHTML = c.resMsg;
+}
+</script>
+</body>
+</html>

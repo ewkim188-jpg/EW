@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>말벗 — 치료 과제 UI 프로토타입</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #0B6E6E; --primary-l: #14A3A3;
+      --accent: #F0A500;  --coral: #E87461;
+      --dark: #0A2A2A;    --light: #F0F9F9;
+      --white: #FFFFFF;   --card: #E8F5F5;
+      --t-dark: #1A3C3C;  --t-mid: #4A7A7A; --t-light: #8AAFAF;
+      --green: #2D8B55;   --purple: #7C6DAF;
+      --coral-l: #FDE8E4; --green-l: #E8F5E9; --warm: #FFF8E7;
+    }
+
+    /* ── PROTOTYPE CONTROL BAR ─────────────────────────────── */
+    #proto-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+      background: #0A2A2A; padding: 8px 16px;
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      border-bottom: 1px solid #1A3C3C;
+    }
+    .pb-label { color: #8AAFAF; font-size: 10px; font-weight: 700; white-space: nowrap; font-family: monospace; }
+    .pb-btn {
+      padding: 4px 10px; border: 1px solid #4A7A7A; background: transparent;
+      color: #8AAFAF; border-radius: 20px; font-size: 11px; cursor: pointer;
+      font-family: -apple-system, sans-serif; transition: all .15s;
+    }
+    .pb-btn.on { background: var(--accent); border-color: var(--accent); color: #0A2A2A; font-weight: 700; }
+    .pb-div { width: 1px; height: 18px; background: #2A4C4C; margin: 0 2px; }
+    .pb-screen { padding: 4px 10px; border: 1px solid #4A7A7A; background: transparent; color: #8AAFAF; border-radius: 20px; font-size: 11px; cursor: pointer; font-family: -apple-system, sans-serif; }
+    .pb-screen:hover { border-color: var(--primary-l); color: var(--primary-l); }
+
+    /* ── BODY / PHONE ──────────────────────────────────────── */
+    body {
+      background: #1A3C3C;
+      min-height: 100vh; display: flex;
+      align-items: flex-start; justify-content: center;
+      padding: 70px 16px 40px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    #phone {
+      width: 390px; height: 780px;
+      background: var(--light); border-radius: 44px;
+      overflow: hidden; position: relative;
+      box-shadow: 0 0 0 2px #4A7A7A, 0 40px 80px rgba(0,0,0,.6);
+      flex-shrink: 0;
+    }
+
+    /* ── SCREEN BASE ───────────────────────────────────────── */
+    .screen {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      background: var(--light);
+    }
+    .screen.hidden { display: none; }
+
+    /* ── STATUS BAR ────────────────────────────────────────── */
+    .sbar {
+      background: var(--primary); color: white; flex-shrink: 0;
+      padding: 10px 20px 8px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; font-weight: 600;
+    }
+
+    /* ── NAV BAR ───────────────────────────────────────────── */
+    .nbar {
+      background: white; flex-shrink: 0;
+      padding: 12px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--card);
+    }
+    .nbar-title { font-size: 17px; font-weight: 700; color: var(--dark); }
+    .nbar-action { color: var(--primary); font-size: 14px; cursor: pointer; font-weight: 600; }
+
+    /* ── SCROLL CONTENT ────────────────────────────────────── */
+    .scrl { flex: 1; overflow-y: auto; padding: 16px; }
+    .scrl::-webkit-scrollbar { width: 0; }
+
+    /* ── BOTTOM NAV ────────────────────────────────────────── */
+    .bnav {
+      background: white; flex-shrink: 0;
+      padding: 8px 0 20px;
+      border-top: 1px solid var(--card);
+      display: flex; justify-content: space-around;
+    }
+    .bnav-item {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 3px; font-size: 10px; color: var(--t-light); cursor: pointer; padding: 4px 12px;
+    }
+    .bnav-item.on { color: var(--primary); }
+    .bnav-icon { font-size: 22px; }
+
+    /* ── CARDS / COMMON ────────────────────────────────────── */
+    .card {
+      background: white; border-radius: 16px; padding: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    }
+
+    /* ── HOME SCREEN ───────────────────────────────────────── */
+    .home-header {
+      background: var(--primary); border-radius: 20px;
+      padding: 20px; margin-bottom: 14px; color: white;
+    }
+    .home-greeting { font-size: 13px; color: rgba(255,255,255,.7); margin-bottom: 4px; }
+    .home-name { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+    .home-streak {
+      background: rgba(255,255,255,.15); border-radius: 12px;
+      padding: 8px 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .streak-num { font-size: 26px; font-weight: 700; color: var(--accent); }
+    .streak-label { font-size: 12px; color: rgba(255,255,255,.8); }
+    .home-status {
+      display: flex; gap: 10px; margin-bottom: 14px;
+    }
+    .status-pill {
+      flex: 1; background: white; border-radius: 14px;
+      padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .pill-label { font-size: 10px; color: var(--t-light); font-weight: 600; text-transform: uppercase; }
+    .pill-value { font-size: 16px; font-weight: 700; }
+    .pill-sub { font-size: 11px; color: var(--t-mid); }
+    .home-start-btn {
+      width: 100%; padding: 16px;
+      background: var(--primary); color: white;
+      border: none; border-radius: 16px;
+      font-size: 16px; font-weight: 700;
+      cursor: pointer; margin-bottom: 14px;
+      box-shadow: 0 4px 12px rgba(11,110,110,.3);
+    }
+    .home-tip {
+      background: var(--warm); border-radius: 14px;
+      padding: 14px; display: flex; gap: 10px; align-items: flex-start;
+    }
+    .tip-icon { font-size: 20px; flex-shrink: 0; }
+    .tip-text { font-size: 12px; color: var(--t-dark); line-height: 1.5; }
+
+    /* ── CHECKIN SCREEN ────────────────────────────────────── */
+    .ci-banner {
+      background: var(--coral); border-radius: 16px;
+      padding: 16px; margin-bottom: 20px; color: white; text-align: center;
+    }
+    .ci-banner-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .ci-banner-sub { font-size: 13px; opacity: .85; }
+    .ci-question { font-size: 16px; font-weight: 700; color: var(--dark); text-align: center; margin-bottom: 16px; }
+    .ci-emojis { display: flex; justify-content: space-between; padding: 0 8px; margin-bottom: 24px; }
+    .ci-emoji {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      cursor: pointer; padding: 10px 8px; border-radius: 14px;
+      transition: background .2s; border: 2px solid transparent;
+    }
+    .ci-emoji.selected { background: var(--card); border-color: var(--primary); }
+    .ci-emoji-icon { font-size: 38px; }
+    .ci-emoji-label { font-size: 10px; color: var(--t-mid); font-weight: 600; }
+    .ci-slider-wrap { margin-bottom: 24px; }
+    .ci-slider-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--t-light); margin-bottom: 6px; }
+    .ci-slider {
+      -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; outline: none;
+      background: linear-gradient(to right, var(--coral) 0%, var(--accent) 50%, var(--green) 100%);
+    }
+    .ci-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+      background: white; border: 3px solid var(--primary);
+      cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    }
+    .ci-score-display {
+      text-align: center; margin-top: 12px;
+      font-size: 13px; color: var(--t-mid);
+    }
+    .ci-score-num { font-size: 32px; font-weight: 700; color: var(--primary); }
+    .ci-next-btn {
+      width: 100%; padding: 16px; background: var(--primary);
+      color: white; border: none; border-radius: 16px;
+      font-size: 16px; font-weight: 700; cursor: pointer;
+    }
+
+    /* ── TASKS SCREEN ──────────────────────────────────────── */
+    .strategy-band {
+      border-radius: 16px; padding: 14px 16px; margin-bottom: 14px;
+    }
+    .strat-tag {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; margin-bottom: 4px; opacity: .85;
+    }
+    .strat-msg { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .strat-meta { display: flex; gap: 10px; flex-wrap: wrap; }
+    .strat-chip {
+      background: rgba(255,255,255,.2); padding: 3px 10px;
+      border-radius: 10px; font-size: 11px;
+    }
+    .section-hdr {
+      display: flex; align-items: center; gap: 8px;
+      margin: 14px 0 8px;
+    }
+    .section-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .section-lbl { font-size: 11px; font-weight: 700; color: var(--t-mid); text-transform: uppercase; letter-spacing: .5px; }
+    .ex-card {
+      background: white; border-radius: 14px; padding: 12px 14px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer; transition: transform .1s;
+      border-left: 4px solid transparent;
+    }
+    .ex-card:active { transform: scale(.98); }
+    .ex-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .ex-icon.g-breath { background: #E8F5F5; }
+    .ex-icon.g-artic  { background: #FFF8E7; }
+    .ex-icon.g-pros   { background: #FDE8E4; }
+    .ex-card.g-breath { border-left-color: var(--primary); }
+    .ex-card.g-artic  { border-left-color: var(--accent); }
+    .ex-card.g-pros   { border-left-color: var(--coral); }
+    .ex-body { flex: 1; min-width: 0; }
+    .ex-name { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 2px; }
+    .ex-desc { font-size: 11px; color: var(--t-mid); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ex-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+    .tag {
+      padding: 2px 8px; border-radius: 8px;
+      font-size: 10px; font-weight: 600;
+    }
+    .tag-auto { background: var(--green-l); color: var(--green); }
+    .tag-self { background: var(--warm); color: #C08400; }
+    .tag-dur  { background: var(--card); color: var(--t-mid); }
+    .ex-arrow { font-size: 16px; color: var(--t-light); flex-shrink: 0; }
+    .start-session-btn {
+      width: 100%; padding: 15px; background: var(--primary);
+      color: white; border: none; border-radius: 16px;
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      margin-top: 16px; margin-bottom: 8px;
+      box-shadow: 0 4px 12px rgba(11,110,110,.3);
+    }
+
+    /* ── EXERCISE SCREEN ───────────────────────────────────── */
+    .ex-header {
+      background: var(--primary); padding: 20px 18px;
+      flex-shrink: 0; color: white;
+    }
+    .ex-step { font-size: 11px; color: rgba(255,255,255,.7); margin-bottom: 4px; }
+    .ex-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .ex-subtitle { font-size: 13px; opacity: .85; }
+    .ex-progress-bar { background: rgba(255,255,255,.2); height: 4px; border-radius: 2px; margin-top: 12px; }
+    .ex-progress-fill { background: var(--accent); height: 100%; border-radius: 2px; transition: width .3s; }
+    .ex-viz {
+      background: white; margin: 14px; border-radius: 20px;
+      padding: 20px; display: flex; flex-direction: column; align-items: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,.07);
+    }
+    .ex-viz-icon { font-size: 64px; margin-bottom: 8px; }
+    .ex-timer {
+      font-size: 48px; font-weight: 700; color: var(--primary);
+      font-variant-numeric: tabular-nums; margin: 8px 0;
+    }
+    .ex-timer-label { font-size: 13px; color: var(--t-mid); }
+    .ex-waveform {
+      width: 100%; height: 50px; display: flex;
+      align-items: center; justify-content: center; gap: 3px; margin: 12px 0;
+    }
+    .wave-bar {
+      width: 4px; background: var(--primary); border-radius: 2px;
+      animation: wave 1.2s ease-in-out infinite;
+    }
+    .wave-bar:nth-child(1) { animation-delay: 0s; }
+    .wave-bar:nth-child(2) { animation-delay: .1s; }
+    .wave-bar:nth-child(3) { animation-delay: .2s; }
+    .wave-bar:nth-child(4) { animation-delay: .3s; }
+    .wave-bar:nth-child(5) { animation-delay: .15s; }
+    .wave-bar:nth-child(6) { animation-delay: .25s; }
+    .wave-bar:nth-child(7) { animation-delay: .05s; }
+    .wave-bar:nth-child(8) { animation-delay: .35s; }
+    .wave-bar:nth-child(9) { animation-delay: .2s; }
+    .wave-bar:nth-child(10){ animation-delay: .1s; }
+    @keyframes wave {
+      0%,100%{ height: 6px; opacity: .4; }
+      50%{ height: 36px; opacity: 1; }
+    }
+    .ex-instruction {
+      background: var(--light); border-radius: 14px; padding: 12px 14px;
+      margin: 0 14px 14px; font-size: 13px; color: var(--t-dark); line-height: 1.6;
+    }
+    .ex-instruction strong { color: var(--primary); }
+    .ex-meter {
+      margin: 0 14px 14px; display: flex; gap: 10px;
+    }
+    .meter-card {
+      flex: 1; background: white; border-radius: 14px; padding: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06); text-align: center;
+    }
+    .meter-val { font-size: 22px; font-weight: 700; color: var(--primary); }
+    .meter-lbl { font-size: 10px; color: var(--t-mid); margin-top: 2px; }
+    .ex-btn-row { padding: 0 14px 16px; display: flex; gap: 10px; }
+    .ex-btn-stop {
+      flex: 1; padding: 14px; background: white; color: var(--coral);
+      border: 2px solid var(--coral); border-radius: 14px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+    }
+    .ex-btn-next {
+      flex: 2; padding: 14px; background: var(--primary); color: white;
+      border: none; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer;
+    }
+
+    /* ── RESULT SCREEN ─────────────────────────────────────── */
+    .result-hero {
+      background: var(--primary); padding: 28px 20px 20px;
+      flex-shrink: 0; color: white; text-align: center;
+    }
+    .result-emoji { font-size: 56px; margin-bottom: 8px; }
+    .result-title { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+    .result-sub { font-size: 14px; opacity: .85; }
+    .result-stat-row { display: flex; gap: 10px; margin-bottom: 14px; }
+    .result-stat {
+      flex: 1; background: white; border-radius: 14px; padding: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06); text-align: center;
+    }
+    .rs-val { font-size: 26px; font-weight: 700; color: var(--primary); }
+    .rs-lbl { font-size: 11px; color: var(--t-mid); margin-top: 2px; }
+    .result-exercise-card {
+      background: white; border-radius: 14px; padding: 12px 14px;
+      margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .rec-icon { font-size: 24px; flex-shrink: 0; }
+    .rec-body { flex: 1; }
+    .rec-name { font-size: 14px; font-weight: 700; color: var(--dark); }
+    .rec-metric { font-size: 12px; color: var(--t-mid); margin-top: 2px; }
+    .rec-change { font-size: 12px; font-weight: 700; }
+    .rec-change.up { color: var(--green); }
+    .rec-change.same { color: var(--t-mid); }
+    .rec-badge {
+      padding: 4px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;
+      background: var(--green-l); color: var(--green);
+    }
+    .result-msg-card {
+      background: var(--warm); border-radius: 14px; padding: 14px;
+      margin-bottom: 14px; display: flex; align-items: flex-start; gap: 10px;
+    }
+    .result-home-btn {
+      width: 100%; padding: 16px; background: var(--primary);
+      color: white; border: none; border-radius: 16px;
+      font-size: 16px; font-weight: 700; cursor: pointer;
+    }
+
+    /* ── MISC ──────────────────────────────────────────────── */
+    .badge-row { display: flex; gap: 8px; margin-bottom: 14px; }
+    .badge-pill {
+      padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    }
+    .badge-dep-high { background: var(--coral-l); color: var(--coral); }
+    .badge-dep-mid  { background: var(--warm);    color: #C08400; }
+    .badge-dep-low  { background: var(--green-l); color: var(--green); }
+    .badge-sev-severe   { background: #F3E8FF; color: var(--purple); }
+    .badge-sev-moderate { background: var(--card); color: var(--primary); }
+    .badge-sev-mild     { background: var(--green-l); color: var(--green); }
+  </style>
+</head>
+<body>
+
+<!-- ═══ PROTOTYPE CONTROL BAR ═══════════════════════════════ -->
+<div id="proto-bar">
+  <span class="pb-label">🎛 우울:</span>
+  <button class="pb-btn on" id="d-high" onclick="setDep('high')">높음 7~10</button>
+  <button class="pb-btn"    id="d-mid"  onclick="setDep('mid')">중간 4~6</button>
+  <button class="pb-btn"    id="d-low"  onclick="setDep('low')">낮음 0~3</button>
+  <div class="pb-div"></div>
+  <span class="pb-label">🔬 중증도:</span>
+  <button class="pb-btn on" id="s-severe"   onclick="setSev('severe')">중도</button>
+  <button class="pb-btn"    id="s-moderate" onclick="setSev('moderate')">중등도</button>
+  <button class="pb-btn"    id="s-mild"     onclick="setSev('mild')">경도</button>
+  <div class="pb-div"></div>
+  <span class="pb-label">📱 화면:</span>
+  <button class="pb-screen" onclick="goto('home')">홈</button>
+  <button class="pb-screen" onclick="goto('checkin')">체크인</button>
+  <button class="pb-screen" onclick="goto('tasks')">훈련목록</button>
+  <button class="pb-screen" onclick="goto('exercise')">운동실행</button>
+  <button class="pb-screen" onclick="goto('result')">결과</button>
+</div>
+
+<!-- ═══ PHONE FRAME ══════════════════════════════════════════ -->
+<div id="phone">
+
+  <!-- ─── SCREEN 1: 홈 ───────────────────────────────────── -->
+  <div class="screen" id="screen-home">
+    <div class="sbar">
+      <span>말벗</span><span>9:41 ☀️</span>
+    </div>
+    <div class="scrl">
+      <div class="home-header">
+        <div class="home-greeting">안녕하세요 👋</div>
+        <div class="home-name">오늘도 해봐요, 김민준님</div>
+        <div class="home-streak">
+          <span class="streak-num">🔥 12</span>
+          <div>
+            <div class="streak-label">일 연속 훈련 중</div>
+            <div style="font-size:10px;opacity:.7">어제도 잘 하셨어요!</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-status">
+        <div class="status-pill">
+          <div class="pill-label">중증도</div>
+          <div class="pill-value" id="home-sev-val" style="color:var(--purple)">중도</div>
+          <div class="pill-sub">4주 전 평가</div>
+        </div>
+        <div class="status-pill">
+          <div class="pill-label">오늘 세션</div>
+          <div class="pill-value" id="home-dur-val" style="color:var(--primary)">5~7분</div>
+          <div class="pill-sub" id="home-ex-count">3가지 운동</div>
+        </div>
+        <div class="status-pill">
+          <div class="pill-label">이번 주</div>
+          <div class="pill-value" style="color:var(--green)">3/5</div>
+          <div class="pill-sub">회 완료</div>
+        </div>
+      </div>
+
+      <button class="home-start-btn" onclick="goto('checkin')">
+        오늘 훈련 시작하기 →
+      </button>
+
+      <div class="home-tip">
+        <div class="tip-icon">💡</div>
+        <div class="tip-text">
+          <strong>오늘의 한 마디:</strong> "오늘도 했다는 사실"이 치료입니다.<br>
+          잘했냐 못했냐는 2차 문제예요.
+        </div>
+      </div>
+    </div>
+    <div class="bnav">
+      <div class="bnav-item on"><div class="bnav-icon">🏠</div>홈</div>
+      <div class="bnav-item" onclick="goto('tasks')"><div class="bnav-icon">🏋️</div>훈련</div>
+      <div class="bnav-item"><div class="bnav-icon">💬</div>마음벗</div>
+      <div class="bnav-item"><div class="bnav-icon">📊</div>기록</div>
+      <div class="bnav-item"><div class="bnav-icon">👤</div>프로필</div>
+    </div>
+  </div>
+
+  <!-- ─── SCREEN 2: 감정 체크인 ────────────────────────── -->
+  <div class="screen hidden" id="screen-checkin">
+    <div class="sbar">
+      <span onclick="goto('home')" style="cursor:pointer">← 뒤로</span>
+      <span>감정 체크인</span><span></span>
+    </div>
+    <div class="scrl">
+      <div class="ci-banner">
+        <div class="ci-banner-title">오늘 기분이 어때요?</div>
+        <div class="ci-banner-sub">3초면 돼요 — 솔직하게 알려주세요</div>
+      </div>
+
+      <div class="ci-question">지금 이 순간, 기분을 선택해주세요</div>
+
+      <div class="ci-emojis">
+        <div class="ci-emoji" onclick="selectEmoji(this,9)">
+          <div class="ci-emoji-icon">😭</div>
+          <div class="ci-emoji-label">매우 힘들어요</div>
+        </div>
+        <div class="ci-emoji" onclick="selectEmoji(this,7)">
+          <div class="ci-emoji-icon">😔</div>
+          <div class="ci-emoji-label">힘들어요</div>
+        </div>
+        <div class="ci-emoji" onclick="selectEmoji(this,5)">
+          <div class="ci-emoji-icon">😐</div>
+          <div class="ci-emoji-label">보통이에요</div>
+        </div>
+        <div class="ci-emoji" onclick="selectEmoji(this,3)">
+          <div class="ci-emoji-icon">🙂</div>
+          <div class="ci-emoji-label">괜찮아요</div>
+        </div>
+        <div class="ci-emoji" onclick="selectEmoji(this,1)">
+          <div class="ci-emoji-icon">😊</div>
+          <div class="ci-emoji-label">좋아요!</div>
+        </div>
+      </div>
+
+      <div class="ci-slider-wrap" style="margin-bottom:20px;">
+        <div class="ci-slider-labels">
+          <span>매우 힘듦 (10)</span><span>좋음 (0)</span>
+        </div>
+        <input type="range" class="ci-slider" id="mood-slider"
+          min="0" max="10" value="7" oninput="onSlider(this.value)">
+        <div class="ci-score-display">
+          우울 점수 <span class="ci-score-num" id="mood-score">7</span>
+          <span id="mood-label" style="font-size:13px;color:var(--coral)">  높음</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div style="font-size:12px;color:var(--t-mid);margin-bottom:8px;font-weight:600;">오늘의 훈련 미리보기</div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div style="font-size:28px;" id="ci-preview-icon">😟</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--dark);" id="ci-preview-msg">최소 과제 + 기초 자극</div>
+            <div style="font-size:12px;color:var(--t-mid);" id="ci-preview-dur">5~7분 · 3가지 운동</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="ci-next-btn" onclick="goto('tasks')">
+        오늘의 훈련 보기 →
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── SCREEN 3: 오늘의 훈련 목록 ──────────────────── -->
+  <div class="screen hidden" id="screen-tasks">
+    <div class="sbar">
+      <span onclick="goto('checkin')" style="cursor:pointer">← 뒤로</span>
+      <span>오늘의 훈련</span>
+      <span style="font-size:10px;opacity:.7">말벗</span>
+    </div>
+    <div class="scrl">
+      <!-- 상태 배지 -->
+      <div class="badge-row" id="task-badges"></div>
+
+      <!-- 전략 배너 -->
+      <div class="strategy-band" id="strat-band">
+        <div class="strat-tag" id="strat-tag"></div>
+        <div class="strat-msg" id="strat-msg"></div>
+        <div class="strat-meta">
+          <span class="strat-chip" id="strat-dur"></span>
+          <span class="strat-chip" id="strat-cnt"></span>
+        </div>
+      </div>
+
+      <!-- 미니 평가 (항상 포함) -->
+      <div class="section-hdr">
+        <div class="section-dot" style="background:var(--purple)"></div>
+        <div class="section-lbl">준비 운동 (미니 평가 · 60초)</div>
+      </div>
+      <div class="ex-card g-breath" onclick="openExercise('mini')"
+           style="background:#F5F0FF;border-left-color:var(--purple);">
+        <div class="ex-icon" style="background:#EDE8FF;font-size:22px;">⚡</div>
+        <div class="ex-body">
+          <div class="ex-name">미니 평가 과제</div>
+          <div class="ex-desc">"아~~~" 3초 + /퍼터커/ 5회 + 기준단어 5개</div>
+          <div class="ex-tags">
+            <span class="tag tag-auto">🤖 자동 측정</span>
+            <span class="tag tag-dur">60초</span>
+          </div>
+        </div>
+        <div class="ex-arrow">›</div>
+      </div>
+
+      <!-- 오늘의 치료 과제 목록 (동적) -->
+      <div id="task-list"></div>
+
+      <button class="start-session-btn" onclick="goto('exercise')">
+        세션 시작하기 🎤
+      </button>
+      <div style="font-size:11px;color:var(--t-light);text-align:center;padding-bottom:8px;">
+        오늘도 해낼 수 있어요 — 잘 하고 있어요 💙
+      </div>
+    </div>
+    <div class="bnav">
+      <div class="bnav-item" onclick="goto('home')"><div class="bnav-icon">🏠</div>홈</div>
+      <div class="bnav-item on"><div class="bnav-icon">🏋️</div>훈련</div>
+      <div class="bnav-item"><div class="bnav-icon">💬</div>마음벗</div>
+      <div class="bnav-item"><div class="bnav-icon">📊</div>기록</div>
+      <div class="bnav-item"><div class="bnav-icon">👤</div>프로필</div>
+    </div>
+  </div>
+
+  <!-- ─── SCREEN 4: 운동 실행 ───────────────────────────── -->
+  <div class="screen hidden" id="screen-exercise">
+    <div class="ex-header" id="ex-header">
+      <div class="ex-step" id="ex-step">1 / 4 번째 운동</div>
+      <div class="ex-title" id="ex-title">지속발성</div>
+      <div class="ex-subtitle" id="ex-subtitle">호흡 / 발성 그룹</div>
+      <div class="ex-progress-bar">
+        <div class="ex-progress-fill" id="ex-prog" style="width:25%"></div>
+      </div>
+    </div>
+
+    <div class="ex-viz">
+      <div class="ex-viz-icon" id="ex-viz-icon">🎵</div>
+      <div style="font-size:13px;color:var(--t-mid);font-weight:600;margin-bottom:4px;">녹음 중...</div>
+      <div class="ex-timer" id="ex-timer">0:00</div>
+      <div class="ex-timer-label">발성 지속 시간</div>
+      <div class="ex-waveform" id="wave-anim">
+        <div class="wave-bar" style="height:8px"></div>
+        <div class="wave-bar" style="height:20px"></div>
+        <div class="wave-bar" style="height:32px"></div>
+        <div class="wave-bar" style="height:14px"></div>
+        <div class="wave-bar" style="height:26px"></div>
+        <div class="wave-bar" style="height:38px"></div>
+        <div class="wave-bar" style="height:18px"></div>
+        <div class="wave-bar" style="height:28px"></div>
+        <div class="wave-bar" style="height:10px"></div>
+        <div class="wave-bar" style="height:22px"></div>
+      </div>
+    </div>
+
+    <div class="ex-instruction">
+      <strong id="ex-inst-title">하는 방법:</strong><br>
+      <span id="ex-inst-body">"아~~~" 소리를 최대한 길게, 안정적으로 유지하세요. 끊기지 않게 이어가는 것이 핵심입니다.</span>
+    </div>
+
+    <div class="ex-meter">
+      <div class="meter-card">
+        <div class="meter-val" id="m1-val">3.8초</div>
+        <div class="meter-lbl" id="m1-lbl">발성 시간</div>
+      </div>
+      <div class="meter-card">
+        <div class="meter-val" id="m2-val">14dB</div>
+        <div class="meter-lbl" id="m2-lbl">음질 HNR</div>
+      </div>
+      <div class="meter-card">
+        <div class="meter-val" id="m3-val">양호</div>
+        <div class="meter-lbl" id="m3-lbl">안정성</div>
+      </div>
+    </div>
+
+    <div style="padding:0 14px 4px;">
+      <div style="background:var(--green-l);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--green);font-weight:600;text-align:center;" id="ex-feedback">
+        잘 하고 있어요! 지난번보다 0.4초 더 길어졌어요 🎉
+      </div>
+    </div>
+
+    <div class="ex-btn-row">
+      <button class="ex-btn-stop" onclick="goto('tasks')">멈춤</button>
+      <button class="ex-btn-next" onclick="goto('result')">완료 → 다음</button>
+    </div>
+  </div>
+
+  <!-- ─── SCREEN 5: 세션 완료 ──────────────────────────── -->
+  <div class="screen hidden" id="screen-result">
+    <div class="result-hero">
+      <div class="result-emoji">🎉</div>
+      <div class="result-title">오늘도 해냈어요!</div>
+      <div class="result-sub" id="res-sub">총 5~7분 · 3가지 운동 완료</div>
+    </div>
+    <div class="scrl">
+      <div class="result-stat-row">
+        <div class="result-stat">
+          <div class="rs-val" id="res-done">3/3</div>
+          <div class="rs-lbl">운동 완료</div>
+        </div>
+        <div class="result-stat">
+          <div class="rs-val" style="color:var(--green)">🔥 13</div>
+          <div class="rs-lbl">일 연속</div>
+        </div>
+        <div class="result-stat">
+          <div class="rs-val" style="color:var(--accent)">↑+5%</div>
+          <div class="rs-lbl">지난 세션 대비</div>
+        </div>
+      </div>
+
+      <!-- 운동별 결과 -->
+      <div style="font-size:13px;font-weight:700;color:var(--t-mid);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">운동별 결과</div>
+      <div id="result-list"></div>
+
+      <div class="result-msg-card">
+        <div style="font-size:20px;">💙</div>
+        <div style="font-size:13px;color:var(--t-dark);line-height:1.6;" id="res-msg">
+          오늘 최소 과제를 완료했어요. 이것만으로도 충분합니다.<br>
+          <strong>오늘도 했다는 사실</strong>이 치료예요.
+        </div>
+      </div>
+
+      <!-- 기분 재체크 -->
+      <div class="card" style="margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px;">훈련 후 기분은?</div>
+        <div style="display:flex;justify-content:space-around;">
+          <div style="text-align:center;cursor:pointer;" onclick="this.style.transform='scale(1.3)'">
+            <div style="font-size:30px;">😔</div><div style="font-size:10px;color:var(--t-mid)">아직 힘들어요</div>
+          </div>
+          <div style="text-align:center;cursor:pointer;" onclick="this.style.transform='scale(1.3)'">
+            <div style="font-size:30px;">😐</div><div style="font-size:10px;color:var(--t-mid)">비슷해요</div>
+          </div>
+          <div style="text-align:center;cursor:pointer;" onclick="this.style.transform='scale(1.3)'">
+            <div style="font-size:30px;">🙂</div><div style="font-size:10px;color:var(--t-mid)">조금 나아요</div>
+          </div>
+          <div style="text-align:center;cursor:pointer;" onclick="this.style.transform='scale(1.3)'">
+            <div style="font-size:30px;">😊</div><div style="font-size:10px;color:var(--t-mid)">훨씬 좋아요!</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="result-home-btn" onclick="goto('home')">홈으로 돌아가기</button>
+    </div>
+  </div>
+
+</div><!-- #phone -->
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════ */
+const EXERCISES = {
+  1:  { name:"자세교정",      emoji:"🪑", group:"g-breath", grpName:"호흡/발성",  desc:"올바른 발성 자세 만들기", detail:"발뒤꿈치 바닥, 등 곧게, 어깨 편안히, 턱 살짝 당기기", dur:"1~2분", type:"self", meas:null },
+  2:  { name:"구강운동",      emoji:"👄", group:"g-artic",  grpName:"조음",       desc:"입술·혀·턱 협응 훈련",  detail:"입술 오므리기 5회 → 혀 내밀기 5회 → 큰입 벌리기 5회", dur:"2~3분", type:"self", meas:null },
+  3:  { name:"지속발성",      emoji:"🎵", group:"g-breath", grpName:"호흡/발성",  desc:'"아~~~" 지속적으로 길게', detail:'"아" 소리를 최대한 오래, 안정적으로 유지하세요', dur:"3분", type:"auto", meas:"MPT · HNR · 음도안정성" },
+  4:  { name:"글라이딩 ↑",    emoji:"📈", group:"g-breath", grpName:"호흡/발성",  desc:"낮은 음 → 높은 음 올리기",  detail:"편안한 음도에서 천천히 위로 올려가기", dur:"2~3분", type:"auto", meas:"F0 변화범위 (Hz)" },
+  5:  { name:"글라이딩 ↓",    emoji:"📉", group:"g-breath", grpName:"호흡/발성",  desc:"높은 음 → 낮은 음 내리기",  detail:"높은 음에서 천천히 아래로 내려가기", dur:"2~3분", type:"auto", meas:"F0 변화범위 (Hz)" },
+  6:  { name:"피치조절",      emoji:"🎼", group:"g-breath", grpName:"호흡/발성",  desc:"목표 음도 정확히 맞추기",   detail:"화면의 목표 음도에 맞춰 발성하세요", dur:"3분", type:"auto", meas:"목표 F0 오차 (Hz)" },
+  7:  { name:"볼륨업",        emoji:"📢", group:"g-breath", grpName:"호흡/발성",  desc:"최대한 크게 발성하기",      detail:'"아!" 소리를 힘차고 크게 — LSVT LOUD 방식', dur:"2~3분", type:"auto", meas:"음량 (dB)" },
+  8:  { name:"성문폐쇄",      emoji:"🔒", group:"g-breath", grpName:"호흡/발성",  desc:"성대 닫힘 강화 훈련",       detail:'"이!" 시작 때 성대를 확실히 닫는 느낌으로', dur:"2분", type:"auto", meas:"Voice Onset Time · HNR" },
+  9:  { name:"하품-한숨",     emoji:"😮‍💨",group:"g-breath", grpName:"호흡/발성",  desc:"크게 하품 후 한숨 내쉬기",  detail:"하품 → 깊이 들이쉬고 → '하~' 한숨 3회", dur:"2~3분", type:"auto", meas:"호기 지속시간 (초)" },
+  10: { name:"대조훈련",      emoji:"🔄", group:"g-artic",  grpName:"조음",       desc:"최소대립쌍 구별해 말하기", detail:'"발/팔", "달/탈" — 비슷한 단어 정확히 구별', dur:"3~4분", type:"auto", meas:"STT 명료도 정확도" },
+  11: { name:"대립강세",      emoji:"💬", group:"g-pros",   grpName:"운율",       desc:"강세 위치를 바꾸어 말하기", detail:'"나는 사과를 먹었다" — 3가지 강세 패턴', dur:"3분", type:"auto", meas:"강세 패턴 정확도" },
+  12: { name:"호흡운동",      emoji:"💨", group:"g-breath", grpName:"호흡/발성",  desc:"발성을 위한 호흡 조절",    detail:"코 3초 들이쉬기 → 입으로 5초 내쉬기 × 5회", dur:"2~3분", type:"auto", meas:"호기 지속시간 (초)" },
+  13: { name:"탭핑",          emoji:"👋", group:"g-pros",   grpName:"운율",       desc:"리듬에 맞춰 손 두드리며 말하기", detail:"테이블 두드리며 음절 박자에 맞춰 발화", dur:"3분", type:"auto", meas:"발화 타이밍 정확도" },
+  14: { name:"천천히읽기",    emoji:"🐢", group:"g-pros",   grpName:"운율",       desc:"의도적으로 속도 줄여 읽기", detail:"평소보다 2배 천천히, 또렷하게 문장 읽기", dur:"3~5분", type:"auto", meas:"말속도 (단어/분)" },
+  15: { name:"크게읽기",      emoji:"🔊", group:"g-pros",   grpName:"운율",       desc:"최대 음량으로 문장 읽기",   detail:'"LOUD!" 느낌으로 문장 읽기 (LSVT LOUD)', dur:"3~5분", type:"auto", meas:"dB · STT 명료도" },
+  16: { name:"DDK 직접훈련",  emoji:"🔁", group:"g-artic",  grpName:"조음",       desc:"/퍼터커/ 빠르게 반복하기", detail:'"/퍼터커/" 최대한 빠르고 정확하게 5회 반복', dur:"3분", type:"auto", meas:"음절 속도 (Hz) · STT" },
+};
+
+const COMBOS = {
+  "high-severe":   { depColor:"#E87461", stratColor:"#E87461", stratBg:"#FDE8E4",
+    tag:"우울 높음 + 중도",
+    strategy:"최소 과제 + 기초 자극 유지",
+    msg:"오늘은 이것만으로도 충분해요 💙",
+    dur:"5~7분", ids:[1,12,2],
+    results:[ {emoji:"🪑",name:"자세교정",    metric:"자가확인 ✓",           change:"완료",   up:false},
+              {emoji:"💨",name:"호흡운동",    metric:"호기 4.1초",            change:"↑+0.3초",up:true},
+              {emoji:"👄",name:"구강운동",    metric:"자가확인 ✓",           change:"완료",   up:false} ],
+    resMsg:"오늘 최소 과제를 완료했어요. 이것만으로도 충분합니다.\n<strong>오늘도 했다는 사실</strong>이 치료예요." },
+
+  "high-moderate": { depColor:"#E87461", stratColor:"#E87461", stratBg:"#FDE8E4",
+    tag:"우울 높음 + 중등도",
+    strategy:"기초 발성 + 성공 경험 중심",
+    msg:"천천히, 한 번만 해볼까요? 🌱",
+    dur:"7~10분", ids:[1,2,3,12],
+    results:[ {emoji:"🪑",name:"자세교정", metric:"자가확인 ✓",   change:"완료",   up:false},
+              {emoji:"👄",name:"구강운동", metric:"자가확인 ✓",   change:"완료",   up:false},
+              {emoji:"🎵",name:"지속발성", metric:"MPT 3.2초",    change:"↑+0.5초",up:true},
+              {emoji:"💨",name:"호흡운동", metric:"호기 4.0초",   change:"↑+0.2초",up:true} ],
+    resMsg:"지속발성이 지난번보다 0.5초 더 길어졌어요!\n작은 성장이지만 <strong>정말 잘 하고 있어요 💙</strong>" },
+
+  "high-mild":     { depColor:"#E87461", stratColor:"#E87461", stratBg:"#FDE8E4",
+    tag:"우울 높음 + 경도",
+    strategy:"가벼운 발성 + 성공 보장",
+    msg:"가볍게 시작해봐요, 충분해요 🌱",
+    dur:"8~10분", ids:[2,3,9,7],
+    results:[ {emoji:"👄",name:"구강운동", metric:"자가확인 ✓",   change:"완료",   up:false},
+              {emoji:"🎵",name:"지속발성", metric:"MPT 4.1초",    change:"↑+0.8초",up:true},
+              {emoji:"😮‍💨",name:"하품-한숨",metric:"호기 3.8초",   change:"↑+0.3초",up:true},
+              {emoji:"📢",name:"볼륨업",   metric:"68dB",         change:"↑+3dB",  up:true} ],
+    resMsg:"오늘 발성이 많이 좋아졌어요!\n<strong>지속발성 +0.8초</strong> — 정말 잘 하셨어요 🎉" },
+
+  "mid-severe":    { depColor:"#F0A500", stratColor:"#C08400", stratBg:"#FFF8E7",
+    tag:"우울 중간 + 중도",
+    strategy:"기초 + 발성 훈련",
+    msg:"기초부터 차근차근 쌓아가요",
+    dur:"10~13분", ids:[1,12,2,3,8],
+    results:[ {emoji:"🪑",name:"자세교정", metric:"자가확인 ✓",   change:"완료",   up:false},
+              {emoji:"💨",name:"호흡운동", metric:"호기 4.5초",   change:"↑+0.5초",up:true},
+              {emoji:"👄",name:"구강운동", metric:"자가확인 ✓",   change:"완료",   up:false},
+              {emoji:"🎵",name:"지속발성", metric:"MPT 3.8초",    change:"↑+0.4초",up:true},
+              {emoji:"🔒",name:"성문폐쇄", metric:"VoiceOnset 양호",change:"유지",  up:false} ],
+    resMsg:"오늘 5가지 운동을 완료했어요!\n<strong>호흡 + 발성</strong> 모두 조금씩 좋아지고 있어요 💪" },
+
+  "mid-moderate":  { depColor:"#F0A500", stratColor:"#C08400", stratBg:"#FFF8E7",
+    tag:"우울 중간 + 중등도",
+    strategy:"균형형 훈련 — 발성 + 조음",
+    msg:"오늘은 균형 있게 훈련해요!",
+    dur:"12~15분", ids:[3,4,5,2,16],
+    results:[ {emoji:"🎵",name:"지속발성",    metric:"MPT 4.2초",       change:"↑+0.4초",up:true},
+              {emoji:"📈",name:"글라이딩 ↑",  metric:"F0 범위 82Hz",     change:"↑+8Hz",  up:true},
+              {emoji:"📉",name:"글라이딩 ↓",  metric:"F0 범위 75Hz",     change:"유지",   up:false},
+              {emoji:"👄",name:"구강운동",    metric:"자가확인 ✓",       change:"완료",   up:false},
+              {emoji:"🔁",name:"DDK 직접훈련",metric:"4.1Hz · STT 78%",  change:"↑+6%",   up:true} ],
+    resMsg:"DDK 정확도가 6% 올랐어요!\n<strong>조음이 점점 또렷해지고 있어요</strong> 🎉" },
+
+  "mid-mild":      { depColor:"#F0A500", stratColor:"#C08400", stratBg:"#FFF8E7",
+    tag:"우울 중간 + 경도",
+    strategy:"발성 + 조음 + 운율 골고루",
+    msg:"조금 더 도전해봐요, 잘 하고 있어요!",
+    dur:"13~15분", ids:[3,6,7,10,14,11],
+    results:[ {emoji:"🎵",name:"지속발성",  metric:"MPT 5.0초",       change:"↑+0.6초",up:true},
+              {emoji:"🎼",name:"피치조절",  metric:"목표 오차 ±12Hz", change:"↑개선",  up:true},
+              {emoji:"📢",name:"볼륨업",    metric:"72dB",            change:"↑+4dB",  up:true},
+              {emoji:"🔄",name:"대조훈련",  metric:"STT 82%",         change:"↑+5%",   up:true},
+              {emoji:"🐢",name:"천천히읽기",metric:"92단어/분",        change:"↓-8 good",up:true},
+              {emoji:"💬",name:"대립강세",  metric:"강세 정확도 75%",  change:"↑+8%",   up:true} ],
+    resMsg:"오늘 6가지 모두 완료! 발성·조음·운율을\n<strong>골고루 훈련한 완벽한 세션</strong>이에요 🏆" },
+
+  "low-severe":    { depColor:"#2D8B55", stratColor:"#2D8B55", stratBg:"#E8F5E9",
+    tag:"우울 낮음 + 중도",
+    strategy:"강도 있는 기초 훈련",
+    msg:"오늘 컨디션 최고! 열심히 해봐요 💪",
+    dur:"15~18분", ids:[1,12,2,3,16,8],
+    results:[ {emoji:"🪑",name:"자세교정",    metric:"자가확인 ✓",     change:"완료",   up:false},
+              {emoji:"💨",name:"호흡운동",    metric:"호기 5.2초",     change:"↑+0.7초",up:true},
+              {emoji:"👄",name:"구강운동",    metric:"자가확인 ✓",     change:"완료",   up:false},
+              {emoji:"🎵",name:"지속발성",    metric:"MPT 4.5초",      change:"↑+0.5초",up:true},
+              {emoji:"🔁",name:"DDK 직접훈련",metric:"3.8Hz · STT 72%",change:"↑+8%",   up:true},
+              {emoji:"🔒",name:"성문폐쇄",    metric:"VoiceOnset 양호",change:"↑개선",  up:true} ],
+    resMsg:"오늘 6가지 완료! 컨디션이 좋은 날\n<strong>최대한 활용한 훌륭한 세션</strong>이에요 💪" },
+
+  "low-moderate":  { depColor:"#2D8B55", stratColor:"#2D8B55", stratBg:"#E8F5E9",
+    tag:"우울 낮음 + 중등도",
+    strategy:"전 영역 도전 훈련",
+    msg:"오늘 최고예요! 전부 도전해봐요 🔥",
+    dur:"18~20분", ids:[3,4,5,7,16,10,11],
+    results:[ {emoji:"🎵",name:"지속발성",    metric:"MPT 5.5초",       change:"↑+0.9초",up:true},
+              {emoji:"📈",name:"글라이딩 ↑",  metric:"F0 범위 95Hz",     change:"↑+12Hz", up:true},
+              {emoji:"📉",name:"글라이딩 ↓",  metric:"F0 범위 88Hz",     change:"↑+10Hz", up:true},
+              {emoji:"📢",name:"볼륨업",      metric:"76dB",            change:"↑+6dB",  up:true},
+              {emoji:"🔁",name:"DDK 직접훈련",metric:"4.8Hz · STT 85%", change:"↑+10%",  up:true},
+              {emoji:"🔄",name:"대조훈련",    metric:"STT 88%",         change:"↑+7%",   up:true},
+              {emoji:"💬",name:"대립강세",    metric:"강세 정확도 82%",  change:"↑+12%",  up:true} ],
+    resMsg:"오늘 7가지 운동 전부 완료!\n<strong>이번 세션 최고 기록</strong>이에요 🏆🔥" },
+
+  "low-mild":      { depColor:"#2D8B55", stratColor:"#2D8B55", stratBg:"#E8F5E9",
+    tag:"우울 낮음 + 경도",
+    strategy:"최대 강도 재활",
+    msg:"오늘은 최대 강도로! 당신 최고예요 🏆",
+    dur:"20~25분", ids:[3,4,5,6,7,16,10,14],
+    results:[ {emoji:"🎵",name:"지속발성",    metric:"MPT 6.2초",       change:"↑+1.1초",up:true},
+              {emoji:"📈",name:"글라이딩 ↑",  metric:"F0 범위 108Hz",   change:"↑+15Hz", up:true},
+              {emoji:"📉",name:"글라이딩 ↓",  metric:"F0 범위 100Hz",   change:"↑+12Hz", up:true},
+              {emoji:"🎼",name:"피치조절",    metric:"목표 오차 ±8Hz",  change:"↑최고",  up:true},
+              {emoji:"📢",name:"볼륨업",      metric:"80dB",            change:"↑+8dB",  up:true},
+              {emoji:"🔁",name:"DDK 직접훈련",metric:"5.5Hz · STT 91%", change:"↑+12%",  up:true},
+              {emoji:"🔄",name:"대조훈련",    metric:"STT 92%",         change:"↑+9%",   up:true},
+              {emoji:"🐢",name:"천천히읽기",  metric:"85단어/분",        change:"↓-14 good",up:true} ],
+    resMsg:"8가지 모두 완료! 오늘은\n<strong>모든 지표 개인 최고 기록</strong>이에요 🏆🔥✨" },
+};
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let dep = 'high', sev = 'severe';
+let timerInterval = null, timerSec = 0;
+
+/* ═══════════════════════════════════════════════════════
+   SCREEN NAVIGATION
+═══════════════════════════════════════════════════════ */
+function goto(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById('screen-' + id).classList.remove('hidden');
+  if (id === 'tasks') renderTasks();
+  if (id === 'result') renderResult();
+  if (id === 'exercise') startTimer();
+  else stopTimer();
+}
+
+/* ═══════════════════════════════════════════════════════
+   PROTOTYPE CONTROLS
+═══════════════════════════════════════════════════════ */
+function setDep(v) {
+  dep = v;
+  ['high','mid','low'].forEach(x => document.getElementById('d-'+x).classList.remove('on'));
+  document.getElementById('d-'+v).classList.add('on');
+  updateHomePreview(); updateCheckInPreview();
+}
+function setSev(v) {
+  sev = v;
+  ['severe','moderate','mild'].forEach(x => document.getElementById('s-'+x).classList.remove('on'));
+  document.getElementById('s-'+v).classList.add('on');
+  updateHomePreview(); updateCheckInPreview();
+}
+
+/* ═══════════════════════════════════════════════════════
+   COMBO KEY
+═══════════════════════════════════════════════════════ */
+function key() { return dep + '-' + sev; }
+function combo() { return COMBOS[key()]; }
+
+/* ═══════════════════════════════════════════════════════
+   HOME SCREEN UPDATE
+═══════════════════════════════════════════════════════ */
+function updateHomePreview() {
+  const c = combo();
+  const sevLabels = {severe:'중도', moderate:'중등도', mild:'경도'};
+  const sevColors = {severe:'var(--purple)', moderate:'var(--primary)', mild:'var(--green)'};
+  document.getElementById('home-sev-val').textContent = sevLabels[sev];
+  document.getElementById('home-sev-val').style.color = sevColors[sev];
+  document.getElementById('home-dur-val').textContent = c.dur;
+  document.getElementById('home-ex-count').textContent = c.ids.length + '가지 운동';
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHECK-IN SCREEN
+═══════════════════════════════════════════════════════ */
+function selectEmoji(el, score) {
+  document.querySelectorAll('.ci-emoji').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('mood-slider').value = score;
+  onSlider(score);
+}
+function onSlider(v) {
+  v = parseInt(v);
+  document.getElementById('mood-score').textContent = v;
+  // update dep state based on slider
+  const nd = v >= 7 ? 'high' : v >= 4 ? 'mid' : 'low';
+  if (nd !== dep) { dep = nd; updateHomePreview(); }
+  const labels = {high:'높음', mid:'중간', low:'낮음'};
+  const colors  = {high:'var(--coral)', mid:'var(--accent)', low:'var(--green)'};
+  document.getElementById('mood-label').textContent = '  ' + labels[nd];
+  document.getElementById('mood-label').style.color = colors[nd];
+  updateCheckInPreview();
+}
+function updateCheckInPreview() {
+  const c = combo();
+  const icons = {high:'😟', mid:'😐', low:'😊'};
+  document.getElementById('ci-preview-icon').textContent = icons[dep];
+  document.getElementById('ci-preview-msg').textContent = c.strategy;
+  document.getElementById('ci-preview-dur').textContent = c.dur + ' · ' + c.ids.length + '가지 운동';
+}
+
+/* ═══════════════════════════════════════════════════════
+   TASK SCREEN RENDER
+═══════════════════════════════════════════════════════ */
+function renderTasks() {
+  const c = combo();
+  // badges
+  const depLabels = {high:'우울 높음 (7~10)', mid:'우울 중간 (4~6)', low:'우울 낮음 (0~3)'};
+  const depBadge  = {high:'badge-dep-high',  mid:'badge-dep-mid',  low:'badge-dep-low'};
+  const sevLabels = {severe:'중도', moderate:'중등도', mild:'경도'};
+  const sevBadge  = {severe:'badge-sev-severe', moderate:'badge-sev-moderate', mild:'badge-sev-mild'};
+  document.getElementById('task-badges').innerHTML =
+    `<span class="badge-pill ${depBadge[dep]}">${depLabels[dep]}</span>
+     <span class="badge-pill ${sevBadge[sev]}">${sevLabels[sev]}</span>`;
+
+  // strategy band
+  const band = document.getElementById('strat-band');
+  band.style.background = c.stratBg;
+  document.getElementById('strat-tag').textContent = c.tag;
+  document.getElementById('strat-tag').style.color = c.stratColor;
+  document.getElementById('strat-msg').textContent = c.msg;
+  document.getElementById('strat-msg').style.color = c.stratColor;
+  document.getElementById('strat-dur').textContent = '⏱ ' + c.dur;
+  document.getElementById('strat-cnt').textContent = '🏋️ ' + c.ids.length + '가지 운동';
+
+  // exercise list
+  const grpNames = {'g-breath':'🫁 호흡 / 발성 그룹', 'g-artic':'👄 조음 그룹', 'g-pros':'🎵 운율 그룹'};
+  let html = ''; let lastGrp = '';
+  c.ids.forEach(id => {
+    const ex = EXERCISES[id];
+    if (ex.group !== lastGrp) {
+      lastGrp = ex.group;
+      const dotColors = {'g-breath':'var(--primary)','g-artic':'var(--accent)','g-pros':'var(--coral)'};
+      html += `<div class="section-hdr">
+        <div class="section-dot" style="background:${dotColors[ex.group]}"></div>
+        <div class="section-lbl">${grpNames[ex.group]}</div>
+      </div>`;
+    }
+    html += `<div class="ex-card ${ex.group}" onclick="openExercise(${id})">
+      <div class="ex-icon ${ex.group}">${ex.emoji}</div>
+      <div class="ex-body">
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-desc">${ex.desc}</div>
+        <div class="ex-tags">
+          ${ex.type==='auto'
+            ? `<span class="tag tag-auto">🤖 자동측정</span><span class="tag" style="background:#F0F4FF;color:#5060A0;font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;">${ex.meas}</span>`
+            : `<span class="tag tag-self">✋ 자가확인</span>`}
+          <span class="tag tag-dur">⏱ ${ex.dur}</span>
+        </div>
+      </div>
+      <div class="ex-arrow">›</div>
+    </div>`;
+  });
+  document.getElementById('task-list').innerHTML = html;
+}
+
+function openExercise(id) {
+  if (id === 'mini') {
+    document.getElementById('ex-title').textContent = '미니 평가 과제';
+    document.getElementById('ex-subtitle').textContent = '준비 운동 · 자동 측정';
+    document.getElementById('ex-viz-icon').textContent = '⚡';
+    document.getElementById('ex-inst-title').textContent = '하는 방법:';
+    document.getElementById('ex-inst-body').textContent = '① "아~~~" 3초 이상  ② /퍼터커/ 5회 반복  ③ 기준 단어 5개 읽기 — 항상 같은 단어로 추이를 비교합니다.';
+    document.getElementById('m1-lbl').textContent = '발성 시간';
+    document.getElementById('m2-lbl').textContent = 'DDK (Hz)';
+    document.getElementById('m3-lbl').textContent = '명료도';
+    document.getElementById('m1-val').textContent = '3.2초';
+    document.getElementById('m2-val').textContent = '3.8Hz';
+    document.getElementById('m3-val').textContent = '76%';
+  } else {
+    const ex = EXERCISES[id];
+    document.getElementById('ex-title').textContent = ex.emoji + ' ' + ex.name;
+    document.getElementById('ex-subtitle').textContent = ex.grpName + ' · ' + (ex.type==='auto'?'자동 측정':'자가 확인');
+    document.getElementById('ex-viz-icon').textContent = ex.emoji;
+    document.getElementById('ex-inst-title').textContent = '하는 방법:';
+    document.getElementById('ex-inst-body').textContent = ex.detail;
+    if (ex.meas) {
+      const parts = ex.meas.split(' · ');
+      document.getElementById('m1-lbl').textContent = parts[0] || '측정값';
+      document.getElementById('m2-lbl').textContent = parts[1] || '—';
+      document.getElementById('m3-lbl').textContent = parts[2] || '안정성';
+    }
+  }
+  goto('exercise');
+}
+
+/* ═══════════════════════════════════════════════════════
+   TIMER
+═══════════════════════════════════════════════════════ */
+function startTimer() {
+  timerSec = 0;
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timerSec++;
+    const m = Math.floor(timerSec/60), s = timerSec%60;
+    document.getElementById('ex-timer').textContent =
+      m + ':' + String(s).padStart(2,'0');
+    // simulate updating metrics
+    if (timerSec === 3) {
+      document.getElementById('m1-val').textContent = '3.8초';
+      document.getElementById('ex-feedback').textContent = '잘 하고 있어요! 지난번보다 0.4초 더 길어졌어요 🎉';
+      document.getElementById('ex-feedback').style.color = 'var(--green)';
+    }
+  }, 1000);
+}
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESULT SCREEN RENDER
+═══════════════════════════════════════════════════════ */
+function renderResult() {
+  const c = combo();
+  document.getElementById('res-sub').textContent = '총 ' + c.dur + ' · ' + c.ids.length + '가지 운동 완료';
+  document.getElementById('res-done').textContent = c.ids.length + '/' + c.ids.length;
+  let html = '';
+  c.results.forEach(r => {
+    html += `<div class="result-exercise-card">
+      <div class="rec-icon">${r.emoji}</div>
+      <div class="rec-body">
+        <div class="rec-name">${r.name}</div>
+        <div class="rec-metric">${r.metric}</div>
+      </div>
+      <div>
+        <div class="rec-change ${r.up?'up':'same'}">${r.change}</div>
+        ${r.up ? '<div class="rec-badge" style="margin-top:3px;">↑ 성장</div>' : ''}
+      </div>
+    </div>`;
+  });
+  document.getElementById('result-list').innerHTML = html;
+  document.getElementById('res-msg').innerHTML = c.resMsg.replace(/\n/g, '<br>');
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+updateHomePreview();
+updateCheckInPreview();
+</script>
+</body>
+</html>
