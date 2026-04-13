@@ -163,7 +163,7 @@
       justify-content: space-evenly; padding: 4px 0;
     }
     .home-menu-card {
-      background: white; border-radius: 14px; padding: 20px 20px;
+      background: white; border-radius: 14px; padding: 14px 20px;
       display: flex; align-items: center; gap: 14px;
       box-shadow: 0 1px 6px rgba(0,0,0,.07); cursor: pointer;
       transition: box-shadow .15s;
@@ -561,10 +561,10 @@
     .sev-task-card.active .sev-task-num { background:var(--primary); color:white; }
     .sev-task-card:not(.active):not(.done) .sev-task-num { background:#e8eaf0; color:#999; }
     .sev-task-card.done .sev-task-num { background:#E8F5E9; color:#16A34A; }
-    .sev-task-title { font-size:17px; font-weight:700; color:var(--t1); margin-bottom:4px; }
-    .sev-task-desc { font-size:13px; color:var(--t3); }
+    .sev-task-title { font-size:18px; font-weight:700; color:var(--t1); margin-bottom:4px; }
+    .sev-task-desc { font-size:15px; color:var(--t3); }
     .sev-task-badge {
-      font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px;
+      font-size:12px; font-weight:600; padding:3px 10px; border-radius:20px;
       display:inline-block; margin-left:8px;
     }
     .sev-mic-btn {
@@ -573,6 +573,12 @@
       align-items:center; justify-content:center; gap:8px; transition:all .2s;
     }
     .sev-mic-btn.recording { background:#E24B4A; animation:micPulse 1.2s infinite; }
+    .sev-tp-word {
+      font-size:36px; font-weight:800; color:#CBD5E1; transition: color 0.4s, transform 0.4s;
+      flex-shrink:0; padding:0 4px;
+    }
+    .sev-tp-word.active { color:var(--t1); transform:scale(1.15); }
+    .sev-tp-word.done { color:var(--primary); }
     .sev-mic-label { font-size:13px; color:white; font-weight:600; }
     .sev-word {
       font-size:44px; font-weight:700; color:var(--t1); letter-spacing:3px;
@@ -607,25 +613,29 @@
     }
     /* 진단 완료 */
     .sev-complete-wrap {
-      text-align:center; padding:40px 20px; display:flex;
-      flex-direction:column; align-items:center; gap:16px;
+      text-align:center; padding:30px 20px 20px; display:flex;
+      flex-direction:column; align-items:center; gap:12px;
     }
     .sev-complete-icon {
-      width:80px; height:80px; background:#E8F5E9; border-radius:50%;
+      width:90px; height:90px; background:linear-gradient(135deg,#E8F5E9,#C8E6C9); border-radius:50%;
       display:flex; align-items:center; justify-content:center;
-      font-size:40px; margin-bottom:8px;
+      font-size:44px; margin-bottom:4px;
     }
-    .sev-complete-title { font-size:22px; font-weight:800; color:var(--t1); }
-    .sev-complete-sub { font-size:15px; color:var(--t3); line-height:1.6; }
+    .sev-complete-title { font-size:24px; font-weight:800; color:var(--t1); line-height:1.4; }
+    .sev-complete-sub { font-size:16px; color:var(--t3); line-height:1.6; }
     .sev-result-card {
       background:white; border-radius:16px; padding:20px;
       width:100%; text-align:left;
     }
     .sev-result-row {
       display:flex; justify-content:space-between; align-items:center;
-      padding:10px 0; border-bottom:1px solid #f0f0f0;
+      padding:12px 0; border-bottom:1px solid #f0f0f0;
     }
     .sev-result-row:last-child { border-bottom:none; }
+    .sev-task-done-icon {
+      width:28px; height:28px; border-radius:50%; display:flex;
+      align-items:center; justify-content:center; font-size:14px; font-weight:700; color:white;
+    }
 
     /* rPPG result states */
     .rr-high   { color: var(--primary); }
@@ -1207,39 +1217,8 @@
   <!-- ── SPLASH: 시안2 화이트 클린 ───────────────────────── -->
   <div class="screen" id="screen-splash">
     <div class="splash">
-      <!-- 네이비 앱아이콘 형태 로고 -->
-      <div class="splash-icon" style="width:120px;height:120px;border-radius:32px;">
-        <svg width="120" height="120" viewBox="0 0 200 200">
-          <defs>
-            <linearGradient id="g-blue" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#6EC6FF"/>
-              <stop offset="100%" stop-color="#2E7BD6"/>
-            </linearGradient>
-            <linearGradient id="g-silver" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#C8C8C8"/>
-              <stop offset="50%" stop-color="#FFFFFF"/>
-              <stop offset="100%" stop-color="#A8A8A8"/>
-            </linearGradient>
-          </defs>
-          <linearGradient id="g-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#1E3068"/>
-            <stop offset="100%" stop-color="#111833"/>
-          </linearGradient>
-          <!-- 네이비 둥근 사각형 배경 -->
-          <rect x="0" y="0" width="200" height="200" rx="44" fill="url(#g-bg)"/>
-          <!-- 인터록킹 C 로고 -->
-          <circle cx="118" cy="88" r="34" fill="none"
-                  stroke="url(#g-silver)" stroke-width="12" stroke-linecap="round"
-                  stroke-dasharray="166 47.6" transform="rotate(220,118,88)"/>
-          <circle cx="82" cy="88" r="34" fill="none"
-                  stroke="url(#g-blue)" stroke-width="12" stroke-linecap="round"
-                  stroke-dasharray="166 47.6" transform="rotate(40,82,88)"/>
-          <circle cx="118" cy="88" r="34" fill="none"
-                  stroke="url(#g-silver)" stroke-width="12" stroke-linecap="round"
-                  stroke-dasharray="60 153.6" transform="rotate(170,118,88)"/>
-          <circle cx="103" cy="117" r="4.5" fill="#E8C547"/>
-        </svg>
-      </div>
+      <!-- 이음 로고 이미지 -->
+      <img src="로고1.jpg" alt="이음 로고" style="width:200px;height:auto;border-radius:44px;">
       <div class="splash-name">이음</div>
       <div class="splash-tagline">끊어진 말과 마음을 다시 잇다</div>
     </div>
@@ -1254,37 +1233,7 @@
     <div class="setup-hero">
       <button class="back-btn" onclick="goto('splash')">❮</button>
       <div class="setup-hero-logo">
-        <!-- 앱 아이콘 형태: 네이비 둥근 사각형 + 인터록킹 로고 -->
-        <svg width="72" height="72" viewBox="0 0 200 200">
-          <defs>
-            <linearGradient id="g-icon-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#1E3068"/>
-              <stop offset="100%" stop-color="#111833"/>
-            </linearGradient>
-            <linearGradient id="g-icon-blue" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#6EC6FF"/>
-              <stop offset="100%" stop-color="#2E7BD6"/>
-            </linearGradient>
-            <linearGradient id="g-icon-silver" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#C8C8C8"/>
-              <stop offset="50%" stop-color="#FFFFFF"/>
-              <stop offset="100%" stop-color="#A8A8A8"/>
-            </linearGradient>
-          </defs>
-          <!-- 네이비 둥근 사각형 배경 -->
-          <rect x="10" y="10" width="180" height="180" rx="44" fill="url(#g-icon-bg)"/>
-          <!-- 인터록킹 C 로고 (아이콘 중앙) -->
-          <circle cx="118" cy="88" r="34" fill="none"
-                  stroke="url(#g-icon-silver)" stroke-width="12" stroke-linecap="round"
-                  stroke-dasharray="166 47.6" transform="rotate(220,118,88)"/>
-          <circle cx="82" cy="88" r="34" fill="none"
-                  stroke="url(#g-icon-blue)" stroke-width="12" stroke-linecap="round"
-                  stroke-dasharray="166 47.6" transform="rotate(40,82,88)"/>
-          <circle cx="118" cy="88" r="34" fill="none"
-                  stroke="url(#g-icon-silver)" stroke-width="12" stroke-linecap="round"
-                  stroke-dasharray="60 153.6" transform="rotate(170,118,88)"/>
-          <circle cx="103" cy="117" r="4.5" fill="#E8C547"/>
-        </svg>
+        <img src="로고3.jpg" alt="이음 로고" style="width:72px;height:auto;border-radius:16px;">
       </div>
       <div class="setup-title">이음에 오신 걸 환영합니다</div>
       <div class="setup-sub">회복을 위한 첫 걸음,<br>기본 정보를 알려주세요</div>
@@ -1361,29 +1310,7 @@
 
       <!-- Hero (배경처럼 컴팩트하게) -->
       <div class="eum-hero">
-        <svg width="36" height="20" viewBox="0 0 200 116" style="margin-bottom:4px;">
-          <defs>
-            <linearGradient id="g-h-blue" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#6EC6FF"/>
-              <stop offset="100%" stop-color="#2E7BD6"/>
-            </linearGradient>
-            <linearGradient id="g-h-silver" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#C8C8C8"/>
-              <stop offset="50%" stop-color="#FFFFFF"/>
-              <stop offset="100%" stop-color="#A0A0A0"/>
-            </linearGradient>
-          </defs>
-          <circle cx="128" cy="58" r="40" fill="none"
-                  stroke="url(#g-h-silver)" stroke-width="14" stroke-linecap="round"
-                  stroke-dasharray="195.5 55.8" transform="rotate(220,128,58)"/>
-          <circle cx="72" cy="58" r="40" fill="none"
-                  stroke="url(#g-h-blue)" stroke-width="14" stroke-linecap="round"
-                  stroke-dasharray="195.5 55.8" transform="rotate(40,72,58)"/>
-          <circle cx="128" cy="58" r="40" fill="none"
-                  stroke="url(#g-h-silver)" stroke-width="14" stroke-linecap="round"
-                  stroke-dasharray="70 181.3" transform="rotate(170,128,58)"/>
-          <circle cx="108" cy="92" r="5.5" fill="#E8C547"/>
-        </svg>
+        <img src="그림1.png" alt="이음 로고" style="width:44px;height:auto;margin-bottom:4px;">
         <div class="eum-logo" style="color:var(--t1);">이음</div>
         <div class="eum-sub" style="color:var(--t3);">말하기의 재활, 마음보기의 시작</div>
         <div class="eum-name" id="eum-name"></div>
@@ -1414,8 +1341,8 @@
             </div>
           </div>
           <div class="eum-card-tags">
-            <span class="eum-tag" style="background:rgba(255,255,255,.18);color:white;">맞춤 훈련</span>
             <span class="eum-tag" style="background:rgba(255,255,255,.18);color:white;">중증도 진단</span>
+            <span class="eum-tag" style="background:rgba(255,255,255,.18);color:white;">맞춤 훈련</span>
           </div>
         </div>
 
@@ -1525,6 +1452,13 @@
           <div class="menu-text">
             <div class="menu-title">맞춤 훈련</div>
             <div class="menu-desc">진단 결과 기반 개인화 훈련</div>
+          </div>
+        </div>
+
+        <div class="home-menu-card" onclick="goto('all-ex')">
+          <div class="menu-text">
+            <div class="menu-title">자유 훈련</div>
+            <div class="menu-desc">원하는 운동을 골라서 연습</div>
           </div>
         </div>
 
@@ -1667,16 +1601,16 @@
         <div style="background:linear-gradient(135deg,#EEF2FF,#E8EAFF);border-radius:18px;padding:22px 20px;text-align:center;margin-bottom:16px;">
           <div style="font-size:20px;font-weight:800;color:var(--t1);line-height:1.4;">나의 말하기 상태를<br>확인해볼까요?</div>
           <div style="display:flex;justify-content:center;gap:8px;margin-top:12px;">
-            <span style="background:white;color:var(--t2);font-size:13px;font-weight:600;padding:5px 12px;border-radius:20px;">3가지 과제</span>
-            <span style="background:white;color:var(--t2);font-size:13px;font-weight:600;padding:5px 12px;border-radius:20px;">약 5분 소요</span>
+            <span style="background:white;color:var(--t2);font-size:14px;font-weight:600;padding:6px 14px;border-radius:20px;">3가지 과제</span>
+            <span style="background:white;color:var(--t2);font-size:14px;font-weight:600;padding:6px 14px;border-radius:20px;">약 5분 소요</span>
           </div>
         </div>
 
         <!-- 전체 진행률 -->
         <div style="margin-bottom:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <span style="font-size:14px;font-weight:700;color:var(--t1);" id="sev-overall-label">과제 1 / 3</span>
-            <span style="font-size:13px;font-weight:600;color:var(--primary);" id="sev-overall-pct">0%</span>
+            <span style="font-size:15px;font-weight:700;color:var(--t1);" id="sev-overall-label">과제 1 / 3</span>
+            <span style="font-size:14px;font-weight:600;color:var(--primary);" id="sev-overall-pct">0%</span>
           </div>
           <div style="background:#EEF2FF;border-radius:999px;height:6px;">
             <div id="sev-overall-bar" style="background:var(--primary);height:6px;border-radius:999px;transition:width .4s;width:0%;"></div>
@@ -1690,7 +1624,7 @@
             <div style="flex:1;">
               <div style="display:flex;align-items:center;gap:8px;"><span class="sev-task-title">모음 발성</span><span class="sev-task-badge" id="sev-badge-0" style="background:#FFF0D6;color:#E07B00;">진행중</span></div>
               <div class="sev-task-desc">아·이·우 소리를 하나씩 길게 내어요</div>
-              <div style="font-size:11px;color:var(--t3);margin-top:3px;">예상 1분</div>
+              <div style="font-size:13px;color:var(--t3);margin-top:3px;">예상 1분</div>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
@@ -1699,7 +1633,7 @@
             <div style="flex:1;">
               <div style="display:flex;align-items:center;gap:8px;"><span class="sev-task-title">퍼터커 발음</span><span class="sev-task-badge" id="sev-badge-1" style="display:none;"></span></div>
               <div class="sev-task-desc">퍼·터·커를 빠르게 반복해서 말해요</div>
-              <div style="font-size:11px;color:var(--t3);margin-top:3px;">예상 1분</div>
+              <div style="font-size:13px;color:var(--t3);margin-top:3px;">예상 1분</div>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
@@ -1708,7 +1642,7 @@
             <div style="flex:1;">
               <div style="display:flex;align-items:center;gap:8px;"><span class="sev-task-title">단어 읽기</span><span class="sev-task-badge" id="sev-badge-2" style="display:none;"></span></div>
               <div class="sev-task-desc">화면에 나오는 단어를 소리 내어 읽어요</div>
-              <div style="font-size:11px;color:var(--t3);margin-top:3px;">예상 3분</div>
+              <div style="font-size:13px;color:var(--t3);margin-top:3px;">예상 3분</div>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
@@ -1716,12 +1650,12 @@
 
         <!-- 시작 버튼 -->
         <button id="sev-start-btn" onclick="startSevNext()" style="width:100%;padding:16px;background:var(--primary);color:white;border:none;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:20px;">
-          첫 번째 과제 시작
+          시작하기
         </button>
 
         <!-- 격려 메시지 -->
         <div style="text-align:center;padding:12px 0 20px;">
-          <div style="font-size:13px;color:var(--t3);line-height:1.6;">편하게 하시면 돼요. 틀려도 괜찮아요!</div>
+          <div style="font-size:15px;color:var(--t3);line-height:1.6;">편하게 하시면 돼요. 틀려도 괜찮아요!</div>
         </div>
       </div>
     </div>
@@ -1734,7 +1668,7 @@
         <span id="sev-rec-badge" style="font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px;"></span>
       </div>
       <!-- 진행률 바 (얇고 미니멀) -->
-      <div style="padding:0 20px 0;">
+      <div style="padding:8px 20px 0;">
         <div style="background:#EEF2FF;border-radius:999px;height:4px;">
           <div class="sev-prog-bar" id="sev-prog-bar" style="height:4px;"></div>
         </div>
@@ -1746,15 +1680,15 @@
           <div style="width:100px;height:100px;background:#EEF2FF;border-radius:50%;display:flex;align-items:center;justify-content:center;">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
           </div>
-          <div style="font-size:22px;font-weight:800;color:var(--t1);line-height:1.4;">녹음 준비를 해볼까요?</div>
+          <div style="font-size:22px;font-weight:800;color:var(--t1);line-height:1.4;">정확한 측정을 위해<br>준비해주세요</div>
           <div style="font-size:16px;color:var(--t2);line-height:1.7;">
             휴대폰을 입에서<br>
             <span style="font-size:24px;font-weight:800;color:var(--primary);">약 30cm</span><br>
-            (한 뼘 정도) 떨어뜨려 주세요
+            떨어뜨려 주세요
           </div>
-          <div style="font-size:14px;color:var(--t3);margin-top:4px;">정확한 측정을 위해 필요해요</div>
+          <div style="font-size:14px;color:var(--t3);margin-top:4px;">음성을 정확히 분석하기 위해 필요합니다</div>
           <button onclick="startSevCalibration()" style="margin-top:20px;width:240px;padding:16px;background:var(--primary);color:white;border:none;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;">
-            준비됐어요
+            다음
           </button>
         </div>
         <!-- 단계 2: 소음 측정 -->
@@ -1762,8 +1696,8 @@
           <div id="sev-cal-circle" style="width:120px;height:120px;background:#EEF2FF;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .5s;">
             <span id="sev-cal-countdown" style="font-size:40px;font-weight:800;color:var(--primary);">5</span>
           </div>
-          <div style="font-size:22px;font-weight:800;color:var(--t1);">주변 소리를 듣고 있어요</div>
-          <div style="font-size:16px;color:var(--t2);line-height:1.6;">잠시만 조용히 기다려 주세요<br>금방 끝나요!</div>
+          <div style="font-size:22px;font-weight:800;color:var(--t1);">주변 환경을 확인하고 있어요</div>
+          <div style="font-size:16px;color:var(--t2);line-height:1.6;">조용한 환경에서<br>더 정확한 결과를 얻을 수 있어요</div>
           <div style="background:#EEF2FF;border-radius:999px;height:6px;width:200px;margin-top:8px;">
             <div id="sev-cal-bar" style="background:var(--primary);height:6px;border-radius:999px;transition:width .8s;width:0%;"></div>
           </div>
@@ -1771,12 +1705,12 @@
         <!-- 단계 3: 완료 -->
         <div id="sev-cal-done" style="display:none;flex-direction:column;align-items:center;gap:16px;">
           <div style="width:100px;height:100px;background:#E8F5E9;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:48px;">✓</div>
-          <div style="font-size:22px;font-weight:800;color:var(--t1);">준비 완료!</div>
-          <div style="font-size:16px;color:var(--t2);line-height:1.6;">환경이 세팅되었어요<br>이제 시작해볼까요?</div>
+          <div style="font-size:22px;font-weight:800;color:var(--t1);">측정 준비 완료</div>
+          <div style="font-size:16px;color:var(--t2);line-height:1.6;">지금부터 말하기 상태를<br>측정합니다</div>
         </div>
       </div>
-      <!-- 메인 영역: 녹음 대기/진행 -->
-      <div id="sev-rec-main" style="flex:1;min-height:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:0 24px;text-align:center;">
+      <!-- 메인 영역: 모음/퍼터커 녹음 -->
+      <div id="sev-rec-main" style="flex:1;min-height:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:0 24px;padding-bottom:60px;text-align:center;">
         <div class="sev-word" id="sev-word" style="font-size:72px;font-weight:800;margin-bottom:8px;"></div>
         <div class="sev-instruction" id="sev-instruction" style="font-size:18px;margin-bottom:32px;"></div>
         <button class="sev-mic-btn" id="sev-mic-btn" onclick="toggleSevRec()" style="width:180px;height:180px;">
@@ -1785,13 +1719,25 @@
         </button>
         <div id="sev-fb-text" style="font-size:15px;color:var(--t3);margin-top:16px;min-height:24px;transition:color .3s;">마이크를 누르고 소리를 내보세요</div>
       </div>
+      <!-- 메인 영역: 단어 읽기 텔레프롬프터 -->
+      <div id="sev-rec-teleprompter" style="flex:1;min-height:0;display:none;flex-direction:column;padding:0;text-align:center;">
+        <div style="font-size:17px;color:var(--t2);padding:20px 24px 12px;">화면의 단어를 순서대로 읽어 주세요</div>
+        <div id="sev-tp-container" style="height:80px;display:flex;align-items:center;overflow:hidden;position:relative;margin-top:20px;">
+          <div id="sev-tp-track" style="display:flex;gap:40px;padding:0 40px;transition:transform 0.5s ease;white-space:nowrap;"></div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:40px;">
+          <button class="sev-mic-btn" id="sev-tp-mic-btn" onclick="toggleSevTpRec()" style="width:180px;height:180px;">
+            <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            <span class="sev-mic-label" id="sev-tp-mic-label" style="font-size:15px;">눌러서 말하기</span>
+          </button>
+          <div id="sev-tp-fb" style="font-size:15px;color:var(--t3);margin-top:16px;min-height:24px;">마이크를 누르고 단어를 읽어 주세요</div>
+        </div>
+      </div>
       <!-- 메인 영역: 녹음 완료 -->
       <div id="sev-rec-done" style="flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;padding:0 24px;text-align:center;gap:12px;">
-        <div style="font-size:64px;">✓</div>
-        <div class="sev-word" id="sev-done-word" style="font-size:48px;font-weight:800;color:var(--t1);"></div>
-        <div style="font-size:20px;font-weight:700;color:#16A34A;">잘 했어요!</div>
+        <div style="font-size:28px;font-weight:700;color:#16A34A;">잘 했어요!</div>
         <button class="sev-submit-btn" id="sev-submit-btn" onclick="sevNextStep()" style="margin-top:16px;width:280px;">
-          <span id="sev-submit-label">다음으로</span>
+          <span id="sev-submit-label">다음</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
@@ -1801,36 +1747,56 @@
     <div id="sev-complete-view" style="display:none;flex-direction:column;height:100%;">
       <div class="sbar" style="padding:18px 22px 14px;">
         <span></span>
-        <span style="font-size:var(--fs-lg);font-weight:700;">진단 완료</span>
+        <span style="font-size:var(--fs-lg);font-weight:700;"></span>
         <span></span>
       </div>
-      <div class="body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <div class="body" style="padding:20px;overflow-y:auto;">
         <div class="sev-complete-wrap">
-          <div class="sev-complete-icon">✓</div>
-          <div class="sev-complete-title">진단이 완료되었어요!</div>
-          <div class="sev-complete-sub">모든 과제를 잘 수행했어요.<br>결과를 분석하고 있어요.</div>
-          <div class="sev-result-card" style="margin-top:12px;">
-            <div style="font-size:15px;font-weight:700;color:var(--t1);margin-bottom:12px;">진단 요약</div>
+          <div class="sev-complete-title" style="margin-top:20px;">3가지 과제를 모두<br>해내셨어요!</div>
+          <div class="sev-complete-sub">정말 잘하셨어요.<br>첫 걸음을 내디뎠어요.</div>
+
+          <!-- 과제 완료 카드 -->
+          <div class="sev-result-card" style="margin-top:8px;">
             <div class="sev-result-row">
-              <span style="font-size:14px;color:var(--t3);">모음 발성</span>
-              <span style="font-size:14px;font-weight:600;color:#16A34A;">완료 ✓</span>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="sev-task-done-icon" style="background:#E07B00;">1</div>
+                <span style="font-size:16px;font-weight:600;color:var(--t1);">모음 발성</span>
+              </div>
+              <span style="font-size:14px;font-weight:600;color:#16A34A;">완료</span>
             </div>
             <div class="sev-result-row">
-              <span style="font-size:14px;color:var(--t3);">퍼터커 발음</span>
-              <span style="font-size:14px;font-weight:600;color:#16A34A;">완료 ✓</span>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="sev-task-done-icon" style="background:var(--primary);">2</div>
+                <span style="font-size:16px;font-weight:600;color:var(--t1);">퍼터커 발음</span>
+              </div>
+              <span style="font-size:14px;font-weight:600;color:#16A34A;">완료</span>
             </div>
-            <div class="sev-result-row">
-              <span style="font-size:14px;color:var(--t3);">단어 읽기</span>
-              <span style="font-size:14px;font-weight:600;color:#16A34A;">완료 ✓</span>
-            </div>
-            <div class="sev-result-row" style="border-top:2px solid #f0f0f0;margin-top:4px;padding-top:14px;">
-              <span style="font-size:15px;font-weight:700;color:var(--t1);">예상 중증도</span>
-              <span id="sev-result-level" style="font-size:15px;font-weight:800;color:var(--primary);">분석 중...</span>
+            <div class="sev-result-row" style="border-bottom:none;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="sev-task-done-icon" style="background:#2E7D32;">3</div>
+                <span style="font-size:16px;font-weight:600;color:var(--t1);">단어 읽기</span>
+              </div>
+              <span style="font-size:14px;font-weight:600;color:#16A34A;">완료</span>
             </div>
           </div>
-          <button class="sev-submit-btn" onclick="goto('home')" style="margin-top:16px;">
-            <span>홈으로 돌아가기</span>
+
+          <!-- 맞춤 훈련 안내 카드 -->
+          <div id="sev-training-ready" style="display:none;background:linear-gradient(135deg,#EEF2FF,#E8EAFF);border-radius:16px;padding:20px;width:100%;text-align:center;margin-top:4px;">
+            <div style="font-size:18px;font-weight:800;color:var(--primary);margin-bottom:6px;">맞춤 훈련이 준비되었어요</div>
+            <div style="font-size:15px;color:var(--t2);line-height:1.6;">분석 결과를 바탕으로<br>나에게 맞는 훈련을 구성했어요</div>
+          </div>
+
+          <!-- 분석 중 표시 -->
+          <div id="sev-analyzing" style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+            <div style="width:20px;height:20px;border:3px solid #EEF2FF;border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite;"></div>
+            <span style="font-size:15px;color:var(--t3);">결과를 분석하고 있어요...</span>
+          </div>
+
+          <button class="sev-submit-btn" id="sev-complete-btn" onclick="goto('home')" style="margin-top:16px;opacity:0.5;pointer-events:none;">
+            <span id="sev-complete-btn-label">나의 맞춤 훈련 보기</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
+          <div style="font-size:14px;color:var(--t3);margin-top:4px;">오늘의 작은 한 걸음이 큰 변화를 만들어요</div>
         </div>
       </div>
     </div>
@@ -1862,7 +1828,6 @@
 
       <button class="start-btn" onclick="startSession()">시작하기</button>
       <div style="text-align:center;font-size:var(--fs-sm);color:var(--t4);padding-bottom:4px;">오늘도 할 수 있어요</div>
-      <button class="all-ex-btn" onclick="goto('all-ex')">전체 운동 보기 ›</button>
     </div>
     <div class="bnav">
       <div class="bni" onclick="goto('home')"><div class="ico">홈</div><div class="lbl">홈</div></div>
@@ -1875,8 +1840,8 @@
   <!-- ── 전체 운동 보기 ────────────────────────────────────── -->
   <div class="screen off" id="screen-all-ex">
     <div class="sbar" style="padding:18px 22px 14px;">
-      <span onclick="goto('tasks')" style="cursor:pointer;font-size:18px;">❮</span>
-      <span style="font-size:var(--fs-lg);font-weight:700;">전체 운동</span>
+      <span onclick="goto('home')" style="cursor:pointer;font-size:18px;">❮</span>
+      <span style="font-size:var(--fs-lg);font-weight:700;">자유 훈련</span>
       <span></span>
     </div>
     <div class="body" id="all-ex-body"></div>
@@ -2721,9 +2686,9 @@ function renderSevList() {
 
   // 시작 버튼 텍스트
   const startBtn = document.getElementById('sev-start-btn');
-  if (doneCount === 0) startBtn.textContent = '첫 번째 과제 시작';
-  else if (doneCount < 3) startBtn.textContent = '다음 과제 시작';
-  else startBtn.textContent = '진단 결과 보기';
+  if (doneCount === 0) startBtn.textContent = '시작하기';
+  else if (doneCount < 3) startBtn.textContent = '이어하기';
+  else startBtn.textContent = '결과 보기';
 
   // 카드 상태
   SEV_TASKS.forEach((t, i) => {
@@ -2770,6 +2735,7 @@ function startSevTask(idx) {
     // 첫 과제 시작 전 환경 세팅
     document.getElementById('sev-calibration').style.display = 'flex';
     document.getElementById('sev-rec-main').style.display = 'none';
+    document.getElementById('sev-rec-teleprompter').style.display = 'none';
     document.getElementById('sev-rec-done').style.display = 'none';
     document.getElementById('sev-cal-distance').style.display = 'flex';
     document.getElementById('sev-cal-measure').style.display = 'none';
@@ -2826,24 +2792,129 @@ function renderSevStep() {
   rb.textContent = (sevState.step+1) + ' / ' + total;
   const pct = Math.round((sevState.step / total) * 100);
   document.getElementById('sev-prog-bar').style.width = pct + '%';
-  document.getElementById('sev-word').textContent = d.word;
-  document.getElementById('sev-instruction').textContent = d.instruction;
-  setSevFeedback('idle');
-  setSevMicIdle();
-  // 녹음 대기 뷰 표시, 나머지 숨김
+  // 모든 서브뷰 숨김
   document.getElementById('sev-calibration').style.display = 'none';
-  document.getElementById('sev-rec-main').style.display = 'flex';
+  document.getElementById('sev-rec-main').style.display = 'none';
+  document.getElementById('sev-rec-teleprompter').style.display = 'none';
   document.getElementById('sev-rec-done').style.display = 'none';
-  document.getElementById('sev-submit-label').textContent =
-    (sevState.step + 1 >= total) ? '완료하기' : '다음으로';
+
+  if (sevState.taskIdx === 2) {
+    // 단어 읽기 → 텔레프롬프터 모드
+    rb.textContent = list.length + '개 단어';
+    document.getElementById('sev-prog-bar').style.width = '0%';
+    document.getElementById('sev-rec-teleprompter').style.display = 'flex';
+    initTeleprompter();
+  } else {
+    // 모음/퍼터커 → 기존 방식
+    document.getElementById('sev-word').textContent = d.word;
+    document.getElementById('sev-instruction').textContent = d.instruction;
+    setSevFeedback('idle');
+    setSevMicIdle();
+    document.getElementById('sev-rec-main').style.display = 'flex';
+  }
+  document.getElementById('sev-submit-label').textContent = '다음';
+}
+
+// ── 텔레프롬프터 (단어 읽기) ──
+let tpState = { wordIdx: 0, recording: false, timer: null, scrollTimer: null, sec: 0 };
+
+function initTeleprompter() {
+  const track = document.getElementById('sev-tp-track');
+  track.innerHTML = '';
+  SEV_WORDS_RAW.forEach((w, i) => {
+    const span = document.createElement('span');
+    span.className = 'sev-tp-word' + (i === 0 ? ' active' : '');
+    span.textContent = w;
+    span.id = 'tp-w-' + i;
+    track.appendChild(span);
+  });
+  track.style.transform = 'translateX(0px)';
+  tpState = { wordIdx: 0, recording: false, timer: null, scrollTimer: null, sec: 0 };
+  document.getElementById('sev-tp-mic-btn').classList.remove('recording');
+  document.getElementById('sev-tp-mic-label').textContent = '눌러서 말하기';
+  document.getElementById('sev-tp-fb').textContent = '마이크를 누르고 단어를 읽어 주세요';
+  document.getElementById('sev-tp-fb').style.color = 'var(--t3)';
+}
+
+function scrollTeleprompter() {
+  const total = SEV_WORDS_RAW.length;
+  if (tpState.wordIdx >= total) return;
+  // 이전 단어 done 처리
+  if (tpState.wordIdx > 0) {
+    const prev = document.getElementById('tp-w-' + (tpState.wordIdx - 1));
+    if (prev) { prev.classList.remove('active'); prev.classList.add('done'); }
+  }
+  // 현재 단어 active
+  const cur = document.getElementById('tp-w-' + tpState.wordIdx);
+  if (cur) { cur.classList.add('active'); }
+  // 트랙 이동 (단어를 왼쪽으로)
+  const track = document.getElementById('sev-tp-track');
+  const container = document.getElementById('sev-tp-container');
+  const containerW = container.offsetWidth;
+  const wordEl = document.getElementById('tp-w-' + tpState.wordIdx);
+  if (wordEl) {
+    const wordLeft = wordEl.offsetLeft;
+    const offset = Math.max(0, wordLeft - containerW * 0.3);
+    track.style.transform = 'translateX(-' + offset + 'px)';
+  }
+  // 프로그레스 업데이트
+  const pct = Math.round(((tpState.wordIdx + 1) / total) * 100);
+  document.getElementById('sev-prog-bar').style.width = pct + '%';
+  const rb = document.getElementById('sev-rec-badge');
+  rb.textContent = (tpState.wordIdx + 1) + ' / ' + total;
+
+  tpState.wordIdx++;
+  if (tpState.wordIdx >= total) {
+    // 모든 단어 완료
+    setTimeout(() => {
+      stopTpRec();
+      // 마지막 단어도 done 처리
+      const last = document.getElementById('tp-w-' + (total - 1));
+      if (last) { last.classList.remove('active'); last.classList.add('done'); }
+      document.getElementById('sev-tp-fb').textContent = '녹음 완료!';
+      document.getElementById('sev-tp-fb').style.color = '#16A34A';
+      document.getElementById('sev-tp-mic-btn').classList.remove('recording');
+      document.getElementById('sev-tp-mic-label').textContent = '완료';
+      // 잘 했어요 화면으로
+      setTimeout(() => { showSevRecDone(); }, 1200);
+    }, 1500);
+  }
+}
+
+function toggleSevTpRec() {
+  if (tpState.wordIdx >= SEV_WORDS_RAW.length) return; // 이미 완료
+  if (!tpState.recording) {
+    tpState.recording = true;
+    document.getElementById('sev-tp-mic-btn').classList.add('recording');
+    document.getElementById('sev-tp-mic-label').textContent = '탭하여 완료';
+    document.getElementById('sev-tp-fb').textContent = '단어를 순서대로 읽어 주세요';
+    document.getElementById('sev-tp-fb').style.color = '#E24B4A';
+    // 1.5초마다 다음 단어로 스크롤
+    scrollTeleprompter();
+    tpState.scrollTimer = setInterval(scrollTeleprompter, 1500);
+  } else {
+    stopTpRec();
+    showSevRecDone();
+  }
+}
+
+function stopTpRec() {
+  tpState.recording = false;
+  if (tpState.scrollTimer) { clearInterval(tpState.scrollTimer); tpState.scrollTimer = null; }
+  document.getElementById('sev-tp-mic-btn').classList.remove('recording');
+  document.getElementById('sev-tp-mic-label').textContent = '눌러서 말하기';
 }
 
 function showSevRecDone() {
-  const task = SEV_TASKS[sevState.taskIdx];
-  const d = task.list[sevState.step];
   document.getElementById('sev-rec-main').style.display = 'none';
+  document.getElementById('sev-rec-teleprompter').style.display = 'none';
   document.getElementById('sev-rec-done').style.display = 'flex';
-  document.getElementById('sev-done-word').textContent = d.word;
+  // 프로그레스 바 100% 채우기
+  document.getElementById('sev-prog-bar').style.width = '100%';
+  // 단어읽기는 한 번에 처리하므로 step을 마지막으로 설정
+  if (sevState.taskIdx === 2) {
+    sevState.step = SEV_WORDS.length - 1;
+  }
 }
 
 function setSevFeedback(s, msg) {
@@ -2891,7 +2962,16 @@ function toggleSevRec() {
       setSevMicIdle();
     } else {
       setSevMicIdle();
-      showSevRecDone();
+      const task = SEV_TASKS[sevState.taskIdx];
+      const total = task.list.length;
+      if (sevState.step + 1 >= total) {
+        // 과제의 마지막 항목 → 잘 했어요! 화면
+        showSevRecDone();
+      } else {
+        // 중간 항목 → 바로 다음으로
+        sevState.step++;
+        renderSevStep();
+      }
     }
   }
 }
@@ -2921,12 +3001,18 @@ function showSevComplete() {
   document.getElementById('sev-rec-view').style.display = 'none';
   document.getElementById('sev-list-view').style.display = 'none';
   document.getElementById('sev-complete-view').style.display = 'flex';
-  // 2초 후 예상 중증도 표시 (시뮬레이션)
-  const levels = ['경도','중등도','중도'];
-  const sevIdx = ['mild','moderate','severe'].indexOf(sev);
+  // 초기 상태
+  document.getElementById('sev-analyzing').style.display = 'flex';
+  document.getElementById('sev-training-ready').style.display = 'none';
+  document.getElementById('sev-complete-btn').style.opacity = '0.5';
+  document.getElementById('sev-complete-btn').style.pointerEvents = 'none';
+  // 2.5초 후 분석 완료 → 맞춤 훈련 안내
   setTimeout(() => {
-    document.getElementById('sev-result-level').textContent = levels[sevIdx >= 0 ? sevIdx : 0];
-  }, 2000);
+    document.getElementById('sev-analyzing').style.display = 'none';
+    document.getElementById('sev-training-ready').style.display = 'block';
+    document.getElementById('sev-complete-btn').style.opacity = '1';
+    document.getElementById('sev-complete-btn').style.pointerEvents = 'auto';
+  }, 2500);
 }
 
 /* ══════════════════════════════════════════════════════════
