@@ -488,12 +488,24 @@
     }
     .rm-item:active { background: var(--primary-l); border-color: var(--primary); transform: scale(1.05); }
     .rm-item.selected { background: var(--primary-l); border-color: var(--primary); }
-    .rm-item.selected .rm-ico { transform: scale(1.15); }
-    .rm-item.selected .rm-e { color: var(--primary); }
-    .rm-item.selected .rm-l { color: var(--primary); font-weight: 700; }
-    .rm-ico { font-size: 28px; line-height: 1; margin-bottom: 2px; transition: transform .2s; }
-    .rm-e { font-size: 13px; font-weight: 700; color: var(--t1); line-height: 1.2; }
-    .rm-l { font-size: 11px; color: var(--t3); font-weight: 500; line-height: 1.2; white-space: nowrap; }
+    .rm-item.selected { background: var(--primary-l); border-color: var(--primary); }
+    .rm-item.selected .rm-e { font-weight: 800; }
+    .rm-item.selected .rm-l { font-weight: 700; }
+    .rm-dot { width: 10px; height: 10px; border-radius: 50%; margin-bottom: 4px; }
+    .rm-e { font-size: 14px; font-weight: 700; line-height: 1.3; }
+    .rm-l { font-size: 11px; font-weight: 500; line-height: 1.2; white-space: nowrap; }
+    .rm-item:nth-child(1) .rm-dot { background: #B0BEC5; }
+    .rm-item:nth-child(1) .rm-e { color: #78909C; }
+    .rm-item:nth-child(1) .rm-l { color: #90A4AE; }
+    .rm-item:nth-child(2) .rm-dot { background: #A5C7E2; }
+    .rm-item:nth-child(2) .rm-e { color: #5B8DB8; }
+    .rm-item:nth-child(2) .rm-l { color: #7BAACB; }
+    .rm-item:nth-child(3) .rm-dot { background: #81C784; }
+    .rm-item:nth-child(3) .rm-e { color: #43A047; }
+    .rm-item:nth-child(3) .rm-l { color: #66BB6A; }
+    .rm-item:nth-child(4) .rm-dot { background: #4CAF50; }
+    .rm-item:nth-child(4) .rm-e { color: #2E7D32; }
+    .rm-item:nth-child(4) .rm-l { color: #43A047; }
 
     .res-home-btn {
       width: 100%; height: 64px; background: var(--primary);
@@ -1939,10 +1951,10 @@
       <div class="res-mood">
         <div class="rm-title">훈련 후 기분은 어떠세요?</div>
         <div class="rm-emojis">
-          <div class="rm-item" onclick="selectMood(this)"><div class="rm-ico">😔</div><div class="rm-e">힘들어요</div><div class="rm-l">아직 힘들어요</div></div>
-          <div class="rm-item" onclick="selectMood(this)"><div class="rm-ico">😐</div><div class="rm-e">비슷해요</div><div class="rm-l">변화 없어요</div></div>
-          <div class="rm-item" onclick="selectMood(this)"><div class="rm-ico">🙂</div><div class="rm-e">나아요</div><div class="rm-l">조금 나아요</div></div>
-          <div class="rm-item" onclick="selectMood(this)"><div class="rm-ico">😊</div><div class="rm-e">좋아요</div><div class="rm-l">훨씬 좋아요!</div></div>
+          <div class="rm-item" onclick="selectMood(this)"><div class="rm-dot"></div><div class="rm-e">힘들어요</div><div class="rm-l">아직 힘들어요</div></div>
+          <div class="rm-item" onclick="selectMood(this)"><div class="rm-dot"></div><div class="rm-e">비슷해요</div><div class="rm-l">변화 없어요</div></div>
+          <div class="rm-item" onclick="selectMood(this)"><div class="rm-dot"></div><div class="rm-e">나아요</div><div class="rm-l">조금 나아요</div></div>
+          <div class="rm-item" onclick="selectMood(this)"><div class="rm-dot"></div><div class="rm-e">좋아요</div><div class="rm-l">훨씬 좋아요!</div></div>
         </div>
       </div>
 
