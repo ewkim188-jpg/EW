@@ -567,12 +567,9 @@
       font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px;
       display:inline-block; margin-left:8px;
     }
-    .sev-rec-area {
-      flex:1; display:flex; flex-direction:column; align-items:center;
-      justify-content:center; gap:12px; min-height:120px; max-height:200px;
-    }
     .sev-mic-btn {
-      width:110px; height:110px; border-radius:50%; background:var(--primary);
+      width:140px; height:140px; border-radius:50%; background:var(--primary);
+      transition: width .3s, height .3s;
       border:none; cursor:pointer; display:flex; flex-direction:column;
       align-items:center; justify-content:center; gap:8px; transition:all .2s;
     }
@@ -1731,41 +1728,35 @@
     </div>
 
     <!-- 녹음 뷰 -->
-    <div id="sev-rec-view" style="display:none;flex-direction:column;height:100%;overflow-y:auto;">
+    <div id="sev-rec-view" style="display:none;flex-direction:column;height:100%;">
       <div class="sbar" style="padding:18px 22px 14px;">
         <span onclick="backToSevList()" style="cursor:pointer;font-size:18px;">❮</span>
         <span id="sev-rec-title" style="font-size:var(--fs-md);font-weight:700;"></span>
         <span id="sev-rec-badge" style="font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px;"></span>
       </div>
-      <div style="padding:0 20px 8px;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-          <span style="font-size:11px;color:var(--t3);">진행률</span>
-          <span id="sev-prog-num" style="font-size:11px;font-weight:600;color:var(--primary);"></span>
+      <!-- 진행률 바 (얇고 미니멀) -->
+      <div style="padding:0 20px 0;">
+        <div style="background:#EEF2FF;border-radius:999px;height:4px;">
+          <div class="sev-prog-bar" id="sev-prog-bar" style="height:4px;"></div>
         </div>
-        <div class="sev-prog-bar-wrap"><div class="sev-prog-bar" id="sev-prog-bar"></div></div>
       </div>
-      <div style="padding:8px 24px 0;text-align:center;">
-        <div class="sev-word" id="sev-word"></div>
-        <div class="sev-instruction" id="sev-instruction"></div>
-      </div>
-      <div class="sev-rec-area">
-        <button class="sev-mic-btn" id="sev-mic-btn" onclick="toggleSevRec()">
-          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-          <span class="sev-mic-label" id="sev-mic-label">눌러서 말하기</span>
+      <!-- 메인 영역: 녹음 대기/진행 -->
+      <div id="sev-rec-main" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px;text-align:center;">
+        <div class="sev-word" id="sev-word" style="font-size:72px;font-weight:800;margin-bottom:8px;"></div>
+        <div class="sev-instruction" id="sev-instruction" style="font-size:16px;margin-bottom:28px;"></div>
+        <button class="sev-mic-btn" id="sev-mic-btn" onclick="toggleSevRec()" style="width:140px;height:140px;">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span class="sev-mic-label" id="sev-mic-label" style="font-size:15px;">눌러서 말하기</span>
         </button>
+        <div id="sev-fb-text" style="font-size:15px;color:var(--t3);margin-top:18px;min-height:24px;transition:color .3s;">마이크를 누르고 소리를 내보세요</div>
       </div>
-      <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:8px;">
-        <div class="sev-wave-box">
-          <canvas id="sevWaveCanvas" width="240" height="32" style="display:block;"></canvas>
-        </div>
-        <div class="sev-feedback" id="sev-feedback" style="background:#F4F6FF;">
-          <div class="sev-feedback-icon" id="sev-fb-icon" style="background:var(--primary);">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
-          </div>
-          <span id="sev-fb-text" style="font-size:13px;color:var(--primary);line-height:1.4;">마이크 버튼을 눌러 녹음을 시작하세요</span>
-        </div>
-        <button class="sev-submit-btn" id="sev-submit-btn" onclick="sevNextStep()" disabled>
-          <span id="sev-submit-label">제출하기</span>
+      <!-- 메인 영역: 녹음 완료 -->
+      <div id="sev-rec-done" style="flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;padding:0 24px;text-align:center;gap:12px;">
+        <div style="font-size:64px;">✓</div>
+        <div class="sev-word" id="sev-done-word" style="font-size:48px;font-weight:800;color:var(--t1);"></div>
+        <div style="font-size:20px;font-weight:700;color:#16A34A;">잘 했어요!</div>
+        <button class="sev-submit-btn" id="sev-submit-btn" onclick="sevNextStep()" style="margin-top:16px;width:280px;">
+          <span id="sev-submit-label">다음으로</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
@@ -2757,25 +2748,31 @@ function renderSevStep() {
   rb.textContent = (sevState.step+1) + ' / ' + total;
   const pct = Math.round((sevState.step / total) * 100);
   document.getElementById('sev-prog-bar').style.width = pct + '%';
-  document.getElementById('sev-prog-num').textContent = pct + '%';
   document.getElementById('sev-word').textContent = d.word;
   document.getElementById('sev-instruction').textContent = d.instruction;
   setSevFeedback('idle');
   setSevMicIdle();
-  document.getElementById('sev-submit-btn').disabled = true;
+  // 녹음 대기 뷰 표시, 완료 뷰 숨김
+  document.getElementById('sev-rec-main').style.display = 'flex';
+  document.getElementById('sev-rec-done').style.display = 'none';
   document.getElementById('sev-submit-label').textContent =
-    (sevState.step + 1 >= total) ? '완료하기' : '제출하기';
-  drawSevWaveIdle();
+    (sevState.step + 1 >= total) ? '완료하기' : '다음으로';
+}
+
+function showSevRecDone() {
+  const task = SEV_TASKS[sevState.taskIdx];
+  const d = task.list[sevState.step];
+  document.getElementById('sev-rec-main').style.display = 'none';
+  document.getElementById('sev-rec-done').style.display = 'flex';
+  document.getElementById('sev-done-word').textContent = d.word;
 }
 
 function setSevFeedback(s, msg) {
-  const fb = document.getElementById('sev-feedback');
   const txt = document.getElementById('sev-fb-text');
-  const icon = document.getElementById('sev-fb-icon');
-  if (s === 'idle')      { fb.style.background='#F4F6FF'; txt.style.color='var(--primary)'; icon.style.background='var(--primary)'; txt.textContent='마이크 버튼을 눌러 녹음을 시작하세요'; }
-  else if (s === 'recording') { fb.style.background='#FFF0F0'; txt.style.color='#C0392B'; icon.style.background='#E24B4A'; txt.textContent = msg || '녹음 중입니다...'; }
-  else if (s === 'done') { fb.style.background='#E8F5E9'; txt.style.color='#2E7D32'; icon.style.background='#2E7D32'; txt.textContent = msg || '녹음 완료! 제출하기를 눌러주세요'; }
-  else if (s === 'short') { fb.style.background='#FFF4E0'; txt.style.color='#7A4F00'; icon.style.background='#F5A623'; txt.textContent='조금 더 길게 소리를 내보세요'; }
+  if (s === 'idle')           { txt.style.color='var(--t3)'; txt.textContent='마이크를 누르고 소리를 내보세요'; }
+  else if (s === 'recording') { txt.style.color='#E24B4A'; txt.textContent = msg || '녹음 중...'; }
+  else if (s === 'done')      { txt.style.color='#2E7D32'; txt.textContent = msg || '잘 했어요!'; }
+  else if (s === 'short')     { txt.style.color='#D97706'; txt.textContent='조금 더 길게 소리를 내보세요'; }
 }
 
 function setSevMicIdle() {
@@ -2829,9 +2826,8 @@ function toggleSevRec() {
       setSevFeedback('short');
       setSevMicIdle();
     } else {
-      setSevFeedback('done', '녹음 완료! 제출하기를 눌러주세요');
       setSevMicIdle();
-      document.getElementById('sev-submit-btn').disabled = false;
+      showSevRecDone();
     }
   }
 }
