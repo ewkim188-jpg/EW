@@ -170,7 +170,7 @@
   /* phone */
   .stage { display: flex; justify-content: center; }
   .phone {
-    width: 320px; max-width: 100%; aspect-ratio: 320 / 660;
+    width: 320px; max-width: 100%; aspect-ratio: 320 / 690;
     background: var(--p-bezel); border-radius: 46px; padding: 11px;
     box-shadow: var(--shadow); position: relative;
   }
@@ -186,12 +186,17 @@
   .appbar p { margin: 3px 0 0; font-size: 11.5px; opacity: 0.9; }
   .pbody { flex: 1; padding: 10px 12px 6px; display: grid; gap: 8px; align-content: start; overflow: hidden; }
   .pcard { background: var(--p-card); border-radius: 12px; padding: 11px; box-shadow: 0 1px 2px rgba(20,30,50,0.05); }
-  .pcard.dark { background: var(--p-dark); color: #fff; text-align: center; padding: 14px 12px; }
+  .pcard.dark { background: var(--p-dark); color: #fff; text-align: center; padding: 10px 12px; }
   .pcard.dark strong { display: block; font-size: 16px; font-weight: 900; }
   .pcard.dark span { display: block; font-size: 11.5px; opacity: 0.8; margin-top: 2px; }
-  .grow { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px; }
+  .grow { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 2px; }
   .grow svg { display: block; }
   .grow i { font-style: normal; color: rgba(255,255,255,0.7); font-size: 14px; }
+  .pcard.dark.guardian { display: flex; align-items: center; gap: 10px; text-align: left; padding: 8px 12px; }
+  .guardian > div { min-width: 0; }
+  .guardian .grow { margin: 0; gap: 6px; flex: none; }
+  .guardian strong { font-size: 13px; }
+  .guardian span { font-size: 11px; margin-top: 1px; }
   .plabel { font-size: 11px; color: var(--p-muted); margin: 2px 2px 6px; font-weight: 500; }
   .tabbar {
     display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--p-line);
@@ -297,12 +302,12 @@
   .facts b { display: block; font-size: 24px; font-weight: 900; color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1.15; }
   .facts span { display: block; font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
   .onb { display: grid; gap: 0; }
-  .onb > div { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-top: 1px solid var(--p-line); font-size: 12px; }
+  .onb > div { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-top: 1px solid var(--p-line); font-size: 12px; }
   .onb > div:first-child { border-top: 0; padding-top: 0; }
   .onb span { color: var(--p-muted); font-size: 11px; }
   .onb b { font-weight: 700; }
   .badge { display: inline-block; font-size: 11px; font-weight: 700; color: #fff; background: #E5484D; padding: 3px 9px; border-radius: 999px; margin-bottom: 8px; }
-  .datebox { background: var(--p-card); border-radius: 12px; padding: 11px 12px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; }
+  .datebox { background: var(--p-card); border-radius: 12px; padding: 9px 12px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; }
   .datebox span { font-weight: 400; color: var(--p-muted); font-size: 11px; }
   .pill-row { display: flex; gap: 6px; flex-wrap: wrap; }
   .pill-row span { font-size: 10.5px; padding: 4px 8px; border-radius: 999px; background: #E6EFFE; color: var(--p-blue); font-weight: 700; }
@@ -430,7 +435,7 @@
           <div class="plabel">오늘부터 매일 하는 일</div>
           <div class="pill-row"><span>기분 체크인</span><span>모음 발성</span><span>퍼터커</span><span>단어 읽기</span><span>스탬프 받기</span></div>
         </div>
-        <div class="pcard dark"><div class="grow"><svg width="52" height="58"><use href="#tiger-baby"/></svg><i>→</i><svg width="52" height="58"><use href="#tiger-adult"/></svg></div><strong>내 수호신은 아기 호랑이</strong><span>범띠 어르신 · 매일 스탬프가 쌓이면 어른 호랑이로 자랍니다</span></div>
+        <div class="pcard dark guardian"><div class="grow"><svg width="38" height="42"><use href="#tiger-baby"/></svg><i>→</i><svg width="38" height="42"><use href="#tiger-adult"/></svg></div><div><strong>내 수호신은 아기 호랑이</strong><span>매일 스탬프가 쌓이면 어른 호랑이로 자라요</span></div></div>
         <div class="cta">시작하기 →</div>
       </div>
       <div class="tabbar"><div class="on"><i></i>홈</div><div><i></i>재활훈련</div><div><i></i>기록</div><div><i></i>설정</div></div>
