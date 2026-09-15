@@ -135,6 +135,16 @@
   .flow div.k { border-color: var(--kc); box-shadow: inset 0 0 0 1px var(--kc); }
   .flow div.k strong { color: var(--kc); }
 
+  /* print: one screen per page */
+  @media print {
+    .nav { position: static; backdrop-filter: none; background: var(--bg); }
+    .slide { break-before: page; page-break-before: always; padding: 40px 24px 40px; min-height: 1300px; align-content: center; }
+    .intro { padding-top: 40px; min-height: 1230px; display: grid; align-content: center; }
+    #s4 { min-height: 1160px; }
+    .phone { box-shadow: 0 0 0 1px var(--line); }
+    footer { padding: 12px 24px 24px; break-before: avoid; page-break-before: avoid; }
+  }
+
   /* slides */
   .slide {
     max-width: 1180px; margin: 0 auto; padding: 56px 24px 72px;
