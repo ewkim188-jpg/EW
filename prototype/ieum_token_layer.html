@@ -1,0 +1,499 @@
+<title>이음 전국 일주</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@600;700&display=swap">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --ink: #1F2937;
+    --ink-2: #4B5563;
+    --muted: #6B7280;
+    --line: #E5E9F0;
+    --panel: #F3F6FB;
+    --blue: #1668E5;
+    --blue-soft: #E8F0FD;
+    --gold: #C98A12;
+    --gold-soft: #FBF3E0;
+    --green: #16A34A;
+    --green-soft: #E7F6EC;
+    --red: #E5484D;
+    --shadow: 0 24px 48px rgba(22, 44, 88, 0.18);
+    --sans: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    --serif: "Noto Serif KR", "Apple Myungjo", "Nanum Myeongjo", serif;
+    /* phone screen palette: fixed, the app is a light product */
+    --p-bg: #F8F8F8;
+    --p-card: #FFFFFF;
+    --p-ink: #374151;
+    --p-muted: #7B8494;
+    --p-line: #E9ECF2;
+    --p-blue: #1668E5;
+    --p-blue-2: #4589ED;
+    --p-dark: #1E2A3B;
+    --p-bezel: #2B2F36;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1420;
+      --ink: #EEF2F8;
+      --ink-2: #C3CBD8;
+      --muted: #8E98A8;
+      --line: #23304A;
+      --panel: #141C2B;
+      --blue: #5C9BFF;
+      --blue-soft: #16243D;
+      --gold: #E9B44C;
+      --gold-soft: #2C2410;
+      --green: #4ADE80;
+      --green-soft: #0F2A1A;
+      --shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1420;
+    --ink: #EEF2F8;
+    --ink-2: #C3CBD8;
+    --muted: #8E98A8;
+    --line: #23304A;
+    --panel: #141C2B;
+    --blue: #5C9BFF;
+    --blue-soft: #16243D;
+    --gold: #E9B44C;
+    --gold-soft: #2C2410;
+    --green: #4ADE80;
+    --green-soft: #0F2A1A;
+    --shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+  /* nav */
+  .nav {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-in {
+    max-width: 1180px; margin: 0 auto; padding: 12px 24px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .brand { font-family: var(--serif); font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+  .brand small { font-family: var(--sans); font-weight: 500; color: var(--muted); margin-left: 8px; font-size: 12px; }
+  .nav ol { list-style: none; margin: 0 0 0 auto; padding: 0; display: flex; gap: 4px; flex-wrap: wrap; }
+  .nav ol a {
+    display: inline-flex; align-items: center; gap: 8px;
+    text-decoration: none; font-size: 13px; font-weight: 500; color: var(--ink-2);
+    padding: 6px 12px; border-radius: 999px;
+  }
+  .nav ol a:hover { background: var(--panel); color: var(--ink); }
+  .nav ol a b { font-weight: 700; color: var(--blue); font-variant-numeric: tabular-nums; }
+
+  /* intro */
+  .intro { max-width: 1180px; margin: 0 auto; padding: 56px 24px 24px; }
+  .intro h1 {
+    font-family: var(--serif); font-weight: 700; font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.25; margin: 0 0 14px; letter-spacing: -0.015em; text-wrap: balance; max-width: 22ch;
+  }
+  .intro p { max-width: 62ch; margin: 0; color: var(--ink-2); font-size: 16px; }
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+    padding: 4px 10px; border-radius: 6px; border: 1px solid transparent;
+  }
+  .chip.rwa { background: var(--gold-soft); color: var(--gold); }
+  .chip.coin { background: var(--green-soft); color: var(--green); }
+  .chip.agent { background: var(--blue-soft); color: var(--blue); }
+  .chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* slides */
+  .slide {
+    max-width: 1180px; margin: 0 auto; padding: 56px 24px 72px;
+    display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: 48px; align-items: center;
+    border-top: 1px solid var(--line);
+    scroll-margin-top: 72px;
+  }
+  .slide:nth-of-type(even) .copy { order: 2; }
+  .eyebrow {
+    display: flex; align-items: baseline; gap: 12px; color: var(--muted);
+    font-size: 13px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .eyebrow b { font-size: 34px; font-weight: 900; color: var(--blue); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1; }
+  .copy h2 {
+    font-family: var(--serif); font-weight: 700; font-size: clamp(24px, 2.8vw, 32px);
+    line-height: 1.3; margin: 14px 0 12px; letter-spacing: -0.01em; text-wrap: balance;
+  }
+  .copy > p { margin: 0 0 22px; color: var(--ink-2); max-width: 58ch; }
+  .points { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .points li {
+    display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: start;
+    padding: 14px 16px; background: var(--panel); border-radius: 12px;
+  }
+  .points .chip { justify-self: start; margin-top: 2px; }
+  .points strong { display: block; font-weight: 700; margin-bottom: 2px; }
+  .points span { color: var(--ink-2); font-size: 14px; }
+  .note {
+    margin-top: 18px; padding: 12px 16px; border-left: 3px solid var(--gold);
+    color: var(--ink-2); font-size: 14px; background: var(--gold-soft); border-radius: 0 10px 10px 0;
+  }
+  .note b { color: var(--ink); }
+
+  /* flow diagram */
+  .flow { margin: 20px 0 4px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; align-items: stretch; }
+  .flow div { position: relative; padding: 12px 10px 12px 14px; border: 1px solid var(--line); background: var(--bg); }
+  .flow div:first-child { border-radius: 10px 0 0 10px; }
+  .flow div:last-child { border-radius: 0 10px 10px 0; }
+  .flow div + div { border-left: 0; }
+  .flow div + div::before {
+    content: ""; position: absolute; left: -7px; top: 50%; width: 12px; height: 12px;
+    border-top: 1px solid var(--line); border-right: 1px solid var(--line);
+    background: var(--bg); transform: translateY(-50%) rotate(45deg);
+  }
+  .flow small { display: block; font-size: 11px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+  .flow strong { display: block; font-size: 14px; }
+  .flow em { display: block; font-style: normal; font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+
+  /* phone */
+  .stage { display: flex; justify-content: center; }
+  .phone {
+    width: 320px; max-width: 100%; aspect-ratio: 320 / 660;
+    background: var(--p-bezel); border-radius: 46px; padding: 11px;
+    box-shadow: var(--shadow); position: relative;
+  }
+  .screen {
+    position: relative; height: 100%; border-radius: 36px; overflow: hidden;
+    background: var(--p-bg); color: var(--p-ink); font-size: 13px; line-height: 1.45;
+    display: flex; flex-direction: column;
+  }
+  .notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 92px; height: 22px; background: var(--p-bezel); border-radius: 999px; z-index: 3; }
+  .status { display: flex; justify-content: space-between; padding: 12px 22px 2px; font-size: 11px; font-weight: 700; color: #fff; z-index: 2; background: var(--p-blue); }
+  .appbar { background: linear-gradient(180deg, var(--p-blue) 0%, var(--p-blue-2) 100%); color: #fff; padding: 8px 18px 14px; }
+  .appbar h3 { margin: 0; font-size: 18px; font-weight: 900; letter-spacing: -0.01em; }
+  .appbar p { margin: 3px 0 0; font-size: 11.5px; opacity: 0.9; }
+  .pbody { flex: 1; padding: 10px 12px 6px; display: grid; gap: 8px; align-content: start; overflow: hidden; }
+  .pcard { background: var(--p-card); border-radius: 12px; padding: 11px; box-shadow: 0 1px 2px rgba(20,30,50,0.05); }
+  .pcard.dark { background: var(--p-dark); color: #fff; text-align: center; padding: 14px 12px; }
+  .pcard.dark strong { display: block; font-size: 16px; font-weight: 900; }
+  .pcard.dark span { display: block; font-size: 11.5px; opacity: 0.8; margin-top: 2px; }
+  .plabel { font-size: 11px; color: var(--p-muted); margin: 2px 2px 6px; font-weight: 500; }
+  .tabbar {
+    display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--p-line);
+    background: var(--p-card); padding: 8px 6px 14px; font-size: 10px; color: var(--p-muted); text-align: center;
+  }
+  .tabbar i { display: block; width: 18px; height: 18px; margin: 0 auto 3px; border: 2px solid currentColor; border-radius: 5px; opacity: 0.55; }
+  .tabbar .on { color: var(--p-blue); font-weight: 700; }
+  .tabbar .on i { opacity: 1; background: var(--p-blue); border-color: var(--p-blue); }
+
+  /* stamp grid (slide 1) */
+  .cities { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .city { border-radius: 10px; padding: 7px 4px 6px; text-align: center; background: var(--p-card); border: 1px solid var(--p-line); }
+  .city .zodiac { display: grid; place-items: center; width: 26px; height: 26px; margin: 0 auto 3px; border-radius: 50%; font-size: 10px; font-weight: 900; background: #EEF1F6; color: var(--p-muted); }
+  .city b { display: block; font-size: 11px; font-weight: 700; color: var(--p-ink); }
+  .city small { display: block; font-size: 9.5px; color: var(--p-muted); font-variant-numeric: tabular-nums; }
+  .city.done { background: var(--p-blue); border-color: var(--p-blue); }
+  .city.done .zodiac { background: rgba(255,255,255,0.22); color: #fff; }
+  .city.done b, .city.done small { color: #fff; }
+  .city.now { border: 2px solid var(--p-blue); background: #EDF3FE; }
+  .city.now .zodiac { background: var(--p-blue); color: #fff; }
+  .city.lock { opacity: 0.55; }
+  .bar { height: 5px; background: #E5E9F0; border-radius: 999px; overflow: hidden; margin-top: 6px; }
+  .bar i { display: block; height: 100%; background: var(--p-blue); border-radius: 999px; }
+  .today { display: flex; align-items: center; gap: 10px; }
+  .today .stamp {
+    width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--gold); color: var(--gold);
+    display: grid; place-items: center; font-weight: 900; font-size: 11px; transform: rotate(-12deg);
+    background: #FFF9EA; flex: none;
+  }
+  .today b { display: block; font-size: 13px; }
+  .today span { font-size: 11px; color: var(--p-muted); }
+
+  /* voucher (slide 2) */
+  .celebrate { text-align: center; padding: 2px 0 0; }
+  .celebrate .ring { width: 52px; height: 52px; margin: 0 auto 6px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #86B6FF, var(--p-blue)); display: grid; place-items: center; color: #fff; font-weight: 900; font-size: 12px; }
+  .celebrate strong { display: block; font-size: 16px; font-weight: 900; color: var(--p-ink); }
+  .celebrate span { font-size: 11.5px; color: var(--p-muted); }
+  .ticket { position: relative; background: var(--p-card); border-radius: 12px; overflow: hidden; border: 1px solid var(--p-line); }
+  .ticket-top { background: #FFF6DF; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .ticket-top b { font-size: 14px; font-weight: 900; color: #8A5A05; }
+  .ticket-top small { font-size: 10px; color: #8A5A05; font-weight: 700; padding: 3px 7px; border: 1px solid #E5C77A; border-radius: 999px; }
+  .ticket-body { padding: 10px 12px; display: grid; grid-template-columns: 1fr 64px; gap: 10px; align-items: center; border-top: 1px dashed #DCD3BE; }
+  .kv { display: grid; gap: 4px; font-size: 11px; }
+  .kv div { display: flex; justify-content: space-between; gap: 8px; }
+  .kv span { color: var(--p-muted); }
+  .kv b { font-weight: 700; color: var(--p-ink); text-align: right; font-variant-numeric: tabular-nums; }
+  .qr { width: 64px; height: 64px; border: 1px solid var(--p-line); border-radius: 6px; padding: 5px; background:
+    conic-gradient(from 90deg at 50% 50%, #1E2A3B 25%, transparent 0) 0 0 / 8px 8px;
+    background-clip: content-box; }
+  .ticket::before, .ticket::after { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--p-bg); top: 44px; }
+  .ticket::before { left: -7px; } .ticket::after { right: -7px; }
+  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .btn { text-align: center; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 12.5px; }
+  .btn.primary { background: var(--p-blue); color: #fff; }
+  .btn.ghost { background: var(--p-card); border: 1px solid var(--p-line); color: var(--p-blue); }
+
+  /* wallet (slide 3) */
+  .balance { background: linear-gradient(135deg, #1E2A3B, #2E4468); color: #fff; border-radius: 12px; padding: 14px; }
+  .balance small { font-size: 11px; opacity: 0.8; }
+  .balance strong { display: block; font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .balance em { font-style: normal; font-size: 11px; display: inline-block; margin-top: 4px; padding: 3px 8px; border-radius: 999px; background: rgba(74,222,128,0.18); color: #9AF0B7; font-weight: 700; }
+  .sponsor { display: grid; gap: 0; }
+  .sponsor > div { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--p-line); }
+  .sponsor > div:first-of-type { border-top: 0; padding-top: 2px; }
+  .sponsor > div > div { min-width: 0; }
+  .sponsor .ico { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font-size: 10px; font-weight: 900; }
+  .sponsor .ico.g { background: #FFF1D6; color: #9A6408; } .sponsor .ico.b { background: #E6EFFE; color: var(--p-blue); } .sponsor .ico.p { background: #FCE7F3; color: #B0246A; }
+  .sponsor b { display: block; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .sponsor span { font-size: 10.5px; color: var(--p-muted); }
+  .sponsor .amt { font-size: 12px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .sponsor .amt small { display: block; font-size: 10px; font-weight: 500; color: var(--p-muted); }
+  .verify { display: grid; gap: 6px; }
+  .verify > div { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center; font-size: 11.5px; }
+  .verify i { width: 18px; height: 18px; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; font-size: 11px; font-style: normal; font-weight: 900; }
+  .verify span { color: var(--p-muted); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+
+  /* finish (slide 4) */
+  .bloom { text-align: center; padding: 4px 0 0; }
+  .bloom .flower { width: 58px; height: 58px; margin: 0 auto 4px; border-radius: 50%; background: radial-gradient(circle at 50% 50%, #FFD6E0 0 26%, #FFA6BC 27% 46%, #7CC48D 47% 62%, #DDF3E2 63%); }
+  .bloom strong { display: block; font-size: 17px; font-weight: 900; }
+  .bloom span { font-size: 11.5px; color: var(--p-muted); }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stats div { background: #EEF3FE; border-radius: 10px; padding: 7px 8px; text-align: center; }
+  .stats b { display: block; font-size: 16px; font-weight: 900; color: var(--p-blue); font-variant-numeric: tabular-nums; }
+  .stats span { font-size: 10.5px; color: var(--p-muted); }
+  .stats div.ok b { color: var(--green); }
+  .mission { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+  .mission b { display: block; font-size: 12.5px; }
+  .mission span { font-size: 10.5px; color: var(--p-muted); }
+  .mission .tag { font-size: 10px; font-weight: 700; color: var(--p-blue); background: #E6EFFE; padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
+
+  footer { max-width: 1180px; margin: 0 auto; padding: 24px 24px 56px; color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); }
+
+  @media (max-width: 860px) {
+    .slide { grid-template-columns: 1fr; gap: 32px; padding-block: 40px 56px; }
+    .slide:nth-of-type(even) .copy { order: 0; }
+    .points li { grid-template-columns: 1fr; gap: 6px; }
+    .flow { grid-template-columns: 1fr 1fr; }
+    .flow div { border-radius: 10px !important; border-left: 1px solid var(--line) !important; }
+    .flow div + div::before { display: none; }
+    .flow { gap: 8px; }
+  }
+</style>
+
+<header class="nav">
+  <div class="nav-in">
+    <div class="brand">이음 전국 일주 <small>스테이블코인 · RWA · AI 에이전트 통합 설계안</small></div>
+    <ol>
+      <li><a href="#s1"><b>1</b>매일 스탬프</a></li>
+      <li><a href="#s2"><b>2</b>도시 입장권</a></li>
+      <li><a href="#s3"><b>3</b>응원 지갑</a></li>
+      <li><a href="#s4"><b>4</b>180일 완주</a></li>
+    </ol>
+  </div>
+</header>
+
+<section class="intro">
+  <h1>180일을 끝까지 가게 하는 돈의 흐름을 이음 화면 안에 넣었습니다</h1>
+  <p>기존 이음의 스탬프·수호신·가족 공유 설계는 그대로 두고, 그 위에 후원금이 자동으로 흐르는 층을 하나 얹었습니다. 네 화면은 환자가 겪는 순서입니다. 하루, 15일, 후원, 그리고 180일.</p>
+  <div class="legend">
+    <span class="chip rwa">RWA 토큰화</span>
+    <span class="chip coin">스테이블코인 에스크로</span>
+    <span class="chip agent">AI 에이전트 검증·지급</span>
+  </div>
+</section>
+
+<!-- 1. 매일 -->
+<section class="slide" id="s1">
+  <div class="copy">
+    <div class="eyebrow"><b>1</b>매일 · 기록 탭</div>
+    <h2>하루 훈련 하나가 스탬프 하나, 15개가 모이면 도시 하나</h2>
+    <p>세계 일주 가상 여권을 전국 일주로 바꿨습니다. 180일을 12개 도시로 나누면 도시당 15일이고, 12간지 수호신이 도시 하나씩을 지킵니다. 기존 캐릭터 설계와 그대로 맞물립니다.</p>
+    <ul class="points">
+      <li><span class="chip rwa">RWA</span><div><strong>일일 스탬프는 양도 불가 토큰</strong><span>환자 본인의 기록이자, 후원자가 지급 근거로 검증하는 장부입니다.</span></div></li>
+      <li><span class="chip agent">에이전트</span><div><strong>탭 완료가 아니라 음성 세션이 조건</strong><span>MPT, DDK, 명료도 데이터가 기록된 세션만 스탬프로 인정합니다. 이미 앱에 있는 판정 로직이 검증 근거입니다.</span></div></li>
+      <li><span class="chip coin">코인</span><div><strong>스탬프가 찍히는 순간 가족 응원금 소액 지급</strong><span>매일 작은 보상이 풀려야 180일 동안 동기가 끊기지 않습니다.</span></div></li>
+    </ul>
+  </div>
+  <div class="stage">
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>●●● 78</span></div>
+      <div class="appbar"><h3>나의 전국 일주</h3><p>아급성기 · 골든타임 152일 남음 · 28일 연속</p></div>
+      <div class="pbody">
+        <div class="pcard today">
+          <div class="stamp">수원<br>28</div>
+          <div><b>오늘 스탬프를 찍었어요</b><span>모음 발성 9.2초 · 퍼터커 5.1회/초 · 명료도 71%</span></div>
+        </div>
+        <div class="plabel">12개 도시 · 도시마다 15일</div>
+        <div class="cities">
+          <div class="city done"><i class="zodiac">쥐</i><b>서울</b><small>15/15</small></div>
+          <div class="city now"><i class="zodiac">소</i><b>수원</b><small>13/15</small></div>
+          <div class="city lock"><i class="zodiac">범</i><b>강릉</b><small>0/15</small></div>
+          <div class="city lock"><i class="zodiac">토끼</i><b>춘천</b><small>0/15</small></div>
+          <div class="city lock"><i class="zodiac">용</i><b>인천</b><small>0/15</small></div>
+          <div class="city lock"><i class="zodiac">뱀</i><b>대전</b><small>0/15</small></div>
+          <div class="city lock"><i class="zodiac">말</i><b>전주</b><small>0/15</small></div>
+          <div class="city lock"><i class="zodiac">양</i><b>광주</b><small>0/15</small></div>
+          <div class="city lock"><i class="zodiac">원숭이</i><b>대구</b><small>0/15</small></div>
+          <div class="city lock"><i class="zodiac">닭</i><b>경주</b><small>0/15</small></div>
+          <div class="city lock"><i class="zodiac">개</i><b>부산</b><small>0/15</small></div>
+          <div class="city lock"><i class="zodiac">돼지</i><b>제주</b><small>0/15</small></div>
+        </div>
+        <div class="pcard">
+          <div style="display:flex;justify-content:space-between;font-size:11.5px"><b>수원까지 2일</b><span style="color:var(--p-muted)">28 / 180일</span></div>
+          <div class="bar"><i style="width:15.5%"></i></div>
+        </div>
+      </div>
+      <div class="tabbar"><div><i></i>홈</div><div><i></i>재활훈련</div><div class="on"><i></i>기록</div><div><i></i>설정</div></div>
+    </div></div>
+  </div>
+</section>
+
+<!-- 2. 15일 -->
+<section class="slide" id="s2">
+  <div class="copy">
+    <div class="eyebrow"><b>2</b>15일 · 도시 완주</div>
+    <h2>도시를 완주하면 입장권이 열립니다. 입장권은 토큰화된 실물 권리입니다</h2>
+    <p>가상 여권의 스탬프가 실제 랜드마크 입장권으로 바뀌는 순간입니다. 입장권은 앱이 아니라 지자체 관광공사가 발행하고, 앱은 검증과 전달만 합니다.</p>
+    <ul class="points">
+      <li><span class="chip rwa">RWA</span><div><strong>발행 주체는 관광공사</strong><span>의료기관이나 앱 사업자가 금전 보상을 주지 않으니 환자 유인 금지 조항을 피합니다. 관광공사는 원가가 낮은 현물로 홍보 소재를 얻습니다.</span></div></li>
+      <li><span class="chip rwa">RWA</span><div><strong>양도 가능, 유효기간 1년, 2인 동반</strong><span>급성기 환자가 당장 못 가도 회복 후 가족과 쓰거나 손주에게 줄 수 있습니다.</span></div></li>
+      <li><span class="chip agent">에이전트</span><div><strong>실제 방문이 도슨트 미션이 됩니다</strong><span>랜드마크 앞에서 자기 목소리로 설명하는 기존 설계의 도슨트 모드가 입장권 사용 순간과 연결됩니다.</span></div></li>
+    </ul>
+  </div>
+  <div class="stage">
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>●●● 78</span></div>
+      <div class="appbar"><h3>도시 완주</h3><p>소 수호신이 수원을 지켜냈어요</p></div>
+      <div class="pbody">
+        <div class="celebrate"><div class="ring">15/15</div><strong>수원 완주!</strong><span>15일 연속 훈련 · 명료도 64% → 73%</span></div>
+        <div class="ticket">
+          <div class="ticket-top"><b>수원화성 입장권</b><small>토큰 #SW-0142</small></div>
+          <div class="ticket-body">
+            <div class="kv">
+              <div><span>발행</span><b>수원문화재단</b></div>
+              <div><span>인원</span><b>2인 · 가족 동반</b></div>
+              <div><span>유효기간</span><b>2027.04.20까지</b></div>
+              <div><span>양도</span><b>가능 (가족 지갑)</b></div>
+            </div>
+            <div class="qr"></div>
+          </div>
+        </div>
+        <div class="btns"><div class="btn primary">지갑에 보관</div><div class="btn ghost">딸 지수에게 보내기</div></div>
+        <div class="pcard mission">
+          <div><b>도슨트 미션이 열렸어요</b><span>수원화성에서 내 목소리로 설명하기 · 방문 시 스탬프 3개</span></div>
+          <span class="tag">유지기</span>
+        </div>
+      </div>
+      <div class="tabbar"><div><i></i>홈</div><div><i></i>재활훈련</div><div class="on"><i></i>기록</div><div><i></i>설정</div></div>
+    </div></div>
+  </div>
+</section>
+
+<!-- 3. 후원 -->
+<section class="slide" id="s3">
+  <div class="copy">
+    <div class="eyebrow"><b>3</b>후원 · 응원 지갑</div>
+    <h2>세 후원자가 하나의 에스크로에 넣고, 훈련한 날에만 돈이 나갑니다</h2>
+    <p>스테이블코인은 돈을 만들어주지 않습니다. 누군가 낸 돈을 조건대로 흘려보내는 파이프입니다. 이 화면은 그 파이프를 환자와 후원자 양쪽이 볼 수 있게 한 것입니다.</p>
+    <div class="flow">
+      <div><small>예치</small><strong>후원자</strong><em>바우처·KRW 스테이블코인</em></div>
+      <div><small>훈련</small><strong>환자</strong><em>음성 세션 기록</em></div>
+      <div><small>검증</small><strong>AI 에이전트</strong><em>판정 확인 후 스탬프 발행</em></div>
+      <div><small>지급·반환</small><strong>스마트컨트랙트</strong><em>완주 시 지급, 이탈 시 반환</em></div>
+    </div>
+    <ul class="points">
+      <li><span class="chip coin">코인</span><div><strong>관광공사는 바우처, 보험사는 완주 성과금, 가족은 응원금</strong><span>세 종류 후원이 같은 지갑에 들어오고, 각각 다른 조건에 풀립니다.</span></div></li>
+      <li><span class="chip coin">코인</span><div><strong>훈련이 없는 날엔 한 푼도 나가지 않습니다</strong><span>중도 이탈 시 잔액은 후원자에게 자동 반환됩니다. 후원자가 안심하고 낼 수 있는 이유입니다.</span></div></li>
+    </ul>
+    <div class="note"><b>2단계 로드맵.</b> 원화 스테이블코인 법제화 전에는 앱 내부 원장(포인트)으로 같은 규칙을 돌리고, 법 시행 후 온체인으로 옮깁니다.</div>
+  </div>
+  <div class="stage">
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>●●● 78</span></div>
+      <div class="appbar"><h3>응원 지갑</h3><p>훈련한 날에만 응원이 도착해요</p></div>
+      <div class="pbody">
+        <div class="balance"><small>받은 응원</small><strong>14,000 KRWS</strong><em>오늘 500 KRWS 도착</em></div>
+        <div class="pcard">
+          <div class="plabel">후원자 3</div>
+          <div class="sponsor">
+            <div><i class="ico g">시</i><div><b>수원문화재단</b><span>입장권 바우처 · 도시 완주마다</span></div><div class="amt">2 / 12장<small>열림</small></div></div>
+            <div><i class="ico b">보</i><div><b>OO생명 환자지원</b><span>180일 완주 시 성과연동 지급</span></div><div class="amt">300,000<small>예치 중</small></div></div>
+            <div><i class="ico p">가</i><div><b>딸 지수</b><span>스탬프마다 500 KRWS</span></div><div class="amt">76,000<small>남은 응원</small></div></div>
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="plabel">오늘의 검증 · 09:32</div>
+          <div class="verify">
+            <div><i>✓</i>음성 세션 기록 확인<span>MPT 9.2초</span></div>
+            <div><i>✓</i>일일 스탬프 발행<span>#28</span></div>
+            <div><i>✓</i>가족 응원금 지급<span>500 KRWS</span></div>
+          </div>
+        </div>
+        <div class="plabel" style="text-align:center;margin-top:0">훈련을 쉬면 지급도 쉬고, 남은 금액은 후원자에게 돌아가요</div>
+      </div>
+      <div class="tabbar"><div class="on"><i></i>홈</div><div><i></i>재활훈련</div><div><i></i>기록</div><div><i></i>설정</div></div>
+    </div></div>
+  </div>
+</section>
+
+<!-- 4. 180일 -->
+<section class="slide" id="s4">
+  <div class="copy">
+    <div class="eyebrow"><b>4</b>180일 · 완주</div>
+    <h2>완주가 곧 성과연동 지급이고, 완주 이후는 여행이 훈련이 됩니다</h2>
+    <p>성공 지표는 180일 완주율 하나입니다. 완주하는 순간 보험사가 예치한 성과금이 집행되고, 씨앗에서 시작한 수호신은 꽃으로 자랍니다. 보상이 끝나도 훈련이 끊기지 않도록, 열린 입장권을 쓰러 가는 길이 유지기 훈련이 됩니다.</p>
+    <ul class="points">
+      <li><span class="chip coin">코인</span><div><strong>보험사 성과연동 지급은 완주 한 번에</strong><span>완주율이 오르면 장기 요양과 우울증 관련 지급이 줄어드는 것이 보험사가 참여하는 이유입니다.</span></div></li>
+      <li><span class="chip agent">에이전트</span><div><strong>완주 판정은 사람이 최종 확인</strong><span>에이전트가 180개 스탬프와 재평가 점수를 대조해 올리면, 치료사가 승인합니다. 기존 설계의 "최종 판단은 사람" 원칙을 지킵니다.</span></div></li>
+      <li><span class="chip rwa">RWA</span><div><strong>가족 띠 수집으로 다음 여정</strong><span>손주의 띠 길이 열리면 같은 지갑 구조가 유지기에도 그대로 돌아갑니다.</span></div></li>
+    </ul>
+    <div class="note"><b>지표.</b> 성공은 180일 완주율. 중간은 주간 스탬프 획득률과 도시 바우처 개방률. 후원자 쪽은 바우처 실제 사용률과 재예치율.</div>
+  </div>
+  <div class="stage">
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>●●● 78</span></div>
+      <div class="appbar"><h3>180일 완주</h3><p>12개 도시를 모두 돌았어요</p></div>
+      <div class="pbody">
+        <div class="bloom"><div class="flower"></div><strong>꽃이 피었어요</strong><span>씨앗 → 새싹 → 꽃 · 180일 연속</span></div>
+        <div class="stats">
+          <div><b>180 / 180</b><span>스탬프</span></div>
+          <div><b>12 / 12</b><span>도시 입장권</span></div>
+          <div class="ok"><b>+18%p</b><span>명료도 64 → 82</span></div>
+          <div class="ok"><b>300,000</b><span>성과금 집행됨</span></div>
+        </div>
+        <div class="pcard">
+          <div class="plabel">완주 승인</div>
+          <div class="verify">
+            <div><i>✓</i>에이전트 대조 완료<span>스탬프 180 · 재평가 4회</span></div>
+            <div><i>✓</i>담당 치료사 승인<span>04.06 김OO</span></div>
+            <div><i>✓</i>OO생명 성과연동 지급<span>300,000 KRWS</span></div>
+          </div>
+        </div>
+        <div class="pcard mission">
+          <div><b>다음 여정: 손주 토끼 길</b><span>도슨트 미션 12개 · 입장권 쓰러 가는 날이 훈련일</span></div>
+          <span class="tag">유지기</span>
+        </div>
+      </div>
+      <div class="tabbar"><div class="on"><i></i>홈</div><div><i></i>재활훈련</div><div><i></i>기록</div><div><i></i>설정</div></div>
+    </div></div>
+  </div>
+</section>
+
+<footer>화면의 도시, 후원자, 금액은 설명을 위한 예시입니다. 성과연동 금액과 바우처 조건은 파일럿 지자체·보험사와 협의해 정합니다.</footer>
