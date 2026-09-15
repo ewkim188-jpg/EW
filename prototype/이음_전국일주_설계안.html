@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<title>이음 전국 일주</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@600;700&display=swap">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --ink: #1F2937;
+    --ink-2: #4B5563;
+    --muted: #6B7280;
+    --line: #E5E9F0;
+    --panel: #F3F6FB;
+    --blue: #1668E5;
+    --blue-soft: #E8F0FD;
+    --gold: #C98A12;
+    --gold-soft: #FBF3E0;
+    --green: #16A34A;
+    --green-soft: #E7F6EC;
+    --red: #E5484D;
+    --shadow: 0 24px 48px rgba(22, 44, 88, 0.18);
+    --sans: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    --serif: "Noto Serif KR", "Apple Myungjo", "Nanum Myeongjo", serif;
+    /* phone screen palette: fixed, the app is a light product */
+    --p-bg: #F8F8F8;
+    --p-card: #FFFFFF;
+    --p-ink: #374151;
+    --p-muted: #7B8494;
+    --p-line: #E9ECF2;
+    --p-blue: #1668E5;
+    --p-blue-2: #4589ED;
+    --p-dark: #1E2A3B;
+    --p-bezel: #2B2F36;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1420;
+      --ink: #EEF2F8;
+      --ink-2: #C3CBD8;
+      --muted: #8E98A8;
+      --line: #23304A;
+      --panel: #141C2B;
+      --blue: #5C9BFF;
+      --blue-soft: #16243D;
+      --gold: #E9B44C;
+      --gold-soft: #2C2410;
+      --green: #4ADE80;
+      --green-soft: #0F2A1A;
+      --shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1420;
+    --ink: #EEF2F8;
+    --ink-2: #C3CBD8;
+    --muted: #8E98A8;
+    --line: #23304A;
+    --panel: #141C2B;
+    --blue: #5C9BFF;
+    --blue-soft: #16243D;
+    --gold: #E9B44C;
+    --gold-soft: #2C2410;
+    --green: #4ADE80;
+    --green-soft: #0F2A1A;
+    --shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+  /* nav */
+  .nav {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-in {
+    max-width: 1180px; margin: 0 auto; padding: 12px 24px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .brand { font-family: var(--serif); font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+  .brand small { font-family: var(--sans); font-weight: 500; color: var(--muted); margin-left: 8px; font-size: 12px; }
+  .nav ol { list-style: none; margin: 0 0 0 auto; padding: 0; display: flex; gap: 4px; flex-wrap: wrap; }
+  .nav ol a {
+    display: inline-flex; align-items: center; gap: 8px;
+    text-decoration: none; font-size: 13px; font-weight: 500; color: var(--ink-2);
+    padding: 6px 12px; border-radius: 999px;
+  }
+  .nav ol a:hover { background: var(--panel); color: var(--ink); }
+  .nav ol a b { font-weight: 700; color: var(--blue); font-variant-numeric: tabular-nums; }
+
+  /* intro */
+  .intro { max-width: 1180px; margin: 0 auto; padding: 56px 24px 24px; }
+  .intro h1 {
+    font-family: var(--serif); font-weight: 700; font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.25; margin: 0 0 14px; letter-spacing: -0.015em; text-wrap: balance; max-width: 22ch;
+  }
+  .intro p { max-width: 62ch; margin: 0; color: var(--ink-2); font-size: 16px; }
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+    padding: 4px 10px; border-radius: 6px; border: 1px solid transparent;
+  }
+  .chip.sbt { background: var(--gold-soft); color: var(--gold); }
+  .chip.coin { background: var(--fam-soft); color: var(--fam); }
+  .chip.fund { background: var(--blue-soft); color: var(--blue); }
+  .chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* course-concept markers (red) */
+  :root { --kc: #C8102E; --kc-soft: #FDECEE; --fam: #B0246A; --fam-soft: #FCE7F3; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --kc: #FF6B6B; --kc-soft: #3A1418; --fam: #F8A5CB; --fam-soft: #3A1528; } }
+  :root[data-theme="dark"] { --kc: #FF6B6B; --kc-soft: #3A1418; --fam: #F8A5CB; --fam-soft: #3A1528; }
+  .kc { color: var(--kc); font-weight: 700; }
+  .ktag { display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: 0.02em; color: #fff; background: var(--kc); border-radius: 4px; padding: 1px 6px; margin-right: 6px; vertical-align: 1px; white-space: nowrap; }
+  .kbox { margin-top: 20px; padding: 14px 16px; border: 1.5px solid var(--kc); border-radius: 12px; background: var(--kc-soft); }
+  .kbox h3 { margin: 0 0 8px; font-size: 14px; color: var(--kc); font-weight: 800; }
+  .kbox ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 14px; color: var(--ink-2); }
+  .kbox li { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: baseline; }
+  .kbox li b { color: var(--ink); font-weight: 700; }
+  .points .ktag, .why3 .ktag { color: #fff; font-size: 10.5px; }
+  .points .kc { color: var(--kc); font-size: inherit; }
+  .flow div.k { border-color: var(--kc); box-shadow: inset 0 0 0 1px var(--kc); }
+  .flow div.k strong { color: var(--kc); }
+
+  /* print: one screen per page */
+  @media print {
+    .nav { position: static; backdrop-filter: none; background: var(--bg); }
+    .slide { break-before: page; page-break-before: always; padding: 40px 24px 40px; min-height: 1300px; align-content: center; }
+    .intro { padding-top: 40px; min-height: 1230px; display: grid; align-content: center; }
+    #s4 { min-height: 1160px; }
+    .phone { box-shadow: 0 0 0 1px var(--line); }
+    footer { padding: 12px 24px 24px; break-before: avoid; page-break-before: avoid; }
+  }
+
+  /* slides */
+  .slide {
+    max-width: 1180px; margin: 0 auto; padding: 56px 24px 72px;
+    display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: 48px; align-items: center;
+    border-top: 1px solid var(--line);
+    scroll-margin-top: 72px;
+  }
+  .slide:nth-of-type(even) .copy { order: 2; }
+  .eyebrow {
+    display: flex; align-items: baseline; gap: 12px; color: var(--muted);
+    font-size: 13px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .eyebrow b { font-size: 34px; font-weight: 900; color: var(--blue); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1; }
+  .copy h2 {
+    font-family: var(--serif); font-weight: 700; font-size: clamp(24px, 2.8vw, 32px);
+    line-height: 1.3; margin: 14px 0 12px; letter-spacing: -0.01em; text-wrap: balance;
+  }
+  .copy > p { margin: 0 0 22px; color: var(--ink-2); max-width: 58ch; }
+  .points { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .points li {
+    display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: start;
+    padding: 14px 16px; background: var(--panel); border-radius: 12px;
+  }
+  .points .chip { justify-self: start; margin-top: 2px; }
+  .points strong { display: block; font-weight: 700; margin-bottom: 2px; }
+  .points span { color: var(--ink-2); font-size: 14px; }
+  .note {
+    margin-top: 18px; padding: 12px 16px; border-left: 3px solid var(--gold);
+    color: var(--ink-2); font-size: 14px; background: var(--gold-soft); border-radius: 0 10px 10px 0;
+  }
+  .note b { color: var(--ink); }
+
+  /* sponsor why cards */
+  .why3 { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .why3 li { padding: 14px 16px; background: var(--panel); border-radius: 12px; display: grid; gap: 6px; }
+  .why3 .who { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .why3 .who strong { font-weight: 700; font-size: 15px; }
+  .why3 .who small { color: var(--muted); font-size: 12px; }
+  .why3 .reasons { display: grid; gap: 4px; font-size: 13.5px; color: var(--ink-2); }
+  .why3 .reasons div { display: grid; grid-template-columns: 84px 1fr; gap: 10px; }
+  .why3 .reasons b { color: var(--ink); font-weight: 700; font-size: 12.5px; }
+  .why3 .reasons b.emo { color: #B0246A; } .why3 .reasons b.eco { color: var(--green); } .why3 .reasons b.risk { color: var(--blue); }
+  .thesis { margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: var(--ink); color: var(--bg); font-size: 14px; line-height: 1.55; }
+  .thesis b { color: var(--gold); }
+
+  /* flow diagram */
+  .flow { margin: 20px 0 4px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; align-items: stretch; }
+  .flow div { position: relative; padding: 12px 10px 12px 14px; border: 1px solid var(--line); background: var(--bg); }
+  .flow div:first-child { border-radius: 10px 0 0 10px; }
+  .flow div:last-child { border-radius: 0 10px 10px 0; }
+  .flow div + div { border-left: 0; }
+  .flow div + div::before {
+    content: ""; position: absolute; left: -7px; top: 50%; width: 12px; height: 12px;
+    border-top: 1px solid var(--line); border-right: 1px solid var(--line);
+    background: var(--bg); transform: translateY(-50%) rotate(45deg);
+  }
+  .flow small { display: block; font-size: 11px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+  .flow strong { display: block; font-size: 14px; }
+  .flow em { display: block; font-style: normal; font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+
+  /* phone */
+  .stage { display: flex; justify-content: center; }
+  .phone {
+    width: 320px; max-width: 100%; aspect-ratio: 320 / 690;
+    background: var(--p-bezel); border-radius: 46px; padding: 11px;
+    box-shadow: var(--shadow); position: relative;
+  }
+  .screen {
+    position: relative; height: 100%; border-radius: 36px; overflow: hidden;
+    background: var(--p-bg); color: var(--p-ink); font-size: 13px; line-height: 1.45;
+    display: flex; flex-direction: column;
+  }
+  .notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 92px; height: 22px; background: var(--p-bezel); border-radius: 999px; z-index: 3; }
+  .status { display: flex; justify-content: space-between; padding: 12px 22px 2px; font-size: 11px; font-weight: 700; color: #fff; z-index: 2; background: var(--p-blue); }
+  .appbar { background: linear-gradient(180deg, var(--p-blue) 0%, var(--p-blue-2) 100%); color: #fff; padding: 8px 18px 14px; }
+  .appbar h3 { margin: 0; font-size: 18px; font-weight: 900; letter-spacing: -0.01em; }
+  .appbar p { margin: 3px 0 0; font-size: 11.5px; opacity: 0.9; }
+  .pbody { flex: 1; padding: 10px 12px 6px; display: grid; gap: 8px; align-content: start; overflow: hidden; }
+  .pcard { background: var(--p-card); border-radius: 12px; padding: 11px; box-shadow: 0 1px 2px rgba(20,30,50,0.05); }
+  .pcard.dark { background: var(--p-dark); color: #fff; text-align: center; padding: 10px 12px; }
+  .pcard.dark strong { display: block; font-size: 16px; font-weight: 900; }
+  .pcard.dark span { display: block; font-size: 11.5px; opacity: 0.8; margin-top: 2px; }
+  .grow { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 2px; }
+  .grow svg { display: block; }
+  .grow i { font-style: normal; color: rgba(255,255,255,0.7); font-size: 14px; }
+  .pcard.dark.guardian { display: flex; align-items: center; gap: 10px; text-align: left; padding: 8px 12px; }
+  .guardian > div { min-width: 0; }
+  .guardian .grow { margin: 0; gap: 6px; flex: none; }
+  .guardian strong { font-size: 13px; }
+  .guardian span { font-size: 11px; margin-top: 1px; }
+  .plabel { font-size: 11px; color: var(--p-muted); margin: 2px 2px 6px; font-weight: 500; }
+  .tabbar {
+    display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--p-line);
+    background: var(--p-card); padding: 8px 6px 14px; font-size: 10px; color: var(--p-muted); text-align: center;
+  }
+  .tabbar i { display: block; width: 18px; height: 18px; margin: 0 auto 3px; border: 2px solid currentColor; border-radius: 5px; opacity: 0.55; }
+  .tabbar .on { color: var(--p-blue); font-weight: 700; }
+  .tabbar .on i { opacity: 1; background: var(--p-blue); border-color: var(--p-blue); }
+
+  /* stamp grid (slide 1) */
+  .cities { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .city { border-radius: 10px; padding: 7px 4px 6px; text-align: center; background: var(--p-card); border: 1px solid var(--p-line); }
+  .city .mark { display: grid; place-items: center; width: 26px; height: 26px; margin: 0 auto 3px; border-radius: 50%; font-size: 10px; font-weight: 900; background: #EEF1F6; color: var(--p-muted); font-style: normal; }
+  .city b { display: block; font-size: 11px; font-weight: 700; color: var(--p-ink); }
+  .city small { display: block; font-size: 9.5px; color: var(--p-muted); font-variant-numeric: tabular-nums; }
+  .city.done { background: var(--p-blue); border-color: var(--p-blue); }
+  .city.done .mark { background: rgba(255,255,255,0.22); color: #fff; }
+  .city.done b, .city.done small { color: #fff; }
+  .city.now { border: 2px solid var(--p-blue); background: #EDF3FE; }
+  .city.now .mark { background: var(--p-blue); color: #fff; }
+  .city.lock { opacity: 0.55; }
+  .bar { height: 5px; background: #E5E9F0; border-radius: 999px; overflow: hidden; margin-top: 6px; }
+  .bar i { display: block; height: 100%; background: var(--p-blue); border-radius: 999px; }
+  .today { display: flex; align-items: center; gap: 10px; }
+  .today .stamp {
+    width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--gold); color: var(--gold);
+    display: grid; place-items: center; font-weight: 900; font-size: 11px; transform: rotate(-12deg);
+    background: #FFF9EA; flex: none;
+  }
+  .today b { display: block; font-size: 13px; }
+  .today span { font-size: 11px; color: var(--p-muted); }
+
+  /* voucher (slide 2) */
+  .celebrate { text-align: center; padding: 2px 0 0; }
+  .celebrate .ring { width: 52px; height: 52px; margin: 0 auto 6px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #86B6FF, var(--p-blue)); display: grid; place-items: center; color: #fff; font-weight: 900; font-size: 12px; }
+  .celebrate strong { display: block; font-size: 16px; font-weight: 900; color: var(--p-ink); }
+  .celebrate span { font-size: 11.5px; color: var(--p-muted); }
+  .ticket { position: relative; background: var(--p-card); border-radius: 12px; overflow: hidden; border: 1px solid var(--p-line); }
+  .ticket-top { background: #FFF6DF; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .ticket-top b { font-size: 14px; font-weight: 900; color: #8A5A05; }
+  .ticket-top small { font-size: 10px; color: #8A5A05; font-weight: 700; padding: 3px 7px; border: 1px solid #E5C77A; border-radius: 999px; }
+  .ticket-body { padding: 10px 12px; display: grid; grid-template-columns: 1fr 64px; gap: 10px; align-items: center; border-top: 1px dashed #DCD3BE; }
+  .kv { display: grid; gap: 4px; font-size: 11px; }
+  .kv div { display: flex; justify-content: space-between; gap: 8px; }
+  .kv span { color: var(--p-muted); }
+  .kv b { font-weight: 700; color: var(--p-ink); text-align: right; font-variant-numeric: tabular-nums; }
+  .qr { width: 64px; height: 64px; border: 1px solid var(--p-line); border-radius: 6px; padding: 5px; background:
+    conic-gradient(from 90deg at 50% 50%, #1E2A3B 25%, transparent 0) 0 0 / 8px 8px;
+    background-clip: content-box; }
+  .ticket::before, .ticket::after { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--p-bg); top: 44px; }
+  .ticket::before { left: -7px; } .ticket::after { right: -7px; }
+  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .btn { text-align: center; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 12.5px; }
+  .btn.primary { background: var(--p-blue); color: #fff; }
+  .btn.ghost { background: var(--p-card); border: 1px solid var(--p-line); color: var(--p-blue); }
+
+  /* wallet (slide 3) */
+  .balance { background: linear-gradient(135deg, #1E2A3B, #2E4468); color: #fff; border-radius: 12px; padding: 14px; }
+  .balance small { font-size: 11px; opacity: 0.8; }
+  .balance strong { display: block; font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .balance em { font-style: normal; font-size: 11px; display: inline-block; margin-top: 4px; padding: 3px 8px; border-radius: 999px; background: rgba(74,222,128,0.18); color: #9AF0B7; font-weight: 700; }
+  .sponsor { display: grid; gap: 0; }
+  .sponsor > div { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--p-line); }
+  .sponsor > div:first-of-type { border-top: 0; padding-top: 2px; }
+  .sponsor > div > div { min-width: 0; }
+  .sponsor .ico { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font-size: 10px; font-weight: 900; }
+  .sponsor .ico.g { background: #FFF1D6; color: #9A6408; } .sponsor .ico.b { background: #E6EFFE; color: var(--p-blue); } .sponsor .ico.p { background: #FCE7F3; color: #B0246A; }
+  .sponsor b { display: block; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .sponsor span { font-size: 10.5px; color: var(--p-muted); }
+  .sponsor .amt { font-size: 12px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .sponsor .amt small { display: block; font-size: 10px; font-weight: 500; color: var(--p-muted); }
+  .verify { display: grid; gap: 6px; }
+  .verify > div { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center; font-size: 11.5px; }
+  .verify i { width: 18px; height: 18px; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; font-size: 11px; font-style: normal; font-weight: 900; }
+  .verify span { color: var(--p-muted); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+
+  /* finish (slide 4) */
+  .bloom { text-align: center; padding: 4px 0 0; }
+  .bloom .evolve { display: flex; align-items: flex-end; justify-content: center; gap: 8px; margin: 0 auto 4px; }
+  .bloom .evolve svg { display: block; }
+  .bloom .evolve i { font-style: normal; color: var(--p-muted); font-size: 14px; margin-bottom: 26px; }
+  .bloom .evolve .big { background: radial-gradient(circle, #FFF1DC 0 55%, transparent 56%); padding: 6px; border-radius: 50%; }
+  .bloom strong { display: block; font-size: 17px; font-weight: 900; }
+  .bloom span { font-size: 11.5px; color: var(--p-muted); }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stats div { background: #EEF3FE; border-radius: 10px; padding: 7px 8px; text-align: center; }
+  .stats b { display: block; font-size: 16px; font-weight: 900; color: var(--p-blue); font-variant-numeric: tabular-nums; }
+  .stats span { font-size: 10.5px; color: var(--p-muted); }
+  .stats div.ok b { color: var(--green); }
+  .mission { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+  .mission b { display: block; font-size: 12.5px; }
+  .mission span { font-size: 10.5px; color: var(--p-muted); }
+  .mission .tag { font-size: 10px; font-weight: 700; color: var(--p-blue); background: #E6EFFE; padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
+
+  /* why (page 1) */
+  .why { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .why li { display: grid; grid-template-columns: 88px 1fr; gap: 14px; align-items: start; padding: 14px 16px; background: var(--panel); border-radius: 12px; }
+  .why .q { font-family: var(--serif); font-weight: 700; font-size: 15px; color: var(--blue); line-height: 1.4; margin-top: 1px; }
+  .why strong { display: block; font-weight: 700; margin-bottom: 3px; }
+  .why span { color: var(--ink-2); font-size: 14px; }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 0 0 22px; }
+  .facts div { padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; }
+  .facts b { display: block; font-size: 24px; font-weight: 900; color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1.15; }
+  .facts span { display: block; font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  .onb { display: grid; gap: 0; }
+  .onb > div { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-top: 1px solid var(--p-line); font-size: 12px; }
+  .onb > div:first-child { border-top: 0; padding-top: 0; }
+  .onb span { color: var(--p-muted); font-size: 11px; }
+  .onb b { font-weight: 700; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; color: #fff; background: #E5484D; padding: 3px 9px; border-radius: 999px; margin-bottom: 8px; }
+  .datebox { background: var(--p-card); border-radius: 12px; padding: 9px 12px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; }
+  .datebox span { font-weight: 400; color: var(--p-muted); font-size: 11px; }
+  .pill-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill-row span { font-size: 10.5px; padding: 4px 8px; border-radius: 999px; background: #E6EFFE; color: var(--p-blue); font-weight: 700; }
+  .cta { background: var(--p-blue); color: #fff; text-align: center; border-radius: 12px; padding: 12px; font-weight: 900; font-size: 14px; }
+  @media (max-width: 600px) { .facts { grid-template-columns: 1fr; } .why li { grid-template-columns: 1fr; gap: 4px; } }
+
+  footer { max-width: 1180px; margin: 0 auto; padding: 24px 24px 56px; color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); }
+
+  @media (max-width: 860px) {
+    .slide { grid-template-columns: 1fr; gap: 32px; padding-block: 40px 56px; }
+    .slide:nth-of-type(even) .copy { order: 0; }
+    .points li { grid-template-columns: 1fr; gap: 6px; }
+    .flow { grid-template-columns: 1fr 1fr; }
+    .flow div { border-radius: 10px !important; border-left: 1px solid var(--line) !important; }
+    .flow div + div::before { display: none; }
+    .flow { gap: 8px; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="tiger-baby" viewBox="0 0 100 112">
+      <!-- 아기: 머리가 몸보다 크고, 눈이 크고, 앉아 있는 새끼 -->
+      <path d="M72 92 q16 -4 14 -16" stroke="#F6A83E" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <path d="M72 92 q16 -4 14 -16" stroke="#3B2A1A" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="0 9 4 9"/>
+      <ellipse cx="50" cy="88" rx="24" ry="18" fill="#F6A83E"/>
+      <ellipse cx="50" cy="92" rx="14" ry="11" fill="#FFF4E3"/>
+      <circle cx="33" cy="102" r="7.5" fill="#F6A83E"/><circle cx="67" cy="102" r="7.5" fill="#F6A83E"/>
+      <path d="M29 104 h3 M34 105 h3 M63 105 h3 M68 104 h3" stroke="#FFF4E3" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="28" cy="22" r="9" fill="#F6A83E"/><circle cx="72" cy="22" r="9" fill="#F6A83E"/>
+      <circle cx="28" cy="22" r="4.5" fill="#FFC9C9"/><circle cx="72" cy="22" r="4.5" fill="#FFC9C9"/>
+      <circle cx="50" cy="46" r="31" fill="#F6A83E"/>
+      <path d="M45 15 q5 -9 10 0" stroke="#3B2A1A" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M50 20 l-2.5 6 h5z M38 25 l-1 5 l4 -3z M62 25 l1 5 l-4 -3z" fill="#3B2A1A" opacity="0.85"/>
+      <ellipse cx="50" cy="58" rx="16" ry="11" fill="#FFF4E3"/>
+      <circle cx="39" cy="46" r="8" fill="#2B2118"/><circle cx="61" cy="46" r="8" fill="#2B2118"/>
+      <circle cx="42" cy="43" r="3" fill="#fff"/><circle cx="64" cy="43" r="3" fill="#fff"/>
+      <circle cx="36.5" cy="49" r="1.4" fill="#fff"/><circle cx="58.5" cy="49" r="1.4" fill="#fff"/>
+      <circle cx="27" cy="56" r="6" fill="#FFB0B0" opacity="0.85"/><circle cx="73" cy="56" r="6" fill="#FFB0B0" opacity="0.85"/>
+      <path d="M47 54 q3 -2.5 6 0 q0 3 -3 4.5 q-3 -1.5 -3 -4.5z" fill="#E06B6B"/>
+      <path d="M45 60 q2.5 3 5 0 q2.5 3 5 0" stroke="#2B2118" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="tiger-adult" viewBox="0 0 100 112">
+      <!-- 어른: 눈썹, 수염, 이마 王, 굵은 줄무늬, 넓은 어깨 -->
+      <path d="M78 90 q18 -6 14 -22" stroke="#EF8F1F" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M78 90 q18 -6 14 -22" stroke="#3B2A1A" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="0 8 5 8"/>
+      <ellipse cx="50" cy="90" rx="31" ry="20" fill="#EF8F1F"/>
+      <path d="M24 84 l9 1 l-6 8z M76 84 l-9 1 l6 8z M30 100 l8 -2 l-4 7z M70 100 l-8 -2 l4 7z" fill="#3B2A1A"/>
+      <ellipse cx="50" cy="94" rx="16" ry="12" fill="#FFF4E3"/>
+      <circle cx="29" cy="104" r="8.5" fill="#EF8F1F"/><circle cx="71" cy="104" r="8.5" fill="#EF8F1F"/>
+      <path d="M24 106 h3 M29 107 h3 M34 106 h3 M63 106 h3 M68 107 h3 M73 106 h3" stroke="#FFF4E3" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="22" cy="26" r="12" fill="#EF8F1F"/><circle cx="78" cy="26" r="12" fill="#EF8F1F"/>
+      <circle cx="22" cy="26" r="6" fill="#FFD8B0"/><circle cx="78" cy="26" r="6" fill="#FFD8B0"/>
+      <path d="M14 56 l8 -4 l-2 10z M12 66 l9 -2 l-4 9z M86 56 l-8 -4 l2 10z M88 66 l-9 -2 l4 9z" fill="#EF8F1F"/>
+      <circle cx="50" cy="50" r="34" fill="#EF8F1F"/>
+      <path d="M32 24 l-3 12 l9 -6z M68 24 l3 12 l-9 -6z M18 52 l11 -2 l-6 8z M82 52 l-11 -2 l6 8z M22 66 l10 -1 l-5 7z M78 66 l-10 -1 l5 7z" fill="#3B2A1A"/>
+      <text x="50" y="36" text-anchor="middle" font-size="14" font-weight="900" fill="#3B2A1A" font-family="serif">王</text>
+      <path d="M29 41 l13 3 M71 41 l-13 3" stroke="#2B2118" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="38" cy="50" rx="5.5" ry="4.8" fill="#2B2118"/><ellipse cx="62" cy="50" rx="5.5" ry="4.8" fill="#2B2118"/>
+      <circle cx="40" cy="48" r="1.7" fill="#fff"/><circle cx="64" cy="48" r="1.7" fill="#fff"/>
+      <ellipse cx="50" cy="65" rx="20" ry="13" fill="#FFF4E3"/>
+      <path d="M46 59 q4 -3 8 0 q-1 4 -4 5 q-3 -1 -4 -5z" fill="#D95A5A"/>
+      <path d="M42 69 q8 6 16 0" stroke="#2B2118" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <path d="M28 60 h-16 M29 65 l-15 4 M72 60 h16 M71 65 l15 4" stroke="#2B2118" stroke-width="1.7" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="nav">
+  <div class="nav-in">
+    <div class="brand">이음 전국 일주 <small>증명 토큰 · 성과연동 후원 · 가족 응원 설계안</small></div>
+    <ol>
+      <li><a href="#s0"><b>1</b>이음이란</a></li>
+      <li><a href="#s1"><b>2</b>매일 스탬프</a></li>
+      <li><a href="#s2"><b>3</b>도시 입장권</a></li>
+      <li><a href="#s3"><b>4</b>후원 현황</a></li>
+      <li><a href="#s4"><b>5</b>180일 완주</a></li>
+    </ol>
+  </div>
+</header>
+
+<section class="intro">
+  <h1>180일을 끝까지 가게 하는 후원의 흐름을 이음 화면 안에 넣었습니다</h1>
+  <p>기존 이음의 스탬프·수호신·가족 공유 설계는 그대로 두고, 그 위에 후원이 조건대로 풀리는 층을 하나 얹었습니다. 앱 안의 AI 재활치료사가 훈련을 판정해 스탬프를 주고, 지자체의 입장권 바우처와 보험사의 성과연동 혜택은 그 스탬프를 조건으로 열립니다. 가족은 훈련을 완료한 부모에게 응원을 보냅니다. 첫 화면은 이음이 무엇이고 왜 스탬프를 찍는지, 나머지 네 화면은 환자가 겪는 순서입니다. 하루, 15일, 후원, 그리고 180일.</p>
+  <div class="legend">
+    <span class="chip sbt">증명 토큰 (SBT)</span>
+    <span class="chip fund">성과연동 후원 · 지자체 + 보험사</span>
+    <span class="chip coin">가족 응원</span>
+  </div>
+  <div class="kbox">
+    <h3>붉은 표시 = 수업 개념이 적용된 지점</h3>
+    <ul>
+      <li><span class="ktag">스테이블코인</span><span><b>조건부 자동 지급</b>으로 적용. 스탬프라는 검증된 조건이 충족될 때만 바우처와 보험 혜택이 열리는 프로그래머블 지급 구조. 원화 스테이블코인 대신 기존 정산을 쓰되 "조건이 돈을 움직인다"는 원리는 같습니다.</span></li>
+      <li><span class="ktag">RWA</span><span><b>실물 입장권의 토큰화</b>로 적용. 지자체가 발행한 입장권을 양도 가능한 바우처 토큰으로 만들고, 일일 스탬프는 양도 불가 증명 토큰(SBT)으로 발행합니다.</span></li>
+      <li><span class="ktag">AI 에이전트 결제</span><span><b>AI 판정이 보상을 자동 개방</b>하는 구조로 적용. 앱 안의 AI 재활치료사가 세션을 판정하면 사람 손을 거치지 않고 스탬프 발행과 바우처 개방이 이어집니다.</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 0. 이음이란 -->
+<section class="slide" id="s0">
+  <div class="copy">
+    <div class="eyebrow"><b>1</b>이음이란 · 시작 화면</div>
+    <h2>뇌졸중 뒤 굳어진 말을, 집에서 매일 30분씩 180일 동안 다시 잇는 앱</h2>
+    <p>이음은 뇌졸중 후 마비말장애 환자를 위한 AI 재활 동반자입니다. 말이음이 음성으로 중증도를 진단하고 맞춤 훈련을 처방하고, 마음이음이 카메라로 기분을 읽어 그날의 훈련량을 조절합니다. 병원에 가지 않아도, 언어치료사가 없어도, 매일 훈련이 이어지게 하는 것이 이 앱의 일입니다.</p>
+    <div class="facts">
+      <div><b>180일</b><span>발병 후 신경가소성이 가장 활발한 골든타임. 이 시기를 놓치면 기능이 고착됩니다.</span></div>
+      <div><b>하루 30~60분</b><span>주 5회 이상, 6개월간 빠짐없이. 이음이 목표로 삼는 훈련 강도입니다.</span></div>
+    </div>
+    <ul class="why">
+      <li><div class="q">왜 매일인가</div><div><strong>회복은 강도가 아니라 반복이 결정합니다</strong><span>운동학습 이론대로, 매일 반복해야 새 신경 경로가 자동화됩니다. 그래서 이음의 원칙은 "속도보다 반복", "비판 금지", "감정 케어 필수" 세 가지입니다.</span></div></li>
+      <li><div class="q">왜 끊기나</div><div><strong>180일은 길고, 우울은 훈련보다 먼저 옵니다</strong><span>혼자 하는 재활은 성과가 눈에 안 보이고, 기분이 가라앉는 날엔 앱을 열지 않습니다. 이탈은 실력 문제가 아니라 동기 문제입니다.</span></div></li>
+      <li><div class="q">왜 스탬프인가</div><div><strong>오늘의 작은 성공을 눈에 보이게 만들기 위해서입니다</strong><span>스탬프는 "오늘도 해냈다"는 증거이고, 여권에 모이면 병실을 벗어나 여행하는 서사가 됩니다. 행동활성화와 자기효능감 이론이 말하는 "작은 성공 → 보상 → 지속"의 고리입니다. 다음 화면부터는 이 스탬프에 실제 입장권과 보험 혜택, 가족의 응원을 연결해, 180일을 끝까지 가게 만듭니다.</span></div></li>
+    </ul>
+  </div>
+  <div class="stage">
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>●●● 78</span></div>
+      <div class="appbar"><h3>이음에 오신 걸 환영합니다</h3><p>회복을 위한 첫 걸음, 기본 정보를 알려주세요</p></div>
+      <div class="pbody">
+        <div class="datebox">2026-04-06 <span>뇌졸중 진단일</span></div>
+        <div class="pcard">
+          <span class="badge">급성기</span>
+          <div class="onb">
+            <div><span>발병 경과</span><b>5일 경과</b></div>
+            <div><span>권장 진단 주기</span><b>2주마다 재평가</b></div>
+            <div><span>권장 훈련 강도</span><b>매일 30~40분</b></div>
+            <div><span>골든타임</span><b>175일 남음</b></div>
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="plabel">오늘부터 매일 하는 일</div>
+          <div class="pill-row"><span>기분 체크인</span><span>모음 발성</span><span>퍼터커</span><span>단어 읽기</span><span>스탬프 받기</span></div>
+        </div>
+        <div class="pcard dark guardian"><div class="grow"><svg width="38" height="42"><use href="#tiger-baby"/></svg><i>→</i><svg width="38" height="42"><use href="#tiger-adult"/></svg></div><div><strong>내 수호신은 아기 호랑이</strong><span>매일 스탬프가 쌓이면 어른 호랑이로 자라요</span></div></div>
+        <div class="cta">시작하기 →</div>
+      </div>
+      <div class="tabbar"><div class="on"><i></i>홈</div><div><i></i>재활훈련</div><div><i></i>기록</div><div><i></i>설정</div></div>
+    </div></div>
+  </div>
+</section>
+
+<!-- 1. 매일 -->
+<section class="slide" id="s1">
+  <div class="copy">
+    <div class="eyebrow"><b>2</b>매일 · 기록 탭</div>
+    <h2>하루 훈련 하나가 스탬프 하나, 15개가 모이면 도시 하나</h2>
+    <p>세계 일주 가상 여권을 전국 일주로 바꿨습니다. 180일을 12개 도시로 나누면 도시당 15일이고, 내 띠 수호신이 도시를 하나 지날 때마다 한 뼘씩 자랍니다. 기존 캐릭터 설계와 그대로 맞물립니다.</p>
+    <ul class="points">
+      <li><span class="chip sbt">SBT</span><div><strong><span class="ktag">RWA</span><span class="kc">일일 스탬프는 양도 불가 증명 토큰</span></strong><span>자산이 아니라 "오늘 훈련했다"는 기록을 토큰으로 발행합니다. 팔 수 없고 옮길 수 없으며, 후원 혜택 개방의 조건이 됩니다.</span></div></li>
+      <li><span class="chip sbt">SBT</span><div><strong><span class="ktag">AI 에이전트 결제</span><span class="kc">앱 안의 AI 재활치료사가 세션을 마치면 발행</span></strong><span>탭 완료가 아니라 음성 세션(MPT, DDK, 명료도)을 AI 재활치료사가 판정하고, 세션이 끝나면 사람 손 없이 스탬프가 찍히고 보상 개방으로 이어집니다.</span></div></li>
+      <li><span class="chip coin">가족</span><div><strong>완료한 부모에게 응원을 보낼 수 있습니다</strong><span>스탬프가 찍히면 가족에게 알림이 가고, 가족은 음성 메시지로 응원을 보냅니다. 그 응원은 다음 날 훈련을 시작하는 첫 화면에서 재생됩니다.</span></div></li>
+    </ul>
+  </div>
+  <div class="stage">
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>●●● 78</span></div>
+      <div class="appbar"><h3>나의 전국 일주</h3><p>아급성기 · 골든타임 152일 남음 · 28일 연속</p></div>
+      <div class="pbody">
+        <div class="pcard today">
+          <div class="stamp">수원<br>28</div>
+          <div><b>재활치료사가 세션을 마쳤어요</b><span>모음 발성 9.2초 · 퍼터커 5.1회/초 · 명료도 71% · 스탬프 #28 발행</span></div>
+        </div>
+        <div class="plabel">12개 도시 · 도시마다 15일 · 호랑이 성장 2/12</div>
+        <div class="cities">
+          <div class="city done"><i class="mark">✓</i><b>서울</b><small>15/15</small></div>
+          <div class="city now"><i class="mark">13</i><b>수원</b><small>13/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>강릉</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>춘천</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>인천</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>대전</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>전주</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>광주</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>대구</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>경주</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>부산</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>제주</b><small>0/15</small></div>
+        </div>
+        <div class="pcard">
+          <div style="display:flex;justify-content:space-between;font-size:11.5px"><b>수원까지 2일</b><span style="color:var(--p-muted)">28 / 180일</span></div>
+          <div class="bar"><i style="width:15.5%"></i></div>
+        </div>
+      </div>
+      <div class="tabbar"><div><i></i>홈</div><div><i></i>재활훈련</div><div class="on"><i></i>기록</div><div><i></i>설정</div></div>
+    </div></div>
+  </div>
+</section>
+
+<!-- 2. 15일 -->
+<section class="slide" id="s2">
+  <div class="copy">
+    <div class="eyebrow"><b>3</b>15일 · 도시 완주</div>
+    <h2>도시를 완주하면 입장권이 열립니다. 입장권은 <span class="kc">실물 입장권을 토큰화한 바우처</span>입니다</h2>
+    <p>가상 여권의 스탬프가 실제 랜드마크 입장권으로 바뀌는 순간입니다. 입장권은 앱이 아니라 지자체 관광공사가 발행하고, 앱은 검증과 전달만 합니다.</p>
+    <ul class="points">
+      <li><span class="chip fund">후원</span><div><strong><span class="ktag">RWA</span><span class="kc">발행 주체는 지자체·관광공사</span></strong><span>실물 입장권을 양도 가능한 바우처 토큰으로 발행합니다. 의료기관이나 앱 사업자가 금전 보상을 주지 않으니 환자 유인 금지 조항을 피합니다. 보험 가입 여부와 상관없이 모든 환자가 받는 공공 축이기도 합니다.</span></div></li>
+      <li><span class="chip sbt">SBT</span><div><strong><span class="ktag">스테이블코인</span><span class="kc">스탬프 15개가 모여야 열리는 바우처</span></strong><span>조건이 충족될 때만 자동으로 열리는 조건부 지급입니다. 바우처는 양도 가능, 유효기간 1년, 2인 동반. 급성기 환자가 당장 못 가도 회복 후 가족과 쓰거나 손주에게 줄 수 있습니다.</span></div></li>
+      <li><span class="chip fund">후원</span><div><strong>실제 방문이 도슨트 미션이 됩니다</strong><span>랜드마크 앞에서 자기 목소리로 설명하는 기존 설계의 도슨트 모드가 입장권 사용 순간과 연결됩니다. 지자체가 원하는 "실제 방문"이 여기서 일어납니다.</span></div></li>
+    </ul>
+  </div>
+  <div class="stage">
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>●●● 78</span></div>
+      <div class="appbar"><h3>도시 완주</h3><p>내 호랑이가 수원에서 한 뼘 더 자랐어요</p></div>
+      <div class="pbody">
+        <div class="celebrate"><div class="ring">15/15</div><strong>수원 완주!</strong><span>15일 연속 훈련 · 명료도 64% → 73%</span></div>
+        <div class="ticket">
+          <div class="ticket-top"><b>수원화성 입장권</b><small>토큰 #SW-0142</small></div>
+          <div class="ticket-body">
+            <div class="kv">
+              <div><span>발행</span><b>수원문화재단</b></div>
+              <div><span>인원</span><b>2인 · 가족 동반</b></div>
+              <div><span>유효기간</span><b>2027.04.20까지</b></div>
+              <div><span>양도</span><b>가능 (가족 지갑)</b></div>
+            </div>
+            <div class="qr"></div>
+          </div>
+        </div>
+        <div class="btns"><div class="btn primary">지갑에 보관</div><div class="btn ghost">딸 지수에게 보내기</div></div>
+        <div class="pcard mission">
+          <div><b>도슨트 미션이 열렸어요</b><span>수원화성에서 내 목소리로 설명하기 · 방문 시 스탬프 3개</span></div>
+          <span class="tag">유지기</span>
+        </div>
+      </div>
+      <div class="tabbar"><div><i></i>홈</div><div><i></i>재활훈련</div><div class="on"><i></i>기록</div><div><i></i>설정</div></div>
+    </div></div>
+  </div>
+</section>
+
+<!-- 3. 후원 -->
+<section class="slide" id="s3">
+  <div class="copy">
+    <div class="eyebrow"><b>4</b>후원사 유치 · 후원 현황</div>
+    <h2>두 후원자가 조건을 걸고, 검증된 결과에만 비용이 나갑니다</h2>
+    <p>후원은 지자체·관광공사와 보험사 둘뿐입니다. 돈은 기존 계약과 정산으로 움직이고, 체인에는 스탬프와 바우처 기록만 올립니다. 후원자가 앱 서버를 믿지 않아도 지급 근거를 검증할 수 있게 하는 것, 그것이 기록을 체인에 두는 이유입니다. 가족은 완료한 부모에게 응원을 보내는 역할을 맡습니다.</p>
+    <div class="flow">
+      <div><small>약정</small><strong>후원자</strong><em>바우처 12장 · 완주 시 환급·할인·건강관리</em></div>
+      <div><small>훈련</small><strong>환자</strong><em>음성 세션 수행</em></div>
+      <div class="k"><small>판정 · AI 에이전트 결제</small><strong>AI 재활치료사</strong><em>세션 종료 시 스탬프(SBT) 발행</em></div>
+      <div class="k"><small>개방 · 스테이블코인</small><strong>조건부 자동 지급</strong><em>15일마다 바우처, 180일에 보험 혜택</em></div>
+    </div>
+    <ul class="why3">
+      <li>
+        <div class="who"><strong>지자체 · 관광공사</strong><small>지역 입장권 바우처 · 도시 완주마다</small></div>
+        <div class="reasons">
+          <div><b class="eco">경제적 유인</b><span>환자와 보호자가 실제로 지역(예: 수원화성)을 방문하게 만드는 관광 마케팅 효과를 얻습니다.</span></div>
+          <div><b class="risk">낮은 비용</b><span><span class="ktag">RWA</span>현금이 아니라 원가가 낮은 현물 바우처를 토큰으로 발행해, 시민 건강 증진과 관광 홍보라는 공공 목적을 동시에 달성합니다.</span></div>
+        </div>
+      </li>
+      <li>
+        <div class="who"><strong>보험사</strong><small>완주 성과연동 혜택 · 180일 완주 시 한 번</small></div>
+        <div class="reasons">
+          <div><b class="eco">경제적 유인</b><span>180일 재활을 완주해 회복률이 오르면 장기 요양비, 간병비, 우울증 치료비 등 향후 보험금 지출이 크게 줄어듭니다.</span></div>
+          <div><b class="risk">조건부 집행</b><span><span class="ktag">스테이블코인</span>완주라는 명확한 성과 지표를 달성할 때만 혜택이 자동으로 나가므로 투자 대비 효과가 확실합니다. 혜택은 현금이 아니라 보험료 환급, 할인, 건강관리 서비스 제공 형태입니다.</span></div>
+        </div>
+      </li>
+      <li>
+        <div class="who"><strong>가족</strong><small>응원 · 완료 알림에 답하기</small></div>
+        <div class="reasons">
+          <div><b class="emo">감정적 유인</b><span>훈련을 완료한 부모에게 바로 응원을 보낼 수 있습니다. 부모는 다음 훈련을 시작할 때 그 목소리를 듣고, 가족은 매일의 회복 과정을 함께 지켜봅니다.</span></div>
+          <div><b class="risk">참여 방식</b><span>알림 한 번, 음성 한 마디면 됩니다. 멀리 사는 자녀나 손주도 같은 방식으로 참여하고, 완주 뒤에는 열린 입장권으로 함께 여행을 떠납니다.</span></div>
+        </div>
+      </li>
+    </ul>
+    <div class="thesis">후원자에게 이 시스템은 기부가 아닙니다. <b>원하는 결과(환자의 회복, 지역 방문)가 검증되었을 때만 비용이 나가는 안전한 투자</b>입니다. 도시를 완주하지 못하면 바우처는 열리지 않고, 180일을 완주하지 못하면 보험 혜택도 나가지 않습니다.</div>
+    <div class="note"><b>확인할 것 두 가지.</b> 보험사 혜택은 특별이익 제공 금지에 걸리지 않도록 보험료 환급, 할인, 건강관리 서비스 제공 형태로 설계하고, 보험사에 넘어가는 기록은 "세션 완료 여부"뿐이며 음성 데이터는 앱 밖으로 나가지 않습니다.</div>
+  </div>
+  <div class="stage">
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>●●● 78</span></div>
+      <div class="appbar"><h3>후원 현황</h3><p>스탬프가 쌓일수록 열리는 것들</p></div>
+      <div class="pbody">
+        <div class="balance"><small>스탬프 28 / 180</small><strong>도시 바우처 2장 열림</strong><em>보험 혜택까지 152일</em></div>
+        <div class="pcard">
+          <div class="plabel">후원과 응원</div>
+          <div class="sponsor">
+            <div><i class="ico g">시</i><div><b>수원문화재단</b><span>입장권 바우처 · 도시 완주마다</span></div><div class="amt">2 / 12장<small>열림</small></div></div>
+            <div><i class="ico b">보</i><div><b>OO생명 건강증진</b><span>완주 시 환급·할인·건강관리 서비스</span></div><div class="amt">300,000원<small>28 / 180일</small></div></div>
+            <div><i class="ico p">가</i><div><b>딸 지수</b><span>오늘 "아빠 목소리 좋아졌어요"</span></div><div class="amt">27개<small>응원 메시지</small></div></div>
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="plabel">오늘의 기록 · 09:32</div>
+          <div class="verify">
+            <div><i>✓</i>재활치료사 세션 판정<span>MPT 9.2초</span></div>
+            <div><i>✓</i>스탬프(SBT) 발행<span>#28</span></div>
+            <div><i>✓</i>가족에게 알림<span>지수 답장 옴</span></div>
+          </div>
+        </div>
+        <div class="plabel" style="text-align:center;margin-top:0">훈련을 쉬면 스탬프도 쉬고, 바우처와 혜택도 열리지 않아요</div>
+      </div>
+      <div class="tabbar"><div class="on"><i></i>홈</div><div><i></i>재활훈련</div><div><i></i>기록</div><div><i></i>설정</div></div>
+    </div></div>
+  </div>
+</section>
+
+<!-- 4. 180일 -->
+<section class="slide" id="s4">
+  <div class="copy">
+    <div class="eyebrow"><b>5</b>180일 · 완주</div>
+    <h2>완주가 곧 보험 혜택이고, 완주 이후는 여행이 훈련이 됩니다</h2>
+    <p>성공 지표는 180일 완주율 하나입니다. 완주하는 순간 보험사가 약정한 혜택(보험료 환급, 할인, 건강관리 서비스)이 집행되고, 아기 호랑이로 시작한 내 수호신은 어른 호랑이가 됩니다. 보상이 끝나도 훈련이 끊기지 않도록, 열린 입장권을 쓰러 가는 길이 유지기 훈련이 됩니다.</p>
+    <ul class="points">
+      <li><span class="chip fund">후원</span><div><strong><span class="ktag">스테이블코인</span><span class="kc">보험사 성과연동 혜택은 완주 한 번에</span></strong><span>완주율이 오르면 장기 요양비, 간병비, 우울증 치료비 지출이 줄어드는 것이 보험사가 참여하는 이유입니다. 혜택은 보험료 환급, 할인, 건강관리 서비스 제공 형태입니다.</span></div></li>
+      <li><span class="chip sbt">SBT</span><div><strong>완주 판정은 사람이 최종 확인</strong><span>앱이 180개 스탬프와 재평가 점수를 대조해 올리면, 담당 치료사가 승인합니다. 기존 설계의 "최종 판단은 사람" 원칙을 지킵니다.</span></div></li>
+      <li><span class="chip fund">후원</span><div><strong>가족 띠 수집으로 다음 여정</strong><span>손주의 띠 길이 열리면 같은 지갑 구조가 유지기에도 그대로 돌아갑니다.</span></div></li>
+    </ul>
+    <div class="note"><b>지표.</b> 성공은 180일 완주율. 중간은 주간 스탬프 획득률과 도시 바우처 개방률. 후원자 쪽은 바우처 실제 사용률과 다음 코호트 재참여율.</div>
+  </div>
+  <div class="stage">
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>●●● 78</span></div>
+      <div class="appbar"><h3>180일 완주</h3><p>12개 도시를 모두 돌았어요</p></div>
+      <div class="pbody">
+        <div class="bloom"><div class="evolve"><svg width="46" height="52"><use href="#tiger-baby"/></svg><i>→</i><div class="big"><svg width="74" height="83"><use href="#tiger-adult"/></svg></div></div><strong>어른 호랑이가 되었어요</strong><span>아기 호랑이 → 어른 호랑이 · 180일 연속</span></div>
+        <div class="stats">
+          <div><b>180 / 180</b><span>스탬프</span></div>
+          <div><b>12 / 12</b><span>도시 입장권</span></div>
+          <div class="ok"><b>+18%p</b><span>명료도 64 → 82</span></div>
+          <div class="ok"><b>300,000원</b><span>보험료 환급 + 건강관리</span></div>
+        </div>
+        <div class="pcard">
+          <div class="plabel">완주 승인</div>
+          <div class="verify">
+            <div><i>✓</i>스탬프 180개 대조 완료<span>재평가 4회</span></div>
+            <div><i>✓</i>담당 치료사 승인<span>04.06 김OO</span></div>
+            <div><i>✓</i>OO생명 혜택 집행<span>환급·할인·건강관리</span></div>
+          </div>
+        </div>
+        <div class="pcard mission">
+          <div><b>다음 여정: 손주 토끼 길</b><span>도슨트 미션 12개 · 입장권 쓰러 가는 날이 훈련일</span></div>
+          <span class="tag">유지기</span>
+        </div>
+      </div>
+      <div class="tabbar"><div class="on"><i></i>홈</div><div><i></i>재활훈련</div><div><i></i>기록</div><div><i></i>설정</div></div>
+    </div></div>
+  </div>
+</section>
+
+<footer>화면의 도시, 후원자, 금액은 설명을 위한 예시입니다. 성과연동 금액과 바우처 조건은 파일럿 지자체·보험사와 협의해 정합니다.</footer>
+</body>
+</html>
