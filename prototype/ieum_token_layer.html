@@ -189,6 +189,9 @@
   .pcard.dark { background: var(--p-dark); color: #fff; text-align: center; padding: 14px 12px; }
   .pcard.dark strong { display: block; font-size: 16px; font-weight: 900; }
   .pcard.dark span { display: block; font-size: 11.5px; opacity: 0.8; margin-top: 2px; }
+  .grow { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px; }
+  .grow svg { display: block; }
+  .grow i { font-style: normal; color: rgba(255,255,255,0.7); font-size: 14px; }
   .plabel { font-size: 11px; color: var(--p-muted); margin: 2px 2px 6px; font-weight: 500; }
   .tabbar {
     display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--p-line);
@@ -201,14 +204,14 @@
   /* stamp grid (slide 1) */
   .cities { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   .city { border-radius: 10px; padding: 7px 4px 6px; text-align: center; background: var(--p-card); border: 1px solid var(--p-line); }
-  .city .zodiac { display: grid; place-items: center; width: 26px; height: 26px; margin: 0 auto 3px; border-radius: 50%; font-size: 10px; font-weight: 900; background: #EEF1F6; color: var(--p-muted); }
+  .city .mark { display: grid; place-items: center; width: 26px; height: 26px; margin: 0 auto 3px; border-radius: 50%; font-size: 10px; font-weight: 900; background: #EEF1F6; color: var(--p-muted); font-style: normal; }
   .city b { display: block; font-size: 11px; font-weight: 700; color: var(--p-ink); }
   .city small { display: block; font-size: 9.5px; color: var(--p-muted); font-variant-numeric: tabular-nums; }
   .city.done { background: var(--p-blue); border-color: var(--p-blue); }
-  .city.done .zodiac { background: rgba(255,255,255,0.22); color: #fff; }
+  .city.done .mark { background: rgba(255,255,255,0.22); color: #fff; }
   .city.done b, .city.done small { color: #fff; }
   .city.now { border: 2px solid var(--p-blue); background: #EDF3FE; }
-  .city.now .zodiac { background: var(--p-blue); color: #fff; }
+  .city.now .mark { background: var(--p-blue); color: #fff; }
   .city.lock { opacity: 0.55; }
   .bar { height: 5px; background: #E5E9F0; border-radius: 999px; overflow: hidden; margin-top: 6px; }
   .bar i { display: block; height: 100%; background: var(--p-blue); border-radius: 999px; }
@@ -267,7 +270,10 @@
 
   /* finish (slide 4) */
   .bloom { text-align: center; padding: 4px 0 0; }
-  .bloom .flower { width: 58px; height: 58px; margin: 0 auto 4px; border-radius: 50%; background: radial-gradient(circle at 50% 50%, #FFD6E0 0 26%, #FFA6BC 27% 46%, #7CC48D 47% 62%, #DDF3E2 63%); }
+  .bloom .evolve { display: flex; align-items: flex-end; justify-content: center; gap: 8px; margin: 0 auto 4px; }
+  .bloom .evolve svg { display: block; }
+  .bloom .evolve i { font-style: normal; color: var(--p-muted); font-size: 14px; margin-bottom: 26px; }
+  .bloom .evolve .big { background: radial-gradient(circle, #FFF1DC 0 55%, transparent 56%); padding: 6px; border-radius: 50%; }
   .bloom strong { display: block; font-size: 17px; font-weight: 900; }
   .bloom span { font-size: 11.5px; color: var(--p-muted); }
   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -286,7 +292,7 @@
   .why .q { font-family: var(--serif); font-weight: 700; font-size: 15px; color: var(--blue); line-height: 1.4; margin-top: 1px; }
   .why strong { display: block; font-weight: 700; margin-bottom: 3px; }
   .why span { color: var(--ink-2); font-size: 14px; }
-  .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 22px; }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 0 0 22px; }
   .facts div { padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; }
   .facts b { display: block; font-size: 24px; font-weight: 900; color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1.15; }
   .facts span { display: block; font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
@@ -315,6 +321,37 @@
     .flow { gap: 8px; }
   }
 </style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="tiger-baby" viewBox="0 0 100 100">
+      <circle cx="24" cy="34" r="14" fill="#F6A83E"/><circle cx="76" cy="34" r="14" fill="#F6A83E"/>
+      <circle cx="24" cy="34" r="7" fill="#FFD8B0"/><circle cx="76" cy="34" r="7" fill="#FFD8B0"/>
+      <circle cx="50" cy="58" r="36" fill="#F6A83E"/>
+      <path d="M50 24 l-5 12 h10z M34 30 l-2 11 l8-6z M66 30 l2 11 l-8-6z" fill="#3B2A1A"/>
+      <path d="M16 62 l10 -3 l-6 8z M84 62 l-10 -3 l6 8z" fill="#3B2A1A"/>
+      <ellipse cx="50" cy="72" rx="22" ry="15" fill="#FFF4E3"/>
+      <circle cx="37" cy="55" r="6.5" fill="#2B2118"/><circle cx="63" cy="55" r="6.5" fill="#2B2118"/>
+      <circle cx="39.5" cy="52.5" r="2.2" fill="#fff"/><circle cx="65.5" cy="52.5" r="2.2" fill="#fff"/>
+      <circle cx="29" cy="68" r="4.5" fill="#FFB0B0" opacity="0.8"/><circle cx="71" cy="68" r="4.5" fill="#FFB0B0" opacity="0.8"/>
+      <path d="M45 66 q5 -4 10 0 q-2 5 -5 5 q-3 0 -5 -5z" fill="#E06B6B"/>
+      <path d="M44 76 q6 5 12 0" stroke="#2B2118" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="tiger-adult" viewBox="0 0 100 100">
+      <circle cx="20" cy="30" r="15" fill="#EF8F1F"/><circle cx="80" cy="30" r="15" fill="#EF8F1F"/>
+      <circle cx="20" cy="30" r="7.5" fill="#FFD8B0"/><circle cx="80" cy="30" r="7.5" fill="#FFD8B0"/>
+      <circle cx="50" cy="56" r="40" fill="#EF8F1F"/>
+      <path d="M30 26 l-3 13 l9 -7z M70 26 l3 13 l-9 -7z M12 58 l12 -3 l-7 9z M88 58 l-12 -3 l7 9z M22 74 l10 -1 l-6 7z M78 74 l-10 -1 l6 7z" fill="#3B2A1A"/>
+      <text x="50" y="41" text-anchor="middle" font-size="15" font-weight="900" fill="#3B2A1A" font-family="serif">王</text>
+      <ellipse cx="50" cy="72" rx="24" ry="16" fill="#FFF4E3"/>
+      <ellipse cx="37" cy="54" rx="6" ry="6.5" fill="#2B2118"/><ellipse cx="63" cy="54" rx="6" ry="6.5" fill="#2B2118"/>
+      <circle cx="39.5" cy="51.5" r="2" fill="#fff"/><circle cx="65.5" cy="51.5" r="2" fill="#fff"/>
+      <path d="M45 65 q5 -4 10 0 q-2 5 -5 5 q-3 0 -5 -5z" fill="#D95A5A"/>
+      <path d="M42 76 q8 6 16 0" stroke="#2B2118" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <path d="M26 66 h-16 M27 71 l-15 4 M74 66 h16 M73 71 l15 4" stroke="#2B2118" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
 
 <header class="nav">
   <div class="nav-in">
@@ -347,8 +384,7 @@
     <p>이음은 뇌졸중 후 마비말장애 환자를 위한 AI 재활 동반자입니다. 말이음이 음성으로 중증도를 진단하고 맞춤 훈련을 처방하고, 마음이음이 카메라로 기분을 읽어 그날의 훈련량을 조절합니다. 병원에 가지 않아도, 언어치료사가 없어도, 매일 훈련이 이어지게 하는 것이 이 앱의 일입니다.</p>
     <div class="facts">
       <div><b>180일</b><span>발병 후 신경가소성이 가장 활발한 골든타임. 이 시기를 놓치면 기능이 고착됩니다.</span></div>
-      <div><b>주 1시간</b><span>현재 실제 치료량. 권장량(주 5회, 하루 30~60분)의 3분의 1입니다.</span></div>
-      <div><b>절반</b><span>국내 뇌졸중 생존자 중 후유 장애가 남는 비율. 우울증이 뒤따르며 재활을 포기하게 만듭니다.</span></div>
+      <div><b>하루 30~60분</b><span>주 5회 이상, 6개월간 빠짐없이. 이음이 목표로 삼는 훈련 강도입니다.</span></div>
     </div>
     <ul class="why">
       <li><div class="q">왜 매일인가</div><div><strong>회복은 강도가 아니라 반복이 결정합니다</strong><span>운동학습 이론대로, 매일 반복해야 새 신경 경로가 자동화됩니다. 그래서 이음의 원칙은 "속도보다 반복", "비판 금지", "감정 케어 필수" 세 가지입니다.</span></div></li>
@@ -376,7 +412,7 @@
           <div class="plabel">오늘부터 매일 하는 일</div>
           <div class="pill-row"><span>기분 체크인</span><span>모음 발성</span><span>퍼터커</span><span>단어 읽기</span><span>스탬프 받기</span></div>
         </div>
-        <div class="pcard dark"><strong>씨앗 → 새싹 → 꽃</strong><span>매일 스탬프가 쌓이면 수호신이 자랍니다</span></div>
+        <div class="pcard dark"><div class="grow"><svg width="34" height="34"><use href="#tiger-baby"/></svg><i>→</i><svg width="44" height="44"><use href="#tiger-adult"/></svg></div><strong>내 수호신은 아기 호랑이</strong><span>범띠 어르신 · 매일 스탬프가 쌓이면 어른 호랑이로 자랍니다</span></div>
         <div class="cta">시작하기 →</div>
       </div>
       <div class="tabbar"><div class="on"><i></i>홈</div><div><i></i>재활훈련</div><div><i></i>기록</div><div><i></i>설정</div></div>
@@ -389,7 +425,7 @@
   <div class="copy">
     <div class="eyebrow"><b>2</b>매일 · 기록 탭</div>
     <h2>하루 훈련 하나가 스탬프 하나, 15개가 모이면 도시 하나</h2>
-    <p>세계 일주 가상 여권을 전국 일주로 바꿨습니다. 180일을 12개 도시로 나누면 도시당 15일이고, 12간지 수호신이 도시 하나씩을 지킵니다. 기존 캐릭터 설계와 그대로 맞물립니다.</p>
+    <p>세계 일주 가상 여권을 전국 일주로 바꿨습니다. 180일을 12개 도시로 나누면 도시당 15일이고, 내 띠 수호신이 도시를 하나 지날 때마다 한 뼘씩 자랍니다. 기존 캐릭터 설계와 그대로 맞물립니다.</p>
     <ul class="points">
       <li><span class="chip rwa">RWA</span><div><strong>일일 스탬프는 양도 불가 토큰</strong><span>환자 본인의 기록이자, 후원자가 지급 근거로 검증하는 장부입니다.</span></div></li>
       <li><span class="chip agent">에이전트</span><div><strong>탭 완료가 아니라 음성 세션이 조건</strong><span>MPT, DDK, 명료도 데이터가 기록된 세션만 스탬프로 인정합니다. 이미 앱에 있는 판정 로직이 검증 근거입니다.</span></div></li>
@@ -406,20 +442,20 @@
           <div class="stamp">수원<br>28</div>
           <div><b>오늘 스탬프를 찍었어요</b><span>모음 발성 9.2초 · 퍼터커 5.1회/초 · 명료도 71%</span></div>
         </div>
-        <div class="plabel">12개 도시 · 도시마다 15일</div>
+        <div class="plabel">12개 도시 · 도시마다 15일 · 호랑이 성장 2/12</div>
         <div class="cities">
-          <div class="city done"><i class="zodiac">쥐</i><b>서울</b><small>15/15</small></div>
-          <div class="city now"><i class="zodiac">소</i><b>수원</b><small>13/15</small></div>
-          <div class="city lock"><i class="zodiac">범</i><b>강릉</b><small>0/15</small></div>
-          <div class="city lock"><i class="zodiac">토끼</i><b>춘천</b><small>0/15</small></div>
-          <div class="city lock"><i class="zodiac">용</i><b>인천</b><small>0/15</small></div>
-          <div class="city lock"><i class="zodiac">뱀</i><b>대전</b><small>0/15</small></div>
-          <div class="city lock"><i class="zodiac">말</i><b>전주</b><small>0/15</small></div>
-          <div class="city lock"><i class="zodiac">양</i><b>광주</b><small>0/15</small></div>
-          <div class="city lock"><i class="zodiac">원숭이</i><b>대구</b><small>0/15</small></div>
-          <div class="city lock"><i class="zodiac">닭</i><b>경주</b><small>0/15</small></div>
-          <div class="city lock"><i class="zodiac">개</i><b>부산</b><small>0/15</small></div>
-          <div class="city lock"><i class="zodiac">돼지</i><b>제주</b><small>0/15</small></div>
+          <div class="city done"><i class="mark">✓</i><b>서울</b><small>15/15</small></div>
+          <div class="city now"><i class="mark">13</i><b>수원</b><small>13/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>강릉</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>춘천</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>인천</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>대전</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>전주</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>광주</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>대구</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>경주</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>부산</b><small>0/15</small></div>
+          <div class="city lock"><i class="mark">15일</i><b>제주</b><small>0/15</small></div>
         </div>
         <div class="pcard">
           <div style="display:flex;justify-content:space-between;font-size:11.5px"><b>수원까지 2일</b><span style="color:var(--p-muted)">28 / 180일</span></div>
@@ -447,7 +483,7 @@
     <div class="phone"><div class="screen">
       <div class="notch"></div>
       <div class="status"><span>9:41</span><span>●●● 78</span></div>
-      <div class="appbar"><h3>도시 완주</h3><p>소 수호신이 수원을 지켜냈어요</p></div>
+      <div class="appbar"><h3>도시 완주</h3><p>내 호랑이가 수원에서 한 뼘 더 자랐어요</p></div>
       <div class="pbody">
         <div class="celebrate"><div class="ring">15/15</div><strong>수원 완주!</strong><span>15일 연속 훈련 · 명료도 64% → 73%</span></div>
         <div class="ticket">
@@ -526,7 +562,7 @@
   <div class="copy">
     <div class="eyebrow"><b>5</b>180일 · 완주</div>
     <h2>완주가 곧 성과연동 지급이고, 완주 이후는 여행이 훈련이 됩니다</h2>
-    <p>성공 지표는 180일 완주율 하나입니다. 완주하는 순간 보험사가 예치한 성과금이 집행되고, 씨앗에서 시작한 수호신은 꽃으로 자랍니다. 보상이 끝나도 훈련이 끊기지 않도록, 열린 입장권을 쓰러 가는 길이 유지기 훈련이 됩니다.</p>
+    <p>성공 지표는 180일 완주율 하나입니다. 완주하는 순간 보험사가 예치한 성과금이 집행되고, 아기 호랑이로 시작한 내 수호신은 어른 호랑이가 됩니다. 보상이 끝나도 훈련이 끊기지 않도록, 열린 입장권을 쓰러 가는 길이 유지기 훈련이 됩니다.</p>
     <ul class="points">
       <li><span class="chip coin">코인</span><div><strong>보험사 성과연동 지급은 완주 한 번에</strong><span>완주율이 오르면 장기 요양과 우울증 관련 지급이 줄어드는 것이 보험사가 참여하는 이유입니다.</span></div></li>
       <li><span class="chip agent">에이전트</span><div><strong>완주 판정은 사람이 최종 확인</strong><span>에이전트가 180개 스탬프와 재평가 점수를 대조해 올리면, 치료사가 승인합니다. 기존 설계의 "최종 판단은 사람" 원칙을 지킵니다.</span></div></li>
@@ -540,7 +576,7 @@
       <div class="status"><span>9:41</span><span>●●● 78</span></div>
       <div class="appbar"><h3>180일 완주</h3><p>12개 도시를 모두 돌았어요</p></div>
       <div class="pbody">
-        <div class="bloom"><div class="flower"></div><strong>꽃이 피었어요</strong><span>씨앗 → 새싹 → 꽃 · 180일 연속</span></div>
+        <div class="bloom"><div class="evolve"><svg width="40" height="40"><use href="#tiger-baby"/></svg><i>→</i><div class="big"><svg width="76" height="76"><use href="#tiger-adult"/></svg></div></div><strong>어른 호랑이가 되었어요</strong><span>아기 호랑이 → 어른 호랑이 · 180일 연속</span></div>
         <div class="stats">
           <div><b>180 / 180</b><span>스탬프</span></div>
           <div><b>12 / 12</b><span>도시 입장권</span></div>
