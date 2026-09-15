@@ -114,9 +114,9 @@
     font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
     padding: 4px 10px; border-radius: 6px; border: 1px solid transparent;
   }
-  .chip.rwa { background: var(--gold-soft); color: var(--gold); }
+  .chip.sbt { background: var(--gold-soft); color: var(--gold); }
   .chip.coin { background: var(--green-soft); color: var(--green); }
-  .chip.agent { background: var(--blue-soft); color: var(--blue); }
+  .chip.fund { background: var(--blue-soft); color: var(--blue); }
   .chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
   /* slides */
@@ -151,6 +151,19 @@
     color: var(--ink-2); font-size: 14px; background: var(--gold-soft); border-radius: 0 10px 10px 0;
   }
   .note b { color: var(--ink); }
+
+  /* sponsor why cards */
+  .why3 { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .why3 li { padding: 14px 16px; background: var(--panel); border-radius: 12px; display: grid; gap: 6px; }
+  .why3 .who { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .why3 .who strong { font-weight: 700; font-size: 15px; }
+  .why3 .who small { color: var(--muted); font-size: 12px; }
+  .why3 .reasons { display: grid; gap: 4px; font-size: 13.5px; color: var(--ink-2); }
+  .why3 .reasons div { display: grid; grid-template-columns: 84px 1fr; gap: 10px; }
+  .why3 .reasons b { color: var(--ink); font-weight: 700; font-size: 12.5px; }
+  .why3 .reasons b.emo { color: #B0246A; } .why3 .reasons b.eco { color: var(--green); } .why3 .reasons b.risk { color: var(--blue); }
+  .thesis { margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: var(--ink); color: var(--bg); font-size: 14px; line-height: 1.55; }
+  .thesis b { color: var(--gold); }
 
   /* flow diagram */
   .flow { margin: 20px 0 4px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; align-items: stretch; }
@@ -378,7 +391,7 @@
 
 <header class="nav">
   <div class="nav-in">
-    <div class="brand">이음 전국 일주 <small>스테이블코인 · RWA · AI 에이전트 통합 설계안</small></div>
+    <div class="brand">이음 전국 일주 <small>스테이블코인 · 증명 토큰 · 후원 구조 설계안</small></div>
     <ol>
       <li><a href="#s0"><b>1</b>이음이란</a></li>
       <li><a href="#s1"><b>2</b>매일 스탬프</a></li>
@@ -391,11 +404,11 @@
 
 <section class="intro">
   <h1>180일을 끝까지 가게 하는 돈의 흐름을 이음 화면 안에 넣었습니다</h1>
-  <p>기존 이음의 스탬프·수호신·가족 공유 설계는 그대로 두고, 그 위에 후원금이 자동으로 흐르는 층을 하나 얹었습니다. 첫 화면은 이음이 무엇이고 왜 스탬프를 찍는지, 나머지 네 화면은 환자가 겪는 순서입니다. 하루, 15일, 후원, 그리고 180일.</p>
+  <p>기존 이음의 스탬프·수호신·가족 공유 설계는 그대로 두고, 그 위에 후원금이 조건대로 흐르는 층을 하나 얹었습니다. 앱 안의 AI 재활치료사가 훈련을 판정해 스탬프를 주고, 후원자가 맡긴 돈과 바우처는 그 스탬프를 조건으로 자동 지급됩니다. 첫 화면은 이음이 무엇이고 왜 스탬프를 찍는지, 나머지 네 화면은 환자가 겪는 순서입니다. 하루, 15일, 후원, 그리고 180일.</p>
   <div class="legend">
-    <span class="chip rwa">RWA 토큰화</span>
     <span class="chip coin">스테이블코인 에스크로</span>
-    <span class="chip agent">AI 에이전트 검증·지급</span>
+    <span class="chip sbt">증명 토큰 (SBT)</span>
+    <span class="chip fund">후원사 유치</span>
   </div>
 </section>
 
@@ -450,9 +463,9 @@
     <h2>하루 훈련 하나가 스탬프 하나, 15개가 모이면 도시 하나</h2>
     <p>세계 일주 가상 여권을 전국 일주로 바꿨습니다. 180일을 12개 도시로 나누면 도시당 15일이고, 내 띠 수호신이 도시를 하나 지날 때마다 한 뼘씩 자랍니다. 기존 캐릭터 설계와 그대로 맞물립니다.</p>
     <ul class="points">
-      <li><span class="chip rwa">RWA</span><div><strong>일일 스탬프는 양도 불가 토큰</strong><span>환자 본인의 기록이자, 후원자가 지급 근거로 검증하는 장부입니다.</span></div></li>
-      <li><span class="chip agent">에이전트</span><div><strong>탭 완료가 아니라 음성 세션이 조건</strong><span>MPT, DDK, 명료도 데이터가 기록된 세션만 스탬프로 인정합니다. 이미 앱에 있는 판정 로직이 검증 근거입니다.</span></div></li>
-      <li><span class="chip coin">코인</span><div><strong>스탬프가 찍히는 순간 가족 응원금 소액 지급</strong><span>매일 작은 보상이 풀려야 180일 동안 동기가 끊기지 않습니다.</span></div></li>
+      <li><span class="chip sbt">SBT</span><div><strong>일일 스탬프는 양도 불가 증명 토큰</strong><span>자산이 아니라 "오늘 훈련했다"는 기록입니다. 팔 수 없고 옮길 수 없으며, 후원금 지급의 조건이 됩니다.</span></div></li>
+      <li><span class="chip sbt">SBT</span><div><strong>앱 안의 AI 재활치료사가 세션을 마치면 발행</strong><span>탭 완료가 아니라 음성 세션(MPT, DDK, 명료도)을 재활치료사가 판정하고, 세션이 끝나야 스탬프가 찍힙니다. 치료 판단과 결제는 분리됩니다.</span></div></li>
+      <li><span class="chip coin">코인</span><div><strong>스탬프 발행이 곧 가족 응원금 지급 신호</strong><span>스마트컨트랙트가 스탬프를 조건으로 소액을 풉니다. 매일 작은 보상이 풀려야 180일 동안 동기가 끊기지 않습니다.</span></div></li>
     </ul>
   </div>
   <div class="stage">
@@ -463,7 +476,7 @@
       <div class="pbody">
         <div class="pcard today">
           <div class="stamp">수원<br>28</div>
-          <div><b>오늘 스탬프를 찍었어요</b><span>모음 발성 9.2초 · 퍼터커 5.1회/초 · 명료도 71%</span></div>
+          <div><b>재활치료사가 세션을 마쳤어요</b><span>모음 발성 9.2초 · 퍼터커 5.1회/초 · 명료도 71% · 스탬프 #28 발행</span></div>
         </div>
         <div class="plabel">12개 도시 · 도시마다 15일 · 호랑이 성장 2/12</div>
         <div class="cities">
@@ -494,12 +507,12 @@
 <section class="slide" id="s2">
   <div class="copy">
     <div class="eyebrow"><b>3</b>15일 · 도시 완주</div>
-    <h2>도시를 완주하면 입장권이 열립니다. 입장권은 토큰화된 실물 권리입니다</h2>
+    <h2>도시를 완주하면 입장권이 열립니다. 입장권은 지자체가 맡겨 둔 바우처입니다</h2>
     <p>가상 여권의 스탬프가 실제 랜드마크 입장권으로 바뀌는 순간입니다. 입장권은 앱이 아니라 지자체 관광공사가 발행하고, 앱은 검증과 전달만 합니다.</p>
     <ul class="points">
-      <li><span class="chip rwa">RWA</span><div><strong>발행 주체는 관광공사</strong><span>의료기관이나 앱 사업자가 금전 보상을 주지 않으니 환자 유인 금지 조항을 피합니다. 관광공사는 원가가 낮은 현물로 홍보 소재를 얻습니다.</span></div></li>
-      <li><span class="chip rwa">RWA</span><div><strong>양도 가능, 유효기간 1년, 2인 동반</strong><span>급성기 환자가 당장 못 가도 회복 후 가족과 쓰거나 손주에게 줄 수 있습니다.</span></div></li>
-      <li><span class="chip agent">에이전트</span><div><strong>실제 방문이 도슨트 미션이 됩니다</strong><span>랜드마크 앞에서 자기 목소리로 설명하는 기존 설계의 도슨트 모드가 입장권 사용 순간과 연결됩니다.</span></div></li>
+      <li><span class="chip fund">후원</span><div><strong>발행 주체는 지자체·관광공사</strong><span>의료기관이나 앱 사업자가 금전 보상을 주지 않으니 환자 유인 금지 조항을 피합니다. 관광공사는 원가가 낮은 현물로 홍보 소재를 얻습니다.</span></div></li>
+      <li><span class="chip sbt">SBT</span><div><strong>스탬프 15개가 모여야 열리는 바우처</strong><span>바우처는 양도 가능, 유효기간 1년, 2인 동반. 급성기 환자가 당장 못 가도 회복 후 가족과 쓰거나 손주에게 줄 수 있습니다.</span></div></li>
+      <li><span class="chip fund">후원</span><div><strong>실제 방문이 도슨트 미션이 됩니다</strong><span>랜드마크 앞에서 자기 목소리로 설명하는 기존 설계의 도슨트 모드가 입장권 사용 순간과 연결됩니다. 지자체가 원하는 "실제 방문"이 여기서 일어납니다.</span></div></li>
     </ul>
   </div>
   <div class="stage">
@@ -535,19 +548,39 @@
 <!-- 3. 후원 -->
 <section class="slide" id="s3">
   <div class="copy">
-    <div class="eyebrow"><b>4</b>후원 · 응원 지갑</div>
-    <h2>세 후원자가 하나의 에스크로에 넣고, 훈련한 날에만 돈이 나갑니다</h2>
-    <p>스테이블코인은 돈을 만들어주지 않습니다. 누군가 낸 돈을 조건대로 흘려보내는 파이프입니다. 이 화면은 그 파이프를 환자와 후원자 양쪽이 볼 수 있게 한 것입니다.</p>
+    <div class="eyebrow"><b>4</b>후원사 유치 · 응원 지갑</div>
+    <h2>세 후원자가 하나의 에스크로에 넣고, 검증된 날에만 돈이 나갑니다</h2>
+    <p>스테이블코인은 돈을 만들어주지 않습니다. 누군가 낸 돈을 조건대로 흘려보내는 파이프입니다. 그래서 이 사업의 핵심은 파이프가 아니라 "누가, 왜 돈을 넣는가"입니다. 세 후원자에게는 각자 분명한 이유가 있습니다.</p>
     <div class="flow">
       <div><small>예치</small><strong>후원자</strong><em>바우처·KRW 스테이블코인</em></div>
-      <div><small>훈련</small><strong>환자</strong><em>음성 세션 기록</em></div>
-      <div><small>검증</small><strong>AI 에이전트</strong><em>판정 확인 후 스탬프 발행</em></div>
+      <div><small>훈련</small><strong>환자</strong><em>음성 세션 수행</em></div>
+      <div><small>판정</small><strong>AI 재활치료사</strong><em>세션 종료 시 스탬프(SBT) 발행</em></div>
       <div><small>지급·반환</small><strong>스마트컨트랙트</strong><em>완주 시 지급, 이탈 시 반환</em></div>
     </div>
-    <ul class="points">
-      <li><span class="chip coin">코인</span><div><strong>관광공사는 바우처, 보험사는 완주 성과금, 가족은 응원금</strong><span>세 종류 후원이 같은 지갑에 들어오고, 각각 다른 조건에 풀립니다.</span></div></li>
-      <li><span class="chip coin">코인</span><div><strong>훈련이 없는 날엔 한 푼도 나가지 않습니다</strong><span>중도 이탈 시 잔액은 후원자에게 자동 반환됩니다. 후원자가 안심하고 낼 수 있는 이유입니다.</span></div></li>
+    <ul class="why3">
+      <li>
+        <div class="who"><strong>가족</strong><small>응원금 지급 · 스탬프마다 소액</small></div>
+        <div class="reasons">
+          <div><b class="emo">감정적 유인</b><span>환자의 재활 의지를 북돋우는 가장 직접적인 수단입니다.</span></div>
+          <div><b class="risk">리스크 해소</b><span>무조건 주는 용돈이 아니라, 실제로 훈련한 날에만 500원씩 차감되니 부담 없이 응원할 수 있습니다.</span></div>
+        </div>
+      </li>
+      <li>
+        <div class="who"><strong>보험사</strong><small>완주 성과연동 지급 · 180일 완주 시 한 번</small></div>
+        <div class="reasons">
+          <div><b class="eco">경제적 유인</b><span>180일 재활을 완주해 회복률이 오르면 장기 요양비, 간병비, 우울증 치료비 등 향후 보험금 지출이 크게 줄어듭니다.</span></div>
+          <div><b class="risk">조건부 집행</b><span>완주라는 명확한 성과 지표를 달성할 때만 예치금이 나가므로 투자 대비 효과가 확실합니다.</span></div>
+        </div>
+      </li>
+      <li>
+        <div class="who"><strong>지자체 · 관광공사</strong><small>지역 입장권 바우처 · 도시 완주마다</small></div>
+        <div class="reasons">
+          <div><b class="eco">경제적 유인</b><span>환자와 보호자가 실제로 지역(예: 수원화성)을 방문하게 만드는 관광 마케팅 효과를 얻습니다.</span></div>
+          <div><b class="risk">낮은 비용</b><span>현금이 아니라 원가가 낮은 현물 바우처로, 시민 건강 증진과 관광 홍보라는 공공 목적을 동시에 달성합니다.</span></div>
+        </div>
+      </li>
     </ul>
+    <div class="thesis">후원자에게 이 시스템은 기부가 아닙니다. <b>원하는 결과(환자의 회복, 지역 방문)가 검증되었을 때만 비용이 나가는 안전한 투자</b>입니다. 훈련이 없는 날엔 한 푼도 나가지 않고, 중도 이탈 시 잔액은 후원자에게 돌아갑니다.</div>
     <div class="note"><b>2단계 로드맵.</b> 원화 스테이블코인 법제화 전에는 앱 내부 원장(포인트)으로 같은 규칙을 돌리고, 법 시행 후 온체인으로 옮깁니다.</div>
   </div>
   <div class="stage">
@@ -566,11 +599,11 @@
           </div>
         </div>
         <div class="pcard">
-          <div class="plabel">오늘의 검증 · 09:32</div>
+          <div class="plabel">오늘의 지급 · 09:32</div>
           <div class="verify">
-            <div><i>✓</i>음성 세션 기록 확인<span>MPT 9.2초</span></div>
-            <div><i>✓</i>일일 스탬프 발행<span>#28</span></div>
-            <div><i>✓</i>가족 응원금 지급<span>500 KRWS</span></div>
+            <div><i>✓</i>재활치료사 세션 판정<span>MPT 9.2초</span></div>
+            <div><i>✓</i>스탬프(SBT) 발행<span>#28</span></div>
+            <div><i>✓</i>응원금 자동 지급<span>500 KRWS</span></div>
           </div>
         </div>
         <div class="plabel" style="text-align:center;margin-top:0">훈련을 쉬면 지급도 쉬고, 남은 금액은 후원자에게 돌아가요</div>
@@ -587,9 +620,9 @@
     <h2>완주가 곧 성과연동 지급이고, 완주 이후는 여행이 훈련이 됩니다</h2>
     <p>성공 지표는 180일 완주율 하나입니다. 완주하는 순간 보험사가 예치한 성과금이 집행되고, 아기 호랑이로 시작한 내 수호신은 어른 호랑이가 됩니다. 보상이 끝나도 훈련이 끊기지 않도록, 열린 입장권을 쓰러 가는 길이 유지기 훈련이 됩니다.</p>
     <ul class="points">
-      <li><span class="chip coin">코인</span><div><strong>보험사 성과연동 지급은 완주 한 번에</strong><span>완주율이 오르면 장기 요양과 우울증 관련 지급이 줄어드는 것이 보험사가 참여하는 이유입니다.</span></div></li>
-      <li><span class="chip agent">에이전트</span><div><strong>완주 판정은 사람이 최종 확인</strong><span>에이전트가 180개 스탬프와 재평가 점수를 대조해 올리면, 치료사가 승인합니다. 기존 설계의 "최종 판단은 사람" 원칙을 지킵니다.</span></div></li>
-      <li><span class="chip rwa">RWA</span><div><strong>가족 띠 수집으로 다음 여정</strong><span>손주의 띠 길이 열리면 같은 지갑 구조가 유지기에도 그대로 돌아갑니다.</span></div></li>
+      <li><span class="chip coin">코인</span><div><strong>보험사 성과연동 지급은 완주 한 번에</strong><span>완주율이 오르면 장기 요양비, 간병비, 우울증 치료비 지출이 줄어드는 것이 보험사가 참여하는 이유입니다.</span></div></li>
+      <li><span class="chip sbt">SBT</span><div><strong>완주 판정은 사람이 최종 확인</strong><span>앱이 180개 스탬프와 재평가 점수를 대조해 올리면, 담당 치료사가 승인합니다. 기존 설계의 "최종 판단은 사람" 원칙을 지킵니다.</span></div></li>
+      <li><span class="chip fund">후원</span><div><strong>가족 띠 수집으로 다음 여정</strong><span>손주의 띠 길이 열리면 같은 지갑 구조가 유지기에도 그대로 돌아갑니다.</span></div></li>
     </ul>
     <div class="note"><b>지표.</b> 성공은 180일 완주율. 중간은 주간 스탬프 획득률과 도시 바우처 개방률. 후원자 쪽은 바우처 실제 사용률과 재예치율.</div>
   </div>
@@ -609,7 +642,7 @@
         <div class="pcard">
           <div class="plabel">완주 승인</div>
           <div class="verify">
-            <div><i>✓</i>에이전트 대조 완료<span>스탬프 180 · 재평가 4회</span></div>
+            <div><i>✓</i>스탬프 180개 대조 완료<span>재평가 4회</span></div>
             <div><i>✓</i>담당 치료사 승인<span>04.06 김OO</span></div>
             <div><i>✓</i>OO생명 성과연동 지급<span>300,000 KRWS</span></div>
           </div>
