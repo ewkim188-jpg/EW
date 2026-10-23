@@ -78,6 +78,7 @@ EW/
 ├── EW_AppFlow.pptx             # 앱 플로우 발표 자료
 ├── docs/
 │   └── developer_guide.md      # 개발자 상세 가이드
+├── wiki/                       # LLM 위키 (Claude가 관리하는 지식 베이스)
 ├── package.json
 └── README.md
 ```
@@ -102,6 +103,16 @@ node create_appflow.js
 | 모드 | 통합/집중 → 재활 모드 전환 |
 | 레벨 | Lv.1~4 → 전체 운동 레벨 변경 |
 | 화면 | 각 화면 직접 이동 |
+
+## LLM 위키
+
+`wiki/`는 Claude가 직접 관리하는 프로젝트 지식 위키입니다 ([wiki/index.md](wiki/index.md)부터 보세요).
+
+- **자료 넣기:** `wiki/raw/`에 회의록·논문 등을 넣고 → "raw/파일명 위키에 ingest 해줘"
+- **질문:** "레벨다운 조건이 뭐야?" → 위키 페이지를 근거로 답변
+- **점검:** "위키 점검해줘" 또는 `python3 wiki/tools/wiki_lint.py`
+
+운영 규칙: [wiki/CLAUDE.md](wiki/CLAUDE.md)
 
 ## 이론적 근거
 
