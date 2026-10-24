@@ -203,7 +203,8 @@ let extras = [], reportType = "invest", confirmed = false;
 const usedRec = {};
 
 const $ = (id) => document.getElementById(id);
-const esc = (s) => { const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; };
+// 속성 값(title="…", value="…")에도 쓰므로 따옴표까지 이스케이프한다
+const esc = (s) => { const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML.replace(/"/g, "&quot;").replace(/'/g, "&#39;"); };
 const md = (t) => (window.marked && window.DOMPurify) ? DOMPurify.sanitize(marked.parse(t || "")) : `<pre style="white-space:pre-wrap">${esc(t)}</pre>`;
 // 링크는 http(s)만 허용 (javascript: 주소 차단)
 const safeUrl = (u) => { try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : "#"; } catch (e) { return "#"; } };
@@ -222,7 +223,10 @@ async function call(url, body, title, desc) {
   finally { $("overlay").classList.remove("on"); }
 }
 function toast(msg) { const t = $("toast"); t.textContent = msg; t.style.display = "block"; setTimeout(() => t.style.display = "none", 6000); }
-function setS(d) { if (!d) return; S = d; try { localStorage.setItem("ia_session", S.id); } catch (e) {} clearUsed(); render(); }
+function setS(d) {
+  if (!d) return;
+  if (!S || S.id !== d.id) { confirmed = false; reportType = "invest"; extras = []; }  // 다른 세션의 승인 체크를 물려받지 않게
+  S = d; try { localStorage.setItem("ia_session", S.id); } catch (e) {} clearUsed(); render(); }
 function clearUsed() { for (const k in usedRec) delete usedRec[k]; }
 
 // ---- 공통 그리기 ----

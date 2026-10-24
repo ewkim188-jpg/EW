@@ -59,7 +59,7 @@ IDEATION_WEB_SEARCH=0 uvicorn server:app --port 8001  # 외부 웹 검색 끄기
 ## 테스트
 
 ```bash
-python tests/test_flow.py        # 가짜 모드, API 키 불필요. 7단계 흐름과 하네스 46개 항목
+python tests/test_flow.py        # 가짜 모드, API 키 불필요. 7단계 흐름과 하네스 57개 항목
 python tests/smoke_agents.py     # 실제 API. 업로드 문서 속 프롬프트 주입("PWNED")을 DocReader 가 따르지 않는지 (p.26·p.68)
 ```
 

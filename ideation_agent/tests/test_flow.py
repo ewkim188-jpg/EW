@@ -170,4 +170,29 @@ r = c.post("/api/session", json={"idea": "x" * 501})
 check("아이디어 글자수 제한", r.status_code == 400)
 check("동시 호출 제한 상수", workflow.__dict__.get("UPLOAD_MAX_FILES") == 3 and __import__("agents").LLM_SEMAPHORE._value == 8)
 
+print("코드 검토에서 나온 구멍")
+P = [{"perspective": p, "score": 5, "comment": ""} for p in workflow.PERSPECTIVES]
+check("빈 점수표로 PASS 못 함", workflow.critic_verdict({"verdict": "PASS", "scores": [], "questions": []})["verdict"] == "FAIL")
+check("범위 밖 점수(99)로 PASS 못 함", workflow.critic_verdict({"verdict": "PASS", "scores": P[:2] + [{**P[2], "score": 99}], "questions": []})["verdict"] == "FAIL")
+check("관점 하나 빠지면 PASS 못 함", workflow.critic_verdict({"verdict": "PASS", "scores": P[:2], "questions": []})["verdict"] == "FAIL")
+check("정상 점수표는 PASS", workflow.critic_verdict({"verdict": "PASS", "scores": list(P), "questions": []})["verdict"] == "PASS")
+s3 = to_step(new_session()["id"], 6)
+r = c.post(f"/api/session/{s3['id']}/approve", json={"confirmed": "yes", "report_type": "invest"})
+check("confirmed 에 'yes'·1 같은 값은 거부 (422)", r.status_code == 422 and c.post(f"/api/session/{s3['id']}/approve", json={"confirmed": 1, "report_type": "invest"}).status_code == 422)
+c.post(f"/api/session/{s3['id']}/approve", json={"confirmed": True, "report_type": "zzz"})
+check("승인 실패 시 승인 상태로 남지 않음", c.get(f"/api/session/{s3['id']}").json()["approved"] is False)
+s4 = to_step(new_session()["id"], 7, arch_bad=True)
+check("품질 미달 미결정이면 데모 설계서도 409", c.post(f"/api/session/{s4['id']}/demo").status_code == 409)
+s5 = to_step(new_session()["id"], 3)
+check("빈 파일 거부", c.post(f"/api/session/{s5['id']}/upload", json={"files": [{"name": "e.txt", "data": ""}]}).status_code == 400)
+check("긴 파일 이름 거부", c.post(f"/api/session/{s5['id']}/upload", json={"files": [{"name": "a" * 101 + ".txt", "data": b64(b"x")}]}).status_code == 400)
+big_png = b"\x89PNG\r\n\x1a\n" + b"0" * (4 * 1024 * 1024)
+check("인코딩 후 5MB 넘는 이미지 거부", c.post(f"/api/session/{s5['id']}/upload", json={"files": [{"name": "b.png", "data": b64(big_png)}]}).status_code == 413)
+from types import SimpleNamespace as NS
+import agents
+blocks = [NS(type="server_tool_use", id="s1"), NS(type="web_search_tool_result", tool_use_id="s1"), NS(type="server_tool_use", id="s2"),
+          NS(type="thinking"), NS(type="fallback"), NS(type="text")]
+kept = [b.type + getattr(b, "id", "") for b in agents._echo_safe(blocks)]
+check("폴백 경계 앞: 짝 있는 검색 호출은 남기고 짝 없는 것만 버림", kept == ["server_tool_uses1", "web_search_tool_result", "fallback", "text"], kept)
+
 print(f"\n전부 통과: {passed}개")

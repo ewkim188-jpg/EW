@@ -110,8 +110,11 @@ def _echo_safe(content: list) -> list:
     idx = max((i for i, b in enumerate(content) if b.type == "fallback"), default=-1)
     if idx < 0:
         return content
-    drop = {"thinking", "redacted_thinking", "tool_use", "server_tool_use"}
-    return [b for i, b in enumerate(content) if i >= idx or b.type not in drop]
+    # 검색 호출(server_tool_use)은 결과 블록과 짝이 맞으면 남기고, 짝 없는 것만 버린다
+    paired = {getattr(b, "tool_use_id", None) for b in content if b.type.endswith("_tool_result")}
+    drop = {"thinking", "redacted_thinking", "tool_use"}
+    return [b for i, b in enumerate(content)
+            if i >= idx or (b.type not in drop and not (b.type == "server_tool_use" and b.id not in paired))]
 
 
 def _search_results(content: list) -> dict[str, str]:

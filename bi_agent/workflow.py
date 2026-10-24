@@ -255,7 +255,10 @@ class Project:
                  f"{len(self.spec_rounds) + 1}회차 비판 검증을 하라.")
         critic, csec, _ = run_agent("critic", cuser, CRITIC_SCHEMA)
         # 모델이 기준과 다르게 PASS 를 주는 경우를 코드로 한 번 더 막는다
-        if any(s["score"] < 4 for s in critic["scores"]):
+        # 세 관점이 하나씩, 1~5점, 모두 4점 이상이어야 PASS (빈 점수표·범위 밖 점수로 통과하지 못하게)
+        views = [s["perspective"] for s in critic["scores"]]
+        valid = sorted(views) == sorted(["경영진", "현업", "데이터·컴플라이언스"]) and all(1 <= s["score"] <= 5 for s in critic["scores"])
+        if not valid or any(s["score"] < 4 for s in critic["scores"]):
             critic["verdict"] = "FAIL"
         critic["questions"] = critic["questions"][:3]
         self.spec_rounds.append({"spec": spec, "critic": critic})

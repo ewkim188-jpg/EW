@@ -58,7 +58,7 @@
   intake: {role, area, problem, idea},
   rounds: [{hypothesis, confidence, gaps, ready,
             questions: [{title, question, axis, recommended, answer, used_recommended}],
-            extra: [{question, answer}],
+            extra: [{q, a}],            # 요청은 {question, answer}, 상태에는 {q, a} 로 저장
             facts: [{fact, why, sources: [Source]}], facts_warning}],
   tracks: {market|risk|data: {title, queries, findings: [{text, sources: [int], selected}],
                               sources: [Source], warning, retries, error}},

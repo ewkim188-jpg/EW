@@ -17,7 +17,7 @@ import anthropic
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, StrictBool
 
 from agents import BASE_DIR, PACKS, WEB_SEARCH, AgentError
 from workflow import REPORT_TYPES, FlowError, Session, limits, list_sessions
@@ -106,7 +106,7 @@ class CritiqueIn(BaseModel):
 
 
 class ApproveIn(BaseModel):
-    confirmed: bool = False
+    confirmed: StrictBool = False  # "yes"·1 같은 값을 true 로 바꿔 받지 않는다
     report_type: str = ""
 
 

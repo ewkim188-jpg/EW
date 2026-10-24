@@ -194,7 +194,8 @@ let caseLog = null;            // 케이스 생성 로그 (프로젝트 만들�
 let reportType = "exec", approvedChecked = false;
 
 const $ = (id) => document.getElementById(id);
-const esc = (s) => { const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; };
+// 속성 값(title="…", value="…")에도 쓰므로 따옴표까지 이스케이프한다
+const esc = (s) => { const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML.replace(/"/g, "&quot;").replace(/'/g, "&#39;"); };
 const md = (t) => (window.marked && window.DOMPurify) ? DOMPurify.sanitize(marked.parse(t || "")) : `<pre style="white-space:pre-wrap">${esc(t)}</pre>`;
 // 링크는 http(s)만 허용한다 (javascript: 같은 주소로 스크립트가 실행되지 않게)
 const safeUrl = (u) => { try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : "#"; } catch (e) { return "#"; } };
