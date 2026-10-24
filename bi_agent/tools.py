@@ -1,117 +1,91 @@
 """BI 에이전트가 쓰는 로컬 도구 모음.
 
-- list_data_files : data/ 폴더의 분석 가능한 파일 목록
-- preview_data    : 파일 구조(시트·컬럼·타입·상위 행) 미리보기
-- run_python      : pandas 분석 코드 실행 (실행 전 사용자 승인)
-- save_output     : 요청서·보고서 초안을 outputs/ 에 저장
+BI 에이전트는 데이터를 직접 돌리지 않는다. 계산·검토는 오너가 만든 전문 에이전트가 맡고,
+BI 에이전트는 문제를 정의해 요청서를 만들고, 돌아온 결과를 해석한다.
 
-모든 파일 접근은 data/, outputs/ 안으로 제한한다.
+- create_handoff : 전문 에이전트(이데·컴봇·전봇 등)에 넘길 요청서를 outputs/handoffs/ 에 저장
+- save_output    : BI 분석 요청서, 보고서 초안 등을 outputs/ 에 저장
+
+모든 파일 쓰기는 outputs/ 안으로 제한한다.
 """
 
-import json
-import subprocess
-import sys
+from datetime import datetime
 from pathlib import Path
 
-import pandas as pd
-
 BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
 OUTPUT_DIR = BASE_DIR / "outputs"
+HANDOFF_DIR = OUTPUT_DIR / "handoffs"
 
-DATA_SUFFIXES = {".csv", ".xlsx", ".xls", ".parquet", ".tsv"}
-MAX_RESULT_CHARS = 20_000  # 도구 결과가 컨텍스트를 너무 많이 차지하지 않도록 자른다
-PYTHON_TIMEOUT_SEC = 120
+# 오너가 운영하는 전문 에이전트 목록. 새 에이전트가 생기면 여기에 추가한다.
+# role 이 비어 있는 에이전트에는 요청서를 만들지 않는다.
+AGENTS = {
+    "이데": {
+        "id": "data-analyst",
+        "role": "데이터 분석. UBIST·IQVIA·자사 매출 등 실제 데이터로 점유율·추이·분해 계산을 수행한다.",
+        "when": "숫자가 필요한 모든 경우 (조회, 추이, 매출 분해, 세그먼트, 포캐스트 대비 실적 등)",
+    },
+    "컴봇": {
+        "id": "compliance-bot",
+        "role": "컴플라이언스 검토. 허가사항 범위, 공정경쟁규약, 의약품 광고 규제, 개인정보 관점의 적정성을 점검한다.",
+        "when": "제품 메시지·대외 커뮤니케이션·프로모션 자료, 개별 의사·병원 단위 데이터 활용, 허가 범위 밖 해석 위험이 있을 때",
+    },
+    "전봇": {
+        "id": "",
+        "role": "",  # [확인 필요] 오너에게 역할을 확인한 뒤 채운다
+        "when": "",
+    },
+}
 
 
 def _safe_path(root: Path, rel: str) -> Path:
     """root 밖으로 나가는 경로(../ 등)를 막는다."""
     path = (root / rel).resolve()
-    if root.resolve() not in path.parents and path != root.resolve():
+    if root.resolve() not in path.parents:
         raise ValueError(f"{root.name}/ 폴더 밖의 경로는 쓸 수 없습니다: {rel}")
     return path
 
 
-def _truncate(text: str) -> str:
-    if len(text) <= MAX_RESULT_CHARS:
-        return text
-    return text[:MAX_RESULT_CHARS] + f"\n... (출력 {len(text):,}자 중 앞부분만 표시)"
+def agents_for_prompt() -> str:
+    """시스템 프롬프트에 넣을 에이전트 목록."""
+    lines = []
+    for name, info in AGENTS.items():
+        if info["role"]:
+            lines.append(f"- {name} ({info['id']}): {info['role']}\n  언제: {info['when']}")
+        else:
+            lines.append(f"- {name}: [역할 확인 필요] 역할이 정해지기 전에는 요청서를 만들지 말고, "
+                         f"필요해 보이면 오너에게 {name}의 역할을 묻는다.")
+    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
 # 도구 구현
 # ---------------------------------------------------------------------------
 
-def list_data_files() -> str:
-    files = [
-        p for p in sorted(DATA_DIR.rglob("*"))
-        if p.is_file() and p.suffix.lower() in DATA_SUFFIXES
-    ]
-    if not files:
-        return "data/ 폴더에 분석 가능한 파일(csv, xlsx, xls, parquet, tsv)이 없습니다."
-    lines = [
-        f"- {p.relative_to(DATA_DIR)} ({p.stat().st_size / 1024:,.0f} KB)" for p in files
-    ]
-    return "data/ 폴더 파일 목록:\n" + "\n".join(lines)
+def create_handoff(agent: str, title: str, request: str) -> str:
+    info = AGENTS.get(agent)
+    if info is None:
+        raise ValueError(f"등록되지 않은 에이전트입니다: {agent}. 사용 가능: {list(AGENTS)}")
+    if not info["role"]:
+        raise ValueError(f"{agent}의 역할이 아직 정해지지 않았습니다. 오너에게 역할을 먼저 확인하세요.")
 
-
-def preview_data(path: str, sheet: str | None = None, n_rows: int = 10) -> str:
-    file = _safe_path(DATA_DIR, path)
-    if not file.exists():
-        return f"파일이 없습니다: {path}"
-    suffix = file.suffix.lower()
-    n_rows = max(1, min(int(n_rows), 50))
-
-    out = []
-    if suffix in (".xlsx", ".xls"):
-        sheets = pd.ExcelFile(file).sheet_names
-        out.append(f"시트 목록: {sheets}")
-        target = sheet or sheets[0]
-        df = pd.read_excel(file, sheet_name=target)
-        out.append(f"[미리보기 시트: {target}]")
-    elif suffix == ".parquet":
-        df = pd.read_parquet(file)
-    else:
-        sep = "\t" if suffix == ".tsv" else ","
-        df = pd.read_csv(file, sep=sep)
-
-    out.append(f"행 {len(df):,} × 열 {df.shape[1]}")
-    out.append("컬럼 / 타입 / 결측 수:")
-    for col in df.columns:
-        out.append(f"  - {col} | {df[col].dtype} | 결측 {df[col].isna().sum():,}")
-    out.append(f"\n상위 {n_rows}행:")
-    out.append(df.head(n_rows).to_string())
-    return _truncate("\n".join(out))
-
-
-def run_python(code: str, purpose: str) -> str:
-    """분석 코드를 별도 프로세스에서 실행한다. 작업 폴더는 bi_agent/ 이다."""
+    HANDOFF_DIR.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in title)[:40]
+    file = HANDOFF_DIR / f"{stamp}_{agent}_{safe_title}.md"
+    file.write_text(
+        f"# [{agent} 요청] {title}\n\n"
+        f"- 받는 에이전트: {agent} ({info['id']})\n"
+        f"- 작성: BI 에이전트 / {datetime.now():%Y-%m-%d %H:%M}\n\n"
+        f"{request}\n",
+        encoding="utf-8",
+    )
+    # 오너가 바로 복사해 해당 에이전트에 붙여넣을 수 있도록 화면에도 보여준다
     print("\n" + "=" * 70)
-    print(f"[run_python] 목적: {purpose}")
+    print(f"[{agent}에게 보낼 요청서] {title}")
     print("-" * 70)
-    print(code)
+    print(request)
     print("=" * 70)
-    answer = input("이 코드를 실행할까요? [y/N] ").strip().lower()
-    if answer not in ("y", "yes"):
-        return "사용자가 코드 실행을 거절했습니다. 코드를 수정하거나 다른 방법을 제안하세요."
-
-    try:
-        proc = subprocess.run(
-            [sys.executable, "-c", code],
-            cwd=BASE_DIR,
-            capture_output=True,
-            text=True,
-            timeout=PYTHON_TIMEOUT_SEC,
-        )
-    except subprocess.TimeoutExpired:
-        return f"실행 시간 초과({PYTHON_TIMEOUT_SEC}초). 데이터를 줄이거나 로직을 나눠 보세요."
-
-    result = f"[exit code {proc.returncode}]\n"
-    if proc.stdout:
-        result += f"[stdout]\n{proc.stdout}\n"
-    if proc.stderr:
-        result += f"[stderr]\n{proc.stderr}\n"
-    return _truncate(result)
+    return f"요청서 저장 완료: {file.relative_to(BASE_DIR)}. 오너가 {agent}에게 전달한다."
 
 
 def save_output(filename: str, content: str) -> str:
@@ -127,48 +101,25 @@ def save_output(filename: str, content: str) -> str:
 
 TOOLS = [
     {
-        "name": "list_data_files",
-        "description": "data/ 폴더에 있는 분석 가능한 데이터 파일(csv, xlsx, parquet 등) 목록을 보여준다. "
-                       "데이터 분석 요청을 받으면 가장 먼저 호출해 어떤 데이터가 있는지 확인한다.",
-        "input_schema": {"type": "object", "properties": {}, "additionalProperties": False},
-        "eager_input_streaming": True,
-    },
-    {
-        "name": "preview_data",
-        "description": "data/ 폴더의 파일 하나를 열어 시트 목록, 행·열 수, 컬럼별 타입·결측 수, 상위 행을 보여준다. "
-                       "분석 코드를 쓰기 전에 실제 컬럼명과 데이터 형태를 확인하는 용도.",
+        "name": "create_handoff",
+        "description": "오너가 운영하는 전문 에이전트(이데·컴봇 등)에게 넘길 작업 요청서를 만들어 저장하고 화면에 보여준다. "
+                       "숫자 계산은 이데, 컴플라이언스 검토는 컴봇에게 맡긴다. "
+                       "요청서는 받는 에이전트가 되묻지 않고 바로 실행할 수 있을 만큼 구체적으로 쓴다.",
         "input_schema": {
             "type": "object",
             "properties": {
-                "path": {"type": "string", "description": "data/ 기준 상대 경로. 예: ubist_2026.xlsx"},
-                "sheet": {"type": "string", "description": "엑셀 시트명. 생략하면 첫 시트."},
-                "n_rows": {"type": "integer", "description": "보여줄 상위 행 수 (1~50, 기본 10)"},
+                "agent": {"type": "string", "enum": list(AGENTS), "description": "받는 에이전트 이름"},
+                "title": {"type": "string", "description": "요청 제목 한 줄. 예: 릭시아나 LOE 후 월별 점유율 추이"},
+                "request": {"type": "string", "description": "요청서 본문 (마크다운). 시스템 프롬프트의 요청서 양식을 따른다."},
             },
-            "required": ["path"],
-            "additionalProperties": False,
-        },
-        "eager_input_streaming": True,
-    },
-    {
-        "name": "run_python",
-        "description": "pandas 등으로 분석하는 Python 코드를 실행하고 stdout/stderr를 돌려받는다. "
-                       "작업 폴더는 bi_agent/ 이므로 데이터는 'data/파일명', 결과 파일은 'outputs/파일명'으로 접근한다. "
-                       "결과는 print()로 출력해야 보인다. 오너가 읽을 수 있도록 로직마다 한국어 주석을 단다. "
-                       "실행 전 사용자가 코드를 검토·승인한다.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "code": {"type": "string", "description": "실행할 Python 코드 (한국어 주석 포함)"},
-                "purpose": {"type": "string", "description": "이 코드가 무엇을 확인·계산하는지 한 문장"},
-            },
-            "required": ["code", "purpose"],
+            "required": ["agent", "title", "request"],
             "additionalProperties": False,
         },
         "eager_input_streaming": True,
     },
     {
         "name": "save_output",
-        "description": "BI 분석 요청서, 보고서 초안, 분석 요약 등 텍스트 산출물을 outputs/ 폴더에 저장한다. "
+        "description": "BI 분석 요청서, 보고서 초안, 결과 해석 등 텍스트 산출물을 outputs/ 폴더에 저장한다. "
                        "마크다운(.md) 형식을 권장한다.",
         "input_schema": {
             "type": "object",
@@ -184,9 +135,7 @@ TOOLS = [
 ]
 
 _HANDLERS = {
-    "list_data_files": list_data_files,
-    "preview_data": preview_data,
-    "run_python": run_python,
+    "create_handoff": create_handoff,
     "save_output": save_output,
 }
 
@@ -205,11 +154,11 @@ def _validate(name: str, args: dict) -> str | None:
     unknown = [k for k in args if k not in props]
     if unknown:
         return f"정의되지 않은 입력: {unknown}"
-    type_map = {"string": str, "integer": int}
     for key, value in args.items():
-        expected = type_map[props[key]["type"]]
-        if not isinstance(value, expected) or isinstance(value, bool):
-            return f"'{key}'의 타입이 {props[key]['type']}가 아닙니다."
+        if not isinstance(value, str):
+            return f"'{key}'의 타입이 string이 아닙니다."
+        if "enum" in props[key] and value not in props[key]["enum"]:
+            return f"'{key}'는 {props[key]['enum']} 중 하나여야 합니다."
     return None
 
 
@@ -222,7 +171,3 @@ def execute_tool(name: str, args: dict) -> tuple[str, bool]:
         return _HANDLERS[name](**args), False
     except Exception as exc:  # 도구 오류는 Claude에게 돌려줘서 스스로 고치게 한다
         return f"{type(exc).__name__}: {exc}", True
-
-
-if __name__ == "__main__":
-    print(json.dumps([t["name"] for t in TOOLS], ensure_ascii=False))
