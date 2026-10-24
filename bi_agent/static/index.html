@@ -9,300 +9,566 @@
 <script src="/static/vendor/purify.min.js"></script>
 <style>
   :root {
-    --bg: #f6f7f9; --panel: #ffffff; --text: #1d2330; --muted: #6b7385; --line: #e3e6ec;
-    --accent: #0b6e4f; --accent-soft: #e3f2ec; --warn: #b45309; --warn-soft: #fdf1e3;
-    --bad: #b42318; --bad-soft: #fde8e6; --me: #eef3fb;
+    --bg: #f5f6fa; --panel: #ffffff; --text: #1d2330; --muted: #6b7385; --line: #e4e6ee;
+    --accent: #4f46e5; --accent-soft: #eef0ff; --ok: #16a34a; --ok-soft: #e8f7ee;
+    --warn: #b45309; --warn-soft: #fdf3e5; --bad: #c2410c; --bad-soft: #fdebe3; --soft: #f7f8fc;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #12151b; --panel: #1a1e26; --text: #e6e8ee; --muted: #9aa1b2; --line: #2b313c;
-      --accent: #4cc39a; --accent-soft: #173229; --warn: #f0a44b; --warn-soft: #33261a;
-      --bad: #f2786d; --bad-soft: #3a1d1b; --me: #1e2735;
+      --bg: #12141b; --panel: #1a1d27; --text: #e7e9f0; --muted: #9aa1b4; --line: #2c3040;
+      --accent: #8b85ff; --accent-soft: #25264a; --ok: #4ade80; --ok-soft: #173023;
+      --warn: #f5a54a; --warn-soft: #33261a; --bad: #fb8b62; --bad-soft: #3a2119; --soft: #20232f;
     }
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text);
          font: 15px/1.6 "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
-  header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px 16px;
+  button { font: inherit; }
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 14px 24px;
            background: var(--panel); border-bottom: 1px solid var(--line); }
-  header h1 { font-size: 17px; margin: 0 8px 0 0; }
+  .badge { background: var(--accent); color: #fff; font-weight: 700; font-size: 13px; padding: 5px 10px; border-radius: 6px; }
+  header h1 { font-size: 20px; margin: 0; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .who { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px;
+          background: var(--soft); border: 1px solid var(--line); font-size: 13px; }
+  .linkbtn { background: none; border: 0; color: var(--accent); cursor: pointer; font-size: 13px; padding: 4px 6px; }
+  .linkbtn.red { color: var(--bad); }
+
+  /* 단계 표시줄 */
+  .stepper { display: flex; align-items: center; padding: 16px 24px; background: var(--panel); border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .st { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+  .st .dot { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700;
+             border: 2px solid var(--line); color: var(--muted); background: var(--panel); }
+  .st .lbl { font-size: 14px; color: var(--muted); white-space: nowrap; }
+  .st.done .dot { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .st.now .dot { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 0 4px var(--accent-soft); }
+  .st.now .lbl { color: var(--accent); font-weight: 600; } .st.done .lbl { color: var(--text); }
+  .line { flex: 1 1 40px; min-width: 24px; height: 2px; background: var(--line); margin: 0 12px; }
+  .line.done { background: var(--ok); }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; padding: 20px 24px; align-items: start; }
+  @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 24px; min-width: 0; }
+  .stepchip { display: inline-block; background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-soft);
+              font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 6px; }
+  .card h2 { font-size: 22px; margin: 10px 0 4px; }
+  .desc { color: var(--muted); margin: 0 0 18px; }
+  .row { display: flex; justify-content: space-between; align-items: start; gap: 12px; flex-wrap: wrap; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
+
+  label.f { display: block; font-weight: 600; margin: 14px 0 6px; }
+  label.f small { font-weight: 400; color: var(--muted); }
+  input[type=text], textarea, select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px;
+         background: var(--panel); color: var(--text); font: inherit; }
+  textarea { resize: vertical; min-height: 76px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 760px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+
+  .btn { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 10px; padding: 11px 18px; cursor: pointer; font-weight: 600; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn.sm { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
+  .actions { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
   .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-  .seg button { border: 0; background: transparent; color: var(--muted); padding: 6px 12px; cursor: pointer; font: inherit; }
+  .seg button { border: 0; background: transparent; color: var(--muted); padding: 8px 16px; cursor: pointer; }
   .seg button.on { background: var(--accent); color: #fff; }
-  .mode-help { color: var(--muted); font-size: 13px; flex: 1; min-width: 200px; }
-  .btn { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 8px;
-         padding: 6px 12px; cursor: pointer; font: inherit; }
-  .btn:disabled { opacity: .5; cursor: default; }
-  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-  /* 진행 표시줄 */
-  .stages { display: flex; gap: 4px; padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--line);
-            overflow-x: auto; }
-  .stage { flex: 1; min-width: 90px; text-align: center; font-size: 13px; padding: 6px 4px; border-radius: 6px;
-           color: var(--muted); background: var(--bg); position: relative; }
-  .stage.done { color: var(--accent); background: var(--accent-soft); }
-  .stage.now { color: #fff; background: var(--accent); font-weight: 600; }
-  .stage-note { padding: 4px 16px 0; font-size: 13px; color: var(--muted); min-height: 20px; }
+  .box { border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 14px 0; background: var(--panel); }
+  .box.soft { background: var(--soft); }
+  .box.ok { background: var(--ok-soft); border-left: 4px solid var(--ok); }
+  .hyp .bar { height: 8px; background: var(--line); border-radius: 4px; margin: 10px 0; overflow: hidden; }
+  .hyp .bar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+  .gap { background: var(--warn-soft); color: var(--warn); padding: 6px 10px; border-radius: 6px; font-size: 14px; }
+  .gap b { color: var(--warn); }
+  .q h4 { margin: 0 0 6px; font-size: 16px; }
+  .rec { border: 1px dashed var(--line); background: var(--soft); border-radius: 8px; padding: 10px 12px; margin: 10px 0; font-size: 14px;
+         display: flex; gap: 10px; justify-content: space-between; align-items: center; }
+  .rec.hidden-rec { color: var(--muted); }
+  .tag { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 6px; background: var(--soft); color: var(--muted); border: 1px solid var(--line); }
+  .tag.cap { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+  .tag.warn { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+  .tag.ok { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+  .tag.bad { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
+  details.box > summary { cursor: pointer; font-weight: 600; }
+  .meta { color: var(--muted); font-size: 13px; }
 
-  main { display: grid; grid-template-columns: 1fr 320px; gap: 0; height: calc(100vh - 150px); }
-  @media (max-width: 860px) { main { grid-template-columns: 1fr; height: auto; } aside { border-left: 0; border-top: 1px solid var(--line); } }
-  .chat { display: flex; flex-direction: column; min-height: 0; }
-  #log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-  .msg { max-width: 860px; padding: 10px 14px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line);
-         overflow-wrap: anywhere; }
-  .msg.me { align-self: flex-end; background: var(--me); white-space: pre-wrap; }
-  .msg table { border-collapse: collapse; margin: 8px 0; font-size: 14px; display: block; overflow-x: auto; }
-  .msg th, .msg td { border: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; }
-  .msg pre { background: var(--bg); padding: 8px; border-radius: 6px; overflow-x: auto; }
-  .msg blockquote { margin: 8px 0; padding: 6px 12px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
-  .meta { font-size: 12px; color: var(--muted); }
-  .notice { align-self: center; font-size: 13px; color: var(--warn); background: var(--warn-soft); padding: 4px 10px; border-radius: 6px; }
-  .notice.err { color: var(--bad); background: var(--bad-soft); }
-  .working { color: var(--muted); font-size: 13px; }
-  .working::after { content: "…"; animation: blink 1s infinite; }
-  @keyframes blink { 50% { opacity: .2; } }
+  /* 리서치 */
+  .track h3 { margin: 0; font-size: 17px; }
+  .queries { background: var(--soft); border-radius: 8px; padding: 10px; font-size: 13px; color: var(--muted); margin: 10px 0; }
+  .finding { display: flex; gap: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin: 8px 0; font-size: 14px; }
+  .finding input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent); flex: 0 0 auto; }
+  .cite { font-size: 12px; color: var(--accent); border: 1px solid var(--accent-soft); border-radius: 4px; padding: 0 4px; margin-left: 2px; }
+  .sources { font-size: 13px; margin-top: 8px; }
+  .sources a { color: var(--accent); word-break: break-all; }
 
-  /* 검토 카드 */
-  .review { max-width: 860px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); padding: 10px 14px; }
-  .review h4 { margin: 0 0 8px; font-size: 14px; }
-  .critics { display: flex; gap: 8px; flex-wrap: wrap; }
-  .critic { flex: 1; min-width: 160px; border-radius: 8px; padding: 6px 10px; font-size: 13px; }
-  .critic.PASS { background: var(--accent-soft); }
-  .critic.FAIL, .critic.ERROR { background: var(--bad-soft); }
-  .critic b { display: block; }
-  .review details { margin-top: 6px; font-size: 13px; }
-  .review li { margin-bottom: 4px; }
-  .sev-치명 { color: var(--bad); font-weight: 600; } .sev-중요 { color: var(--warn); font-weight: 600; } .sev-사소 { color: var(--muted); }
+  /* 명세 */
+  .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; }
+  @media (max-width: 760px) { .spec-grid { grid-template-columns: 1fr; } }
+  .spec-grid h5 { margin: 12px 0 4px; font-size: 14px; }
+  .spec-grid ul { margin: 0; padding-left: 18px; font-size: 14px; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; margin: 6px 0; display: block; overflow-x: auto; }
+  .tbl th, .tbl td { border: 1px solid var(--line); padding: 5px 8px; text-align: left; vertical-align: top; }
+  .tbl th { background: var(--soft); white-space: nowrap; }
+  .scores { display: flex; gap: 10px; flex-wrap: wrap; }
+  .score { flex: 1; min-width: 180px; border-radius: 10px; padding: 8px 12px; font-size: 14px; }
+  .score.pass { background: var(--ok-soft); } .score.fail { background: var(--bad-soft); }
 
-  form { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); background: var(--panel); }
-  textarea { flex: 1; resize: vertical; min-height: 56px; max-height: 40vh; padding: 8px 10px; border-radius: 8px;
-             border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; }
+  /* 승인 */
+  .confirm { display: flex; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 14px; color: var(--accent); font-weight: 600; cursor: pointer; }
+  .confirm input { width: 22px; height: 22px; accent-color: var(--accent); }
+  .choice { border: 2px solid var(--line); border-radius: 14px; padding: 18px; cursor: pointer; position: relative; }
+  .choice.on { border-color: var(--accent); background: var(--accent-soft); }
+  .choice .ico { font-size: 28px; } .choice h4 { margin: 8px 0 2px; } .choice .en { color: var(--muted); font-size: 13px; }
 
-  aside { border-left: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
-  .tabs { display: flex; border-bottom: 1px solid var(--line); }
-  .tabs button { flex: 1; border: 0; background: transparent; padding: 10px; cursor: pointer; color: var(--muted); font: inherit; }
-  .tabs button.on { color: var(--text); border-bottom: 2px solid var(--accent); font-weight: 600; }
-  .pane { flex: 1; overflow-y: auto; padding: 12px; font-size: 14px; }
-  .item { padding: 8px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
-  .item:hover { border-color: var(--accent); }
-  .tag { display: inline-block; font-size: 12px; padding: 0 6px; border-radius: 4px; background: var(--bg); color: var(--muted); margin-right: 4px; }
-  .tag.약점 { background: var(--bad-soft); color: var(--bad); } .tag.강점, .tag.개선 { background: var(--accent-soft); color: var(--accent); }
-  .cap-bars div { display: flex; align-items: center; gap: 6px; font-size: 13px; margin-bottom: 4px; }
-  .cap-bars span:first-child { width: 48px; }
-  .bar { height: 8px; border-radius: 4px; }
+  .md { overflow-wrap: anywhere; }
+  .md table { border-collapse: collapse; display: block; overflow-x: auto; font-size: 14px; }
+  .md th, .md td { border: 1px solid var(--line); padding: 4px 8px; vertical-align: top; }
+  .md blockquote { margin: 8px 0; padding: 6px 12px; border-left: 3px solid var(--accent); background: var(--accent-soft); }
 
-  dialog { width: min(860px, 92vw); max-height: 85vh; border: 1px solid var(--line); border-radius: 10px;
-           background: var(--panel); color: var(--text); padding: 0; }
-  dialog .body { padding: 16px; overflow-y: auto; max-height: calc(85vh - 50px); }
-  dialog .bar-top { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; border-bottom: 1px solid var(--line); }
+  /* 실행 로그 */
+  .log h3 { margin: 0; font-size: 17px; }
+  .log-item { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .log-item .t { font-family: ui-monospace, monospace; font-size: 12px; color: var(--muted); }
+  .log-item .note { font-size: 13px; color: var(--muted); }
+
+  /* 진행 모달 */
+  .overlay { position: fixed; inset: 0; background: rgba(20, 22, 35, .55); backdrop-filter: blur(3px); display: none; place-items: center; z-index: 10; padding: 16px; }
+  .overlay.on { display: grid; }
+  .modal { background: var(--panel); border-radius: 16px; padding: 32px 40px; width: min(560px, 100%); text-align: center; }
+  .spin { width: 44px; height: 44px; border-radius: 50%; border: 4px solid var(--accent-soft); border-top-color: var(--accent); margin: 0 auto 16px; animation: r 1s linear infinite; }
+  @keyframes r { to { transform: rotate(360deg); } }
+  .modal b { font-size: 18px; display: block; } .modal p { color: var(--muted); margin: 8px 0 18px; }
+  .prog { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+  .prog i { display: block; height: 100%; width: 40%; background: var(--accent); animation: slide 1.6s ease-in-out infinite; }
+  @keyframes slide { 0% { margin-left: -40%; } 100% { margin-left: 100%; } }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--bad); color: #fff; padding: 10px 16px; border-radius: 8px; display: none; z-index: 11; max-width: 90vw; }
+
+  dialog { width: min(900px, 94vw); max-height: 86vh; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--text); padding: 0; }
+  dialog .dh { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+  dialog .db { padding: 16px 20px; overflow-y: auto; max-height: calc(86vh - 60px); }
+  .item { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; cursor: pointer; }
 </style>
 </head>
 <body>
 <header>
-  <h1>BI봇</h1>
-  <div class="seg" id="modes"></div>
-  <span class="mode-help" id="modeHelp"></span>
-  <button class="btn" id="caseBtn" hidden>케이스 받기</button>
-  <button class="btn" id="saveBtn">대화 저장</button>
-  <button class="btn" id="newBtn">새 대화</button>
+  <span class="badge">⚡ BI봇</span>
+  <div><h1>BI 분석 설계 에이전트</h1><div class="sub">한국다이이찌산쿄 BI · 요청 재정의 → 분석 명세 → 오너 성장</div></div>
+  <div class="who">
+    <button class="linkbtn" onclick="openGrowth()">🌱 성장 기록</button>
+    <button class="linkbtn" onclick="openDocs()">📄 저장 문서</button>
+    <span class="chip" id="whoChip" hidden></span>
+  </div>
 </header>
-<div class="stages" id="stages"></div>
-<div class="stage-note" id="stageNote"></div>
-<main>
-  <section class="chat">
+<nav class="stepper" id="stepper"></nav>
+<div class="layout">
+  <main class="card" id="main"></main>
+  <aside class="card log">
+    <div class="row"><h3>🤖 에이전트 실행 로그</h3><span class="chip" id="logCount">0건</span></div>
+    <div class="meta">에이전트 · 걸린 시간 · 일하는 패턴</div>
     <div id="log"></div>
-    <form id="form">
-      <textarea id="input" placeholder="요청을 적어 주세요. 예) 영업본부장이 '세비카 처방이 왜 빠지냐'고 물어봤어. (Ctrl+Enter로 보내기)"></textarea>
-      <button class="btn primary" id="sendBtn">보내기</button>
-    </form>
-  </section>
-  <aside>
-    <div class="tabs">
-      <button data-tab="docs" class="on">문서</button>
-      <button data-tab="growth">성장 기록</button>
-    </div>
-    <div class="pane" id="docs"></div>
-    <div class="pane" id="growth" hidden></div>
   </aside>
-</main>
-<dialog id="viewer">
-  <div class="bar-top"><b id="viewerTitle"></b><button class="btn" onclick="viewer.close()">닫기</button></div>
-  <div class="body msg" id="viewerBody" style="border:0"></div>
-</dialog>
+</div>
+<div class="overlay" id="overlay"><div class="modal"><div class="spin"></div><b id="busyTitle"></b><p id="busyDesc"></p><div class="prog"><i></i></div></div></div>
+<div class="toast" id="toast"></div>
+<dialog id="dlg"><div class="dh"><b id="dlgTitle"></b><button class="btn sm" onclick="dlg.close()">닫기</button></div><div class="db" id="dlgBody"></div></dialog>
 
 <script>
-// ---- 상태 ----
-const MODE_HELP = {
-  "실전": "일을 끝내는 데 집중합니다. 답변 끝에 코칭 한 줄.",
-  "훈련": "답을 먼저 주지 않고, 오너가 먼저 해 보게 한 뒤 피드백합니다.",
-  "케이스": "가상 케이스를 내고 채점합니다. 약점 기록을 겨냥합니다.",
-};
+const STEPS = ["요청 접수", "진단 인터뷰", "다각도 리서치", "명세 & 비판", "최종 승인", "산출물 완성"];
 const CAPS = ["질문", "데이터", "가설", "소왓", "경영진", "도메인"];
-let sessionId = null, mode = "실전", stages = [], currentStage = null, busy = false;
+const TYPE_INFO = {
+  exec: { ico: "👔", en: "Executive Brief", d: "결론 1줄 · 근거 3 · 권고 1, 예상 반문과 답, 일정·자원" },
+  orchestrator: { ico: "🧩", en: "Orchestrator Request", d: "작업 분해 표(담당 봇·선행·병렬/순차·완료 기준), 리뷰봇→컴봇 게이트" },
+  reply: { ico: "✉️", en: "Reply to Requester", d: "재정의한 질문, 분석 계획, 답할 수 있는 것/없는 것, 현업에 부탁할 것" },
+};
+let P = null;                 // 서버가 돌려준 프로젝트 상태
+let form = { mode: "실전" };   // 1단계 입력
+let caseLog = null;            // 케이스 생성 로그 (프로젝트 만들기 전)
+let reportType = "exec", approvedChecked = false;
 
 const $ = (id) => document.getElementById(id);
-const md = (text) => {
-  // 라이브러리를 못 불러오면 일반 텍스트로 보여준다
-  if (window.marked && window.DOMPurify) return DOMPurify.sanitize(marked.parse(text));
-  const d = document.createElement("div"); d.textContent = text; return `<div style="white-space:pre-wrap">${d.innerHTML}</div>`;
-};
 const esc = (s) => { const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; };
+const md = (t) => (window.marked && window.DOMPurify) ? DOMPurify.sanitize(marked.parse(t || "")) : `<pre style="white-space:pre-wrap">${esc(t)}</pre>`;
+// 링크는 http(s)만 허용한다 (javascript: 같은 주소로 스크립트가 실행되지 않게)
+const safeUrl = (u) => { try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : "#"; } catch (e) { return "#"; } };
+const training = () => (P ? P.intake.mode : form.mode) === "훈련";
 
-// ---- 화면 그리기 ----
-function renderModes() {
-  $("modes").innerHTML = "";
-  for (const m of Object.keys(MODE_HELP)) {
-    const b = document.createElement("button");
-    b.textContent = m; b.className = m === mode ? "on" : "";
-    b.onclick = () => { mode = m; renderModes(); };
-    $("modes").appendChild(b);
-  }
-  $("modeHelp").textContent = MODE_HELP[mode];
-  $("caseBtn").hidden = mode !== "케이스";
-}
-
-function renderStages() {
-  const idx = stages.findIndex((s) => s.code === currentStage);
-  $("stages").innerHTML = stages.map((s, i) =>
-    `<div class="stage ${i < idx ? "done" : i === idx ? "now" : ""}">${i + 1}. ${esc(s.label)}</div>`).join("");
-}
-
-function addMsg(cls, html) {
-  const el = document.createElement("div");
-  el.className = cls; el.innerHTML = html;
-  $("log").appendChild(el); $("log").scrollTop = $("log").scrollHeight;
-  return el;
-}
-
-function addReview(ev) {
-  const head = ev.passed ? `✅ 검토 통과 (${ev.round}회차)`
-    : ev.status === "exhausted" ? `⚠️ ${ev.max_rounds}회 검토에도 미통과 — 오너 판단 필요`
-    : `🔁 ${ev.round}/${ev.max_rounds}회차 검토: 수정 후 재검토`;
-  const critics = ev.results.map((r) =>
-    `<div class="critic ${esc(r.verdict)}"><b>${esc(r.critic)} · ${esc(r.verdict)} · ${esc(String(r.score))}/5</b>${esc(r.summary)}</div>`).join("");
-  const issues = ev.results.flatMap((r) => r.issues.map((i) =>
-    `<li><span class="sev-${esc(i.severity)}">[${esc(i.severity)}]</span> <b>${esc(r.critic)}</b> · ${esc(i.where)} — ${esc(i.problem)}<br><span class="meta">수정안: ${esc(i.fix)}</span></li>`));
-  addMsg("review", `<h4>${head} · ${esc(ev.title)}</h4><div class="critics">${critics}</div>` +
-    (issues.length ? `<details><summary>지적 ${issues.length}건 보기</summary><ul>${issues.join("")}</ul></details>` : ""));
-}
-
-async function loadDocs() {
-  const { documents } = await (await fetch("/api/documents")).json();
-  $("docs").innerHTML = documents.length ? "" : `<p class="meta">아직 저장된 문서가 없습니다.</p>`;
-  for (const d of documents) {
-    const el = document.createElement("div");
-    el.className = "item";
-    el.innerHTML = `<span class="tag">${esc(d.kind)}</span><div>${esc(d.name)}</div>`;
-    el.onclick = async () => {
-      const r = await fetch("/api/document?path=" + encodeURIComponent(d.path));
-      const { content } = await r.json();
-      $("viewerTitle").textContent = d.name; $("viewerBody").innerHTML = md(content || "");
-      $("viewer").showModal();
-    };
-    $("docs").appendChild(el);
-  }
-}
-
-async function loadGrowth() {
-  const { notes } = await (await fetch("/api/growth")).json();
-  if (!notes.length) { $("growth").innerHTML = `<p class="meta">아직 기록이 없습니다. 대화하면서 BI봇이 패턴을 기록합니다.</p>`; return; }
-  // 능력별 강점·개선 vs 약점 개수
-  const count = Object.fromEntries(CAPS.map((c) => [c, { good: 0, weak: 0 }]));
-  for (const n of notes) if (count[n.capability]) count[n.capability][n.kind === "약점" ? "weak" : "good"]++;
-  const max = Math.max(1, ...CAPS.map((c) => count[c].good + count[c].weak));
-  const bars = CAPS.map((c) => `<div><span>${c}</span>
-      <span class="bar" style="width:${count[c].good / max * 160}px;background:var(--accent)"></span>
-      <span class="bar" style="width:${count[c].weak / max * 160}px;background:var(--bad)"></span>
-      <span class="meta">${count[c].good}/${count[c].weak}</span></div>`).join("");
-  const list = notes.slice().reverse().map((n) =>
-    `<div class="item" style="cursor:default"><span class="tag">${esc(n.capability)}</span><span class="tag ${esc(n.kind)}">${esc(n.kind)}</span>
-     <span class="meta">${esc(n.date)}</span><div>${esc(n.observation)}</div>${n.next_time ? `<div class="meta">다음엔: ${esc(n.next_time)}</div>` : ""}</div>`).join("");
-  $("growth").innerHTML = `<p class="meta">초록 = 강점·개선, 빨강 = 약점</p><div class="cap-bars">${bars}</div><hr style="border:0;border-top:1px solid var(--line)">${list}`;
-}
-
-// ---- 대화 ----
-async function newSession() {
-  const r = await fetch("/api/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode }) });
-  sessionId = (await r.json()).session_id;
-  currentStage = null; renderStages(); $("stageNote").textContent = "";
-  $("log").innerHTML = "";
-  addMsg("msg", md("안녕하세요, BI봇입니다. 받으신 요청이나 고민 중인 분석을 그대로 적어 주세요.\n\n" +
-    "- **실전**: 일을 끝내고 코칭 한 줄\n- **훈련**: 먼저 해 보시면 피드백\n- **케이스**: 가상 케이스 연습\n\n" +
-    "모드는 대화 중에도 위에서 바꿀 수 있습니다."));
-}
-
-async function send(text) {
-  if (busy || !text.trim()) return;
-  busy = true; $("sendBtn").disabled = true;
-  addMsg("msg me", esc(text));
-  let bubble = null, buf = "", working = addMsg("working", "생각 중");
-
+// ---- 서버 호출 (진행 모달 포함) ----
+async function call(url, body, title, desc) {
+  $("busyTitle").textContent = title; $("busyDesc").textContent = desc; $("overlay").classList.add("on");
   try {
-    const r = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id: sessionId, text, mode }) });
-    if (!r.ok) { working.remove(); addMsg("notice err", esc((await r.json()).detail || r.statusText)); return; }
-    const reader = r.body.getReader(), dec = new TextDecoder();
-    let pending = "";
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      pending += dec.decode(value, { stream: true });
-      const lines = pending.split("\n"); pending = lines.pop();
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        const ev = JSON.parse(line);
-        if (ev.type === "working") {
-          if (!working) working = addMsg("working", "생각 중");
-        } else if (ev.type === "text") {
-          if (working) { working.remove(); working = null; }
-          if (!bubble) { bubble = addMsg("msg", ""); buf = ""; }
-          buf += ev.text; bubble.innerHTML = md(buf);
-          $("log").scrollTop = $("log").scrollHeight;
-        } else if (ev.type === "tool") {
-          // 도구 다음에 오는 글은 새 말풍선으로 (검토 카드 등이 사이에 들어가도록)
-          bubble = null;
-          if (working) working.textContent = ev.name === "review_draft" ? "비평가 3명이 검토 중" : "작업 중";
-        } else if (ev.type === "stage") {
-          currentStage = ev.stage; renderStages(); $("stageNote").textContent = ev.note || "";
-        } else if (ev.type === "review") {
-          if (working) { working.remove(); working = null; }
-          addReview(ev);
-        } else if (ev.type === "doc") {
-          addMsg("notice", "📄 저장: " + esc(ev.title)); loadDocs();
-        } else if (ev.type === "growth") {
-          addMsg("notice", `🌱 성장 기록: [${esc(ev.note.capability)}·${esc(ev.note.kind)}] ${esc(ev.note.observation)}`); loadGrowth();
-        } else if (ev.type === "notice") {
-          addMsg("notice", esc(ev.text));
-        } else if (ev.type === "error") {
-          addMsg("notice err", esc(ev.text));
-        }
-      }
-    }
-  } catch (e) {
-    addMsg("notice err", "연결이 끊겼습니다: " + esc(e.message));
-  } finally {
-    if (working) working.remove();
-    busy = false; $("sendBtn").disabled = false;
-  }
+    const r = await fetch(url, { method: body === undefined ? "GET" : "POST", headers: { "Content-Type": "application/json" },
+                                 body: body === undefined ? undefined : JSON.stringify(body) });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || r.statusText);
+    return data;
+  } catch (e) { toast(e.message); return null; }
+  finally { $("overlay").classList.remove("on"); }
+}
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.style.display = "block"; setTimeout(() => t.style.display = "none", 6000); }
+function setP(data) {
+  if (!data) return; P = data;
+  try { localStorage.setItem("bi_project", P.id); } catch (e) {}
+  render();
 }
 
-// ---- 이벤트 연결 ----
-$("form").onsubmit = (e) => { e.preventDefault(); const t = $("input").value; $("input").value = ""; send(t); };
-$("input").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) $("form").requestSubmit(); });
-$("caseBtn").onclick = () => send("케이스 하나 내 주세요.");
-$("newBtn").onclick = () => { if (!busy) newSession(); };
-$("saveBtn").onclick = async () => {
-  const r = await fetch(`/api/session/${sessionId}/save`, { method: "POST" });
-  addMsg("notice", "대화 저장: " + esc((await r.json()).path));
-};
-document.querySelectorAll(".tabs button").forEach((b) => b.onclick = () => {
-  document.querySelectorAll(".tabs button").forEach((x) => x.classList.toggle("on", x === b));
-  $("docs").hidden = b.dataset.tab !== "docs"; $("growth").hidden = b.dataset.tab !== "growth";
-});
+// ---- 공통 그리기 ----
+function render() {
+  const step = P ? P.step : 1;
+  $("stepper").innerHTML = STEPS.map((s, i) => {
+    const n = i + 1, cls = n < step ? "done" : n === step ? "now" : "";
+    return (i ? `<div class="line ${n <= step ? "done" : ""}"></div>` : "") +
+      `<div class="st ${cls}"><div class="dot">${n < step ? "✓" : n}</div><div class="lbl">${s}</div></div>`;
+  }).join("");
+  const who = $("whoChip");
+  if (P) { who.hidden = false; who.innerHTML = `<b>${esc(P.intake.dept || "현업")}</b> ${esc(P.intake.requester || "")} <span class="tag ${P.intake.mode === "훈련" ? "cap" : ""}">${esc(P.intake.mode)}</span><button class="linkbtn red" onclick="resetAll()">초기화</button>`; }
+  else who.hidden = true;
+  const logs = P ? P.log : (caseLog ? [caseLog] : []);
+  $("logCount").textContent = logs.length + "건";
+  $("log").innerHTML = logs.slice().reverse().map((l) => `<div class="log-item"><div class="row"><b>🤖 ${esc(l.agent)}</b><span class="t">${esc(String(l.seconds))}초</span></div>
+    <span class="tag cap">${esc(l.pattern)}</span> <span class="note">${esc(l.note || "")}</span></div>`).join("");
+  [renderIntake, renderInterview, renderResearch, renderSpec, renderApprove, renderDone][step - 1]();
+  window.scrollTo({ top: 0 });
+}
+const head = (n, title, desc, right = "") =>
+  `<div class="row"><span class="stepchip">Step ${n} · ${STEPS[n - 1]}</span>${right}</div><h2>${title}</h2><p class="desc">${desc}</p>`;
 
+// 질문 카드 (인터뷰·비판 공용). 훈련 모드에서는 추천 답변을 먼저 숨긴다.
+function qCard(q, i, label, recLabel, tag) {
+  const hide = training();
+  return `<div class="box q" data-i="${i}">
+    <div class="row"><h4>${label}${q.title ? ". " + esc(q.title) : ""}</h4>${tag}</div>
+    <div>${esc(q.question)}</div>
+    <div class="rec ${hide ? "hidden-rec" : ""}" id="rec${i}">
+      ${hide ? `<span>🔒 <b>${recLabel}</b>은 먼저 직접 답해 보신 뒤 열립니다. (훈련 모드)</span>
+                <button class="btn sm" onclick="revealRec(${i}, true)">모르겠어요 · 보기</button>`
+             : recBody(i, recLabel, q.recommended)}
+    </div>
+    <textarea id="ans${i}" placeholder="직접 답변을 적어 주세요" oninput="onAnswer(${i})"></textarea>
+  </div>`;
+}
+const recBody = (i, label, text) => `<span><b>${label}:</b> ${esc(text)}</span><button class="btn sm" onclick="useRec(${i})">💡 추천대로</button>`;
+const usedRec = {};
+function currentQs() { return P.step === 2 ? P.rounds.at(-1).questions : P.spec_rounds.at(-1).critic.questions; }
+function recLabelNow() { return P.step === 2 ? "추천 답변" : "추천 방어 논리"; }
+function revealRec(i, gaveUp) {
+  $("rec" + i).classList.remove("hidden-rec");
+  $("rec" + i).innerHTML = recBody(i, recLabelNow(), currentQs()[i].recommended);
+  if (gaveUp) usedRec[i] = true;  // 직접 답하기 전에 본 경우는 '추천 사용'으로 기록 → 코칭에서 구분
+}
+function onAnswer(i) { if (training() && $("ans" + i).value.trim().length >= 15 && $("rec" + i).classList.contains("hidden-rec")) revealRec(i, false); }
+function useRec(i) { $("ans" + i).value = currentQs()[i].recommended; usedRec[i] = true; }
+function collectAnswers(n) { return Array.from({ length: n }, (_, i) => ({ answer: $("ans" + i)?.value || "", used_recommended: !!usedRec[i] })); }
+function clearUsed() { for (const k in usedRec) delete usedRec[k]; }
+
+// ---- 1. 요청 접수 ----
+function renderIntake() {
+  const f = form;
+  $("main").innerHTML = head(1, "어떤 요청을 받으셨나요?",
+    "현업에게 받은 요청을 받은 그대로 적어 주세요. Interviewer가 가설을 세우고 진단 인터뷰를 시작합니다.") + `
+    <div class="grid2">
+      <div><label class="f">요청자</label><input type="text" id="requester" value="${esc(f.requester)}" placeholder="예: 김OO 본부장"></div>
+      <div><label class="f">부서</label><input type="text" id="dept" value="${esc(f.dept)}" placeholder="예: CV 영업본부"></div>
+      <div><label class="f">의사결정자 <small>(이 결과로 결정하는 사람)</small></label><input type="text" id="decision_maker" value="${esc(f.decision_maker)}" placeholder="모르면 비워 두세요"></div>
+      <div><label class="f">기한</label><input type="text" id="deadline" value="${esc(f.deadline)}" placeholder="예: 다음 주 월요일 본부 회의 전"></div>
+    </div>
+    <label class="f">받은 요청 원문 <small>(예: "세비카 처방이 요즘 왜 빠지는지 자료 좀 줘")</small></label>
+    <textarea id="request" style="min-height:120px">${esc(f.request)}</textarea>
+    <label class="f">모드</label>
+    <div class="seg"><button class="${f.mode === "실전" ? "on" : ""}" onclick="setMode('실전')">실전</button><button class="${f.mode === "훈련" ? "on" : ""}" onclick="setMode('훈련')">훈련</button></div>
+    <span class="meta" style="margin-left:8px">${f.mode === "훈련" ? "추천 답변을 숨기고 먼저 직접 생각하게 합니다." : "추천 답변을 바로 보여줍니다. 빠르게 끝낼 때."}</span>
+    ${f.trap ? `<div class="box soft meta">🎯 연습용 가상 요청입니다. 숫자는 모두 가상이고, 함정 하나가 숨어 있습니다. 함정은 마지막 단계에서 공개됩니다.</div>` : ""}
+    <div class="actions">
+      <button class="btn" onclick="getCase()">🎯 연습용 가상 요청 받기</button>
+      <button class="btn primary" onclick="startProject()">🚀 진단 인터뷰 시작하기</button>
+    </div>`;
+}
+function readForm() { for (const k of ["requester", "dept", "decision_maker", "deadline", "request"]) form[k] = $(k).value; }
+function setMode(m) { readForm(); form.mode = m; render(); }
+async function getCase() {
+  readForm();
+  const d = await call("/api/case", {}, "CaseMaker가 연습 케이스를 만드는 중… (약 20초)", "성장 기록의 약점을 겨냥한 가상 요청을 만듭니다.");
+  if (!d) return;
+  const c = d.case; caseLog = d.log;
+  form = { ...form, requester: c.requester, dept: c.dept, decision_maker: c.decision_maker, request: c.request, deadline: c.deadline, trap: c.trap, mode: "훈련" };
+  render();
+}
+async function startProject() {
+  readForm();
+  if (!form.request.trim()) return toast("받은 요청 원문을 적어 주세요.");
+  clearUsed();
+  setP(await call("/api/project", form, "Interviewer가 첫 질문을 준비 중… (약 20초)", "요청에서 의사결정·현상·범위 축으로 진단 질문을 구성하고 있습니다."));
+}
+
+// ---- 2. 진단 인터뷰 ----
+let notes = [];
+function renderInterview() {
+  const r = P.rounds.at(-1), n = P.rounds.length, prev = P.rounds.slice(0, -1);
+  const facts = prev.length ? prev.at(-1).facts : [];
+  $("main").innerHTML = head(2, "Interviewer 진단 인터뷰", "요청 뒤의 진짜 질문을 찾습니다. 답이 충분하면 바로 리서치로 넘어갑니다.",
+      `<span class="chip">라운드 ${n}/${P.limits.interview}</span>`) + `
+    <div class="box soft hyp">
+      <div class="row"><b style="color:var(--accent)">🔍 현재 가설 (핵심 질문)</b><b>신뢰도: <span style="color:var(--accent)">${r.confidence}%</span></b></div>
+      <div style="margin-top:6px">${esc(r.hypothesis)}</div>
+      <div class="bar"><i style="width:${r.confidence}%"></i></div>
+      ${r.gaps ? `<div class="gap"><b>아직 보완이 필요한 부분:</b> ${esc(r.gaps)}</div>` : ""}
+    </div>
+    ${prev.length ? `<details class="box"><summary>📜 이전 인터뷰 라운드 기록 (${prev.length}건)</summary>${prev.map((p, k) =>
+        `<div style="margin-top:10px"><b>${k + 1}라운드</b> · 신뢰도 ${p.confidence}%<ul>${p.questions.map((q) =>
+          `<li>${esc(q.question)}<br><span class="meta">→ ${esc(q.answer || "(답 없음)")}${q.used_recommended ? " · 추천 사용" : ""}</span></li>`).join("")}</ul></div>`).join("")}</details>` : ""}
+    ${facts.length ? `<div class="box ok"><b style="color:var(--ok)">🔍 Scout가 찾은 사실</b><ul>${facts.map((f) =>
+        `<li>${esc(f.fact)} <span class="meta">— ${esc(f.why_it_matters)}</span> ${srcLinks(f.sources)}</li>`).join("")}</ul></div>` : ""}
+    ${r.ready ? `<div class="box ok">✅ 요청이 충분히 재정의됐습니다. 리서치로 넘어가세요.</div>` :
+      r.questions.map((q, i) => qCard(q, i, `Q${i + 1}`, "추천 답변", `<span class="tag cap">${esc(q.capability)}</span>`)).join("")}
+    <div id="notes">${notes.map((t, i) => `<div class="box"><b>오너 메모 ${i + 1}</b><textarea id="note${i}" oninput="notes[${i}]=this.value">${esc(t)}</textarea></div>`).join("")}</div>
+    ${r.ready ? "" : `<button class="btn sm" id="noteBtn" style="border-style:dashed;color:var(--accent)" onclick="addNote()" ${notes.length >= P.limits.notes ? "disabled" : ""}>+ 하고 싶은 말이 있으면 추가</button>
+      <span class="meta">라운드당 최대 ${P.limits.notes}개 <span id="noteCount">(${notes.length}/${P.limits.notes})</span></span>`}
+    <div class="actions">
+      <button class="btn" onclick="submitInterview(true)">이 정도면 충분함 (리서치로 건너뛰기)</button>
+      <button class="btn primary" onclick="submitInterview(false)">${r.ready ? "다각도 리서치 시작 →" : "답변 제출 및 다음 단계 진행 →"}</button>
+    </div>`;
+}
+function srcLinks(sources) {
+  return (sources || []).map((s) => `<a class="cite" href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener" title="${esc(s.title)}">${s.verified ? "" : "⚠"}${esc(hostOf(s.url))}</a>`).join(" ");
+}
+function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return u || "출처"; } }
+function addNote() {
+  if (notes.length >= P.limits.notes) return;
+  const i = notes.push("") - 1, el = document.createElement("div");
+  el.className = "box"; el.innerHTML = `<b>오너 메모 ${i + 1}</b><textarea id="note${i}" oninput="notes[${i}]=this.value"></textarea>`;
+  $("notes").appendChild(el);
+  $("noteCount").textContent = `(${notes.length}/${P.limits.notes})`;
+  if (notes.length >= P.limits.notes) $("noteBtn").disabled = true;
+}
+async function submitInterview(skip) {
+  const r = P.rounds.at(-1);
+  const answers = collectAnswers(r.questions.length);
+  if (!skip && !r.ready && answers.every((a) => !a.answer.trim())) return toast("질문에 하나 이상 답해 주세요.");
+  const body = { answers, notes, skip: skip || r.ready };
+  const willResearch = body.skip || P.rounds.length >= P.limits.interview;
+  const d = await call(`/api/project/${P.id}/interview`, body,
+    willResearch ? "ResearchTeam이 3개 트랙을 동시에 조사 중… (약 1분)" : "🔍 Scout가 빠르게 검색하고 다음 질문을 준비 중… (약 30초)",
+    willResearch ? "데이터·지표 / 시장·경쟁 이벤트 / 분석 방법·벤치마크를 병렬로 조사합니다." : "답변이 충분하면 바로 다각도 리서치로 넘어갑니다.");
+  if (d) { notes = []; clearUsed(); setP(d); }
+}
+
+// ---- 3. 다각도 리서치 ----
+function renderResearch() {
+  const keys = Object.keys(P.tracks_meta);
+  $("main").innerHTML = head(3, "다각도 리서치", "세 Researcher가 동시에 조사했습니다. 명세에 쓸 근거만 남기고 체크를 해제하세요. ⚠ 표시는 검색 결과로 확인되지 않은 출처입니다.") +
+    `<div class="grid3">${keys.map((k) => trackCard(k, P.tracks[k] || { findings: [], sources: [], queries: [], retries: 0 })).join("")}</div>
+    <label class="f">오너 메모·추가 자료 <small>(선택: 내부에서 알고 있는 사정, 이미 본 숫자의 출처 등. 실제 실적 숫자는 적지 않아도 됩니다)</small></label>
+    <textarea id="memo" placeholder="예: 3분기에 주요 대학병원 2곳 DC에서 탈락한 것으로 들었음 (확인 필요)">${esc(P.research_memo)}</textarea>
+    <div class="actions"><span></span><button class="btn primary" onclick="buildSpec()">📝 선택한 근거로 명세 작성 →</button></div>`;
+}
+function trackCard(k, t) {
+  const left = P.limits.retries - (t.retries || 0);
+  return `<div class="box track">
+    <div class="row"><h3>${{ data: "🗂️", market: "📈", method: "🧭" }[k]} ${esc(P.tracks_meta[k])}</h3><span class="chip">재조사 ${t.retries || 0}/${P.limits.retries}</span></div>
+    ${t.error ? `<div class="gap">조사 실패: ${esc(t.error)}</div>` : ""}
+    ${t.queries.length ? `<div class="queries">🔍 검색어: ${t.queries.map((q) => `"${esc(q)}"`).join(", ")}</div>` : ""}
+    ${t.findings.map((f, i) => `<label class="finding"><input type="checkbox" id="f_${k}_${i}" ${f.selected ? "checked" : ""}>
+        <span>${esc(f.text)} ${f.cites.map((c) => `<span class="cite">[${c}]</span>`).join("")}</span></label>`).join("")}
+    ${t.sources.length ? `<div class="sources"><b class="meta">참고 출처 및 근거:</b><br>${t.sources.map((s) =>
+        `<div><span class="cite">[${s.n}]</span> ${s.verified ? "" : "⚠ "}<a href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener">${esc(hostOf(s.url))}</a> <span class="meta">${esc(s.title)}</span></div>`).join("")}</div>` : ""}
+    <hr><div class="meta">🔁 이 트랙 다시 조사 (${t.retries || 0}/${P.limits.retries})</div>
+    <div style="display:flex;gap:6px;margin-top:6px"><input type="text" id="retry_${k}" placeholder="추가 지시 (예: 원내 처방 데이터 위주로)">
+      <button class="btn sm" onclick="retryTrack('${k}')" ${left <= 0 ? "disabled" : ""}>다시 조사</button></div>
+  </div>`;
+}
+function saveSelections() {
+  const sel = {};
+  for (const k of Object.keys(P.tracks)) sel[k] = P.tracks[k].findings.map((_, i) => $(`f_${k}_${i}`).checked);
+  return sel;
+}
+async function retryTrack(k) {
+  const memo = $("memo").value, sel = saveSelections();
+  const d = await call(`/api/project/${P.id}/research/${k}`, { instruction: $("retry_" + k).value },
+    `Researcher_${k}가 다시 조사 중… (약 40초)`, "추가 지시를 반영해 이 트랙만 다시 조사합니다.");
+  if (d) {
+    d.research_memo = memo;
+    for (const [tk, flags] of Object.entries(sel)) if (tk !== k) d.tracks[tk].findings.forEach((f, i) => f.selected = flags[i]);
+    setP(d);
+  }
+}
+async function buildSpec() {
+  setP(await call(`/api/project/${P.id}/spec`, { selections: saveSelections(), memo: $("memo").value },
+    "명세 초안 작성 및 비판단 소집 중… (약 1분)", "선택한 리서치 근거와 메모로 Planner가 명세를 쓰고, Critic 검증단이 검토합니다."));
+}
+
+// ---- 4. 명세 & 비판 ----
+function specView(s) {
+  const li = (a) => `<ul>${a.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`;
+  const modeTag = (m) => `<span class="tag ${m.includes("병렬") ? "ok" : "warn"}">${esc(m)}</span>`;
+  return `<div class="spec-grid">
+    <div><h5>해결할 질문 (SCQ)</h5><div style="font-size:14px"><b>S</b> ${esc(s.scq.situation)}<br><b>C</b> ${esc(s.scq.complication)}<br><b>Q</b> <b>${esc(s.scq.question)}</b></div></div>
+    <div><h5>의사결정</h5><div style="font-size:14px"><b>누가</b> ${esc(s.decision.who)} · <b>무엇을</b> ${esc(s.decision.what)} · <b>언제</b> ${esc(s.decision.when)}</div>
+      <h5>산출물</h5><div style="font-size:14px">${esc(s.deliverable)}</div></div>
+  </div>
+  <h5>가설 (대안 가설 · 기각 기준)</h5><table class="tbl"><tr><th>ID</th><th>가설</th><th>대안 가설</th><th>기각 기준</th><th>검증 데이터</th></tr>
+    ${s.hypotheses.map((h) => `<tr><td>${esc(h.id)}</td><td>${esc(h.hypothesis)}</td><td>${esc(h.alternative)}</td><td>${esc(h.reject_if)}</td><td>${esc(h.data)}</td></tr>`).join("")}</table>
+  <h5>지표 정의</h5><table class="tbl"><tr><th>지표</th><th>정의</th><th>소스</th><th>사각지대</th></tr>
+    ${s.metrics.map((m) => `<tr><td>${esc(m.name)}</td><td>${esc(m.definition)}</td><td>${esc(m.source)}</td><td>${esc(m.blind_spot)}</td></tr>`).join("")}</table>
+  <h5>작업 분해 (계층 · 병렬/순차)</h5><table class="tbl"><tr><th>ID</th><th>하위 질문</th><th>작업</th><th>담당</th><th>선행</th><th>실행</th><th>완료 기준</th></tr>
+    ${s.tasks.map((t) => `<tr><td>${esc(t.id)}</td><td>${esc(t.sub_question)}</td><td>${esc(t.task)}</td><td>${esc(t.owner_bot)}</td><td>${esc(t.depends_on)}</td><td>${modeTag(t.mode)}</td><td>${esc(t.done_when)}</td></tr>`).join("")}</table>
+  <div class="spec-grid">
+    <div><h5>🚫 하지 말 것 (Do-Not)</h5>${li(s.do_not)}</div><div><h5>⏸ 중단·재검토 조건</h5>${li(s.stop_conditions)}</div>
+    <div><h5>🙋 오너 확인 지점 (HITL)</h5>${li(s.owner_checkpoints)}</div><div><h5>⚠ 한계 · [확인 필요]</h5>${li(s.limitations)}</div>
+  </div>`;
+}
+function renderSpec() {
+  const cur = P.spec_rounds.at(-1), n = P.spec_rounds.length, c = cur.critic, prev = P.spec_rounds.slice(0, -1);
+  const pass = c.verdict === "PASS", last = n >= P.limits.critic;
+  $("main").innerHTML = head(4, "BI 분석 명세 & 비판적 검증 (Red-Teaming)",
+      "도출된 명세를 확인하고, 경영진·현업·데이터 관점의 날카로운 질문에 답해 완성도를 높입니다.",
+      `<span class="chip">비판 검증 ${n}회차</span>`) + `
+    <details class="box soft" open><summary>📋 ${esc(cur.spec.title)} <span class="meta" style="font-weight:400">${esc(cur.spec.one_liner)}</span></summary>${specView(cur.spec)}</details>
+    ${prev.length ? `<details class="box"><summary>📜 이전 비판 검증 기록 (${prev.length}건)</summary>${prev.map((p, k) =>
+        `<div style="margin-top:10px"><b>${k + 1}회차 · ${p.critic.verdict}</b><ul>${p.critic.questions.map((q) =>
+          `<li><span class="tag">${esc(q.perspective)}</span> ${esc(q.question)}<br><span class="meta">→ ${esc(q.answer || "(답 없음)")}</span></li>`).join("")}</ul></div>`).join("")}</details>` : ""}
+    <h3>🛡️ 검증단 판정 <span class="tag ${pass ? "ok" : "bad"}">${c.verdict}</span></h3>
+    <div class="scores">${c.scores.map((s) => `<div class="score ${s.score >= 4 ? "pass" : "fail"}"><b>${esc(s.perspective)} · ${esc(String(s.score))}/5</b><br>${esc(s.comment)}</div>`).join("")}</div>
+    ${pass ? `<div class="box ok">✅ 기준 통과 (세 관점 모두 4점 이상). 아래 질문에 답하면 승인 단계에서 근거로 남습니다.</div>` :
+      last ? `<div class="gap" style="margin-top:12px">최대 ${P.limits.critic}회차입니다. 남은 지적은 한계로 남기고 승인 단계로 넘어갑니다.</div>` : ""}
+    <h3 style="margin-top:20px">경영진·현업 검증단 비판 질문</h3>
+    ${c.questions.map((q, i) => qCard(q, i, `검증 질문 ${i + 1}`, "추천 방어 논리", `<span class="tag warn">${esc(q.perspective)}</span>`)).join("")}
+    <div class="actions">
+      <button class="btn" onclick="refine(true)">이 정도면 충분함 (승인 단계로 건너뛰기)</button>
+      <button class="btn primary" onclick="refine(false)">${pass || last ? "승인 단계로 →" : "비판 반영 및 계속 다듬기 →"}</button>
+    </div>`;
+}
+async function refine(finish) {
+  const c = P.spec_rounds.at(-1).critic;
+  const answers = collectAnswers(c.questions.length);
+  const goingOn = !finish && c.verdict !== "PASS" && P.spec_rounds.length < P.limits.critic;
+  if (goingOn && answers.every((a) => !a.answer.trim())) return toast("비판 질문에 하나 이상 답해 주세요.");
+  const d = await call(`/api/project/${P.id}/refine`, { answers, finish },
+    goingOn ? "Planner가 방어 논리를 반영해 명세를 고치는 중… (약 1분)" : "승인 단계를 준비 중…",
+    goingOn ? "고친 명세를 Critic 검증단이 다시 검토합니다." : "");
+  if (d) { clearUsed(); setP(d); }
+}
+
+// ---- 5. 최종 승인 ----
+function renderApprove() {
+  const s = P.spec_rounds.at(-1).spec, c = P.spec_rounds.at(-1).critic;
+  $("main").innerHTML = head(5, "최종 승인", "명세와 가드레일을 확인하고, 만들 산출물 형태를 고르세요.") + `
+    <div class="box soft">
+      <h3 style="margin:0">${esc(s.title)}</h3><div class="meta">${esc(s.one_liner)}</div>
+      <div class="spec-grid" style="margin-top:10px">
+        <div><h5>핵심 질문</h5>${esc(s.scq.question)}</div><div><h5>의사결정</h5>${esc(s.decision.who)} · ${esc(s.decision.what)} · ${esc(s.decision.when)}</div>
+        <div><h5>오너 확인 지점</h5>${esc(s.owner_checkpoints.join(" / "))}</div><div><h5>중단·재검토 조건</h5>${esc(s.stop_conditions.join(" / "))}</div>
+        <div><h5>작업</h5>${s.tasks.length}개 · 병렬 ${s.tasks.filter((t) => t.mode.includes("병렬")).length} · 순차 ${s.tasks.filter((t) => !t.mode.includes("병렬")).length}</div>
+        <div><h5>검증단 최종 판정</h5>${esc(c.verdict)} (${c.scores.map((x) => `${esc(x.perspective)} ${x.score}`).join(" · ")})</div>
+      </div>
+      <hr><label class="confirm"><input type="checkbox" id="ok" ${approvedChecked ? "checked" : ""} onchange="approvedChecked=this.checked;renderApprove()">
+        위 BI 분석 명세와 가드레일을 확인했으며, 산출물 생성을 승인합니다. (필수)</label>
+    </div>
+    <h3>📄 출력할 산출물 형태 선택</h3>
+    <div class="grid3">${Object.entries(P.report_types).map(([k, label]) => `<div class="choice ${reportType === k ? "on" : ""}" onclick="reportType='${k}';renderApprove()">
+      <div class="ico">${TYPE_INFO[k].ico}</div><h4>${esc(label)}</h4><div class="en">${TYPE_INFO[k].en}</div><div class="meta" style="margin-top:6px">${TYPE_INFO[k].d}</div></div>`).join("")}</div>
+    <div class="actions"><span></span><button class="btn primary" onclick="approve()" ${approvedChecked ? "" : "disabled"}>${approvedChecked ? "✅ 승인하고 산출물 생성" : "🔒 승인 확인 체크 후 산출물 생성 가능"}</button></div>`;
+}
+async function approve() {
+  setP(await call(`/api/project/${P.id}/approve`, { report_type: reportType },
+    "Reporter가 산출물을, Coach가 피드백을 동시에 작성 중… (약 1분)", "산출물과 이번 건의 코칭·성장 기록을 병렬로 만듭니다."));
+}
+
+// ---- 6. 산출물 완성 ----
+function renderDone() {
+  const reps = [P.report, ...P.extra_reports].filter(Boolean), co = P.coaching || {};
+  const made = new Set(reps.map((r) => r.type));
+  $("main").innerHTML = head(6, "산출물 완성", "승인한 명세로 만든 산출물입니다. 저장 문서에도 들어 있습니다.") + `
+    <div style="display:flex;gap:8px;flex-wrap:wrap">${Object.entries(P.report_types).filter(([k]) => !made.has(k)).map(([k, l]) =>
+      `<button class="btn sm" onclick="extra('${k}')">${k === "orchestrator" ? "🧩 오케스트레이터 요청서 만들기 (Architect)" : "+ " + esc(l) + "도 만들기"}</button>`).join("")}</div>
+    ${reps.map((r, i) => `<div class="box"><div class="row"><span class="stepchip">${esc(r.label)}</span>
+        <span><button class="btn sm" onclick="dl(${i},'md')">⬇ 마크다운</button> <button class="btn sm primary" onclick="dl(${i},'html')">⬇ HTML 보고서</button></span></div>
+        <div class="md">${md(r.markdown)}</div><div class="meta">저장: outputs/${esc(r.path)}</div></div>`).join("")}
+    ${coachView(co)}
+    <div class="actions"><span></span><button class="btn primary" onclick="resetAll()">새 요청 시작</button></div>`;
+}
+function coachView(co) {
+  if (co.error) return `<div class="gap">코칭 생성 실패: ${esc(co.error)}</div>`;
+  if (!co.capability_scores) return "";
+  const sc = Object.fromEntries(co.capability_scores.map((s) => [s.capability, s]));
+  return `<div class="box soft"><h3 style="margin-top:0">🌱 이번 건 코칭 (Coach)</h3>
+    ${P.intake.trap ? `<div class="box ok"><b>🎯 케이스 함정 공개:</b> ${esc(P.intake.trap)}</div>` : ""}
+    <table class="tbl"><tr>${CAPS.map((c) => `<th>${c}</th>`).join("")}</tr><tr>${CAPS.map((c) => {
+      const s = sc[c]; return `<td title="${esc(s?.evidence)}">${s && s.score ? "●".repeat(s.score) + "○".repeat(3 - s.score) : '<span class="meta">이번엔 안 보임</span>'}</td>`; }).join("")}</tr></table>
+    <p><b>👍 잘한 점</b> ${esc(co.strength)}</p>
+    ${co.improvements.map((m) => `<div class="box"><span class="tag cap">${esc(m.capability)}</span> <b>한 단계 위로</b>
+      <div class="meta" style="margin-top:6px">당신의 문장</div><div>${esc(m.your_text)}</div>
+      <div class="meta" style="margin-top:6px">한 단계 위 버전</div><div><b>${esc(m.better)}</b></div><div class="meta">${esc(m.why)}</div></div>`).join("")}
+    <p><b>➡ 다음 건에서 해 볼 것</b> ${esc(co.next_time)}</p>
+    ${co.recommended_usage_note ? `<p class="meta">💡 ${esc(co.recommended_usage_note)}</p>` : ""}
+    ${co.growth_notes.length ? `<p class="meta">성장 기록에 ${Math.min(2, co.growth_notes.length)}건 남겼습니다: ${co.growth_notes.slice(0, 2).map((g) => `[${esc(g.capability)}·${esc(g.kind)}] ${esc(g.observation)}`).join(" / ")}</p>` : ""}
+  </div>`;
+}
+async function extra(k) {
+  setP(await call(`/api/project/${P.id}/extra`, { report_type: k },
+    k === "orchestrator" ? "Architect가 오케스트레이터 요청서를 작성 중… (약 30초)" : "Reporter가 산출물을 작성 중… (약 30초)",
+    k === "orchestrator" ? "이데·서치봇 등이 되묻지 않고 바로 실행할 수 있는 작업 분해 요청서를 만듭니다." : ""));
+}
+function dl(i, kind) {
+  const r = [P.report, ...P.extra_reports].filter(Boolean)[i];
+  const name = (r.title || "BI봇").replace(/[\\/:*?"<>|]/g, "_");
+  const body = kind === "md" ? r.markdown :
+    `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${esc(r.title)}</title><style>
+      body{font:15px/1.7 "Malgun Gothic","Apple SD Gothic Neo",sans-serif;max-width:880px;margin:40px auto;padding:0 20px;color:#1d2330}
+      table{border-collapse:collapse}th,td{border:1px solid #ddd;padding:4px 8px;vertical-align:top}th{background:#f5f6fa}
+      blockquote{border-left:3px solid #4f46e5;background:#eef0ff;margin:8px 0;padding:6px 12px}h1,h2{color:#312e81}</style></head>
+      <body><p style="color:#6b7385">${esc(r.label)} · BI봇 · ${esc(P.created)}</p>${md(r.markdown)}</body></html>`;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([body], { type: kind === "md" ? "text/markdown" : "text/html" }));
+  // 문서에 붙였다가 떼야 파일 이름이 적용된다. 주소는 다운로드가 시작된 뒤에 해제한다
+  a.download = `${name}.${kind}`; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+// ---- 성장 기록·문서 창 ----
+async function openGrowth() {
+  const { notes: ns } = await (await fetch("/api/growth")).json();
+  const count = Object.fromEntries(CAPS.map((c) => [c, { g: 0, w: 0 }]));
+  for (const n of ns) if (count[n.capability]) count[n.capability][n.kind === "약점" ? "w" : "g"]++;
+  $("dlgTitle").textContent = "🌱 성장 기록";
+  $("dlgBody").innerHTML = !ns.length ? `<p class="meta">아직 기록이 없습니다. 한 건을 끝까지 진행하면 Coach가 기록합니다.</p>` :
+    `<table class="tbl"><tr><th>능력</th>${CAPS.map((c) => `<th>${c}</th>`).join("")}</tr>
+      <tr><td>강점·개선</td>${CAPS.map((c) => `<td style="color:var(--ok)">${count[c].g}</td>`).join("")}</tr>
+      <tr><td>약점</td>${CAPS.map((c) => `<td style="color:var(--bad)">${count[c].w}</td>`).join("")}</tr></table>` +
+    ns.slice().reverse().map((n) => `<div class="item" style="cursor:default"><span class="tag cap">${esc(n.capability)}</span>
+      <span class="tag ${n.kind === "약점" ? "bad" : "ok"}">${esc(n.kind)}</span> <span class="meta">${esc(n.date)}</span>
+      <div>${esc(n.observation)}</div>${n.next_time ? `<div class="meta">다음엔: ${esc(n.next_time)}</div>` : ""}</div>`).join("");
+  $("dlg").showModal();
+}
+async function openDocs() {
+  const { documents } = await (await fetch("/api/documents")).json();
+  $("dlgTitle").textContent = "📄 저장 문서";
+  $("dlgBody").innerHTML = documents.length ? "" : `<p class="meta">아직 저장된 문서가 없습니다.</p>`;
+  for (const d of documents) {
+    const el = document.createElement("div"); el.className = "item";
+    el.innerHTML = `<span class="tag">${esc(d.kind)}</span> ${esc(d.name)}`;
+    el.onclick = async () => {
+      const { content } = await (await fetch("/api/document?path=" + encodeURIComponent(d.path))).json();
+      $("dlgTitle").textContent = d.name; $("dlgBody").innerHTML = `<div class="md">${md(content)}</div>`;
+    };
+    $("dlgBody").appendChild(el);
+  }
+  $("dlg").showModal();
+}
+
+function resetAll() {
+  if (P && P.step < 6 && !confirm("진행 중인 건을 닫고 처음으로 돌아갈까요? (지금까지 내용은 outputs/projects/ 에 저장되어 있습니다)")) return;
+  P = null; form = { mode: "실전" }; caseLog = null; notes = []; approvedChecked = false; reportType = "exec"; clearUsed();
+  try { localStorage.removeItem("bi_project"); } catch (e) {}
+  render();
+}
+
+// 새로고침해도 진행 중인 건을 이어서 본다 (서버를 껐다 켜면 처음부터)
 (async () => {
-  stages = (await (await fetch("/api/config")).json()).stages;
-  renderModes(); renderStages(); await newSession(); loadDocs(); loadGrowth();
+  let pid = null;
+  try { pid = localStorage.getItem("bi_project"); } catch (e) {}
+  if (pid) { const r = await fetch(`/api/project/${pid}`); if (r.ok) { P = await r.json(); } }
+  render();
 })();
 </script>
 </body>
