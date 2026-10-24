@@ -81,6 +81,16 @@ class RetryIn(BaseModel):
 class SpecIn(BaseModel):
     selections: dict[str, list[bool]]
     memo: str = ""
+    docs: list[bool] = []
+
+
+class DocFile(BaseModel):
+    name: str
+    data: str  # base64
+
+
+class DocsIn(BaseModel):
+    files: list[DocFile]
 
 
 class RefineIn(BaseModel):
@@ -140,7 +150,12 @@ def retry(pid: str, track: str, body: RetryIn):
 
 @app.post("/api/project/{pid}/spec")
 def spec(pid: str, body: SpecIn):
-    return _run(pid, lambda p: p.build_spec(body.selections, body.memo))
+    return _run(pid, lambda p: p.build_spec(body.selections, body.memo, body.docs))
+
+
+@app.post("/api/project/{pid}/docs")
+def docs(pid: str, body: DocsIn):
+    return _run(pid, lambda p: p.read_docs([f.model_dump() for f in body.files]))
 
 
 @app.post("/api/project/{pid}/refine")

@@ -7,6 +7,7 @@
 | Researcher × 3    | 병렬 처리 + 검색 도구    | 트랙별 조사 (workflow.py 가 동시에 돌림)  |
 | Planner           | 계층적 작업 분해         | BI 분석 명세                              |
 | Critic            | 검토·비판 패턴           | 검증단 비판 질문                          |
+| DocReader         | 그라운딩                 | 오너가 올린 사내 문서 요약 (주입 방어)    |
 | Reporter / Coach  | 순차 처리 / 병렬 처리    | 산출물 / 오너 코칭·성장 기록              |
 | Architect         | 계층적 작업 분해         | 오케스트레이터 요청서 (reporter 역할 사용)|
 | CaseMaker         | —                        | 연습용 가상 요청                          |
@@ -31,6 +32,21 @@ WEB_SEARCH = os.environ.get("BI_WEB_SEARCH", "1") != "0"
 PROMPT_FILE = BASE_DIR / "prompts" / "bi_agent_prompt.md"
 AGENTS_FILE = BASE_DIR / "prompts" / "agents.md"
 COMPANY_FILE = BASE_DIR / "company_context.md"
+
+# 실행 로그에 보여줄 에이전트별 일하는 패턴 (Ideation Agent 의 TRACE_META 와 같은 역할)
+TRACE_META = {
+    "Interviewer": "반복 패턴 (라운드마다 가설·질문 갱신)",
+    "Scout": "도구 사용 (빠른 탐색: web_search)",
+    "Researcher": "병렬 처리 + 검색 도구",
+    "ResearchTeam": "병렬 처리 (데이터 / 시장 / 방법)",
+    "DocReader": "그라운딩 (사내 문서 요약 · 주입 방어)",
+    "Planner": "계층적 작업 분해 (명세 초안)",
+    "Critic": "검토·비판 패턴 (경영진·현업·데이터 시각)",
+    "Reporter": "순차 처리 (승인된 명세 → 산출물)",
+    "Architect": "계층적 작업 분해 (오케스트레이터 요청서)",
+    "Coach": "성장 기록 (오너 답변 평가)",
+    "CaseMaker": "케이스 생성",
+}
 
 _client: anthropic.Anthropic | None = None
 
@@ -92,9 +108,10 @@ def _search_urls(content: list) -> set[str]:
     return urls
 
 
-def run_agent(role_name: str, user: str, schema: dict, *, effort: str = "high",
+def run_agent(role_name: str, user: str | list, schema: dict, *, effort: str = "high",
               search: bool = False, max_searches: int = 4) -> tuple[dict, float, set[str]]:
-    """에이전트 하나를 돌려 (제출 결과, 걸린 초, 검색으로 본 URL)을 돌려준다."""
+    """에이전트 하나를 돌려 (제출 결과, 걸린 초, 검색으로 본 URL)을 돌려준다.
+    user 는 문자열, 또는 문서 블록을 포함한 content 블록 목록(DocReader)이다."""
     tools = [{
         "name": "submit",
         "description": "결과를 제출한다. 작업이 끝나면 반드시 이 도구로 한 번 제출한다.",
@@ -201,6 +218,7 @@ COACH_SCHEMA = obj(
     growth_notes=arr(obj(capability=CAP, kind={"type": "string", "enum": ["강점", "약점", "개선"]},
                          observation=S, next_time=S)),
 )
+DOC_SCHEMA = obj(docs=arr(obj(name=S, summary=S, key_points=arr(S), relevance=S, cautions=S)))
 CASE_SCHEMA = obj(requester=S, dept=S, decision_maker=S, request=S, deadline=S, trap=S, target_capability=CAP)
 
 

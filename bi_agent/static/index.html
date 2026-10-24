@@ -129,9 +129,15 @@
 
   /* 실행 로그 */
   .log h3 { margin: 0; font-size: 17px; }
-  .log-item { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
-  .log-item .t { font-family: ui-monospace, monospace; font-size: 12px; color: var(--muted); }
-  .log-item .note { font-size: 13px; color: var(--muted); }
+  aside.log { background: #121626; border-color: #121626; color: #d7dbea; }
+  aside.log .meta { color: #8b93ad; }
+  aside.log .chip { background: #1e2438; border-color: #2a3150; color: #b9c0dc; }
+  .log-item { background: #1a2034; border: 1px solid #262d47; border-radius: 10px; padding: 10px 12px; margin-top: 10px;
+              font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 13px; }
+  .log-item .a { color: #8fb4ff; font-weight: 700; }
+  .log-item .t { color: #4ade80; font-weight: 700; white-space: nowrap; }
+  .log-item .pat { color: #c9cfe6; }
+  .log-item .note { color: #8b93ad; }
 
   /* 진행 모달 */
   .overlay { position: fixed; inset: 0; background: rgba(20, 22, 35, .55); backdrop-filter: blur(3px); display: none; place-items: center; z-index: 10; padding: 16px; }
@@ -165,8 +171,8 @@
 <div class="layout">
   <main class="card" id="main"></main>
   <aside class="card log">
-    <div class="row"><h3>🤖 에이전트 실행 로그</h3><span class="chip" id="logCount">0건</span></div>
-    <div class="meta">에이전트 · 걸린 시간 · 일하는 패턴</div>
+    <div class="row"><h3>🤖 실행 로그 <span class="meta" style="font-size:12px">LIVE TRACE</span></h3><span class="chip" id="logCount">0건</span></div>
+    <div class="meta">어떤 에이전트가 어떤 패턴으로 몇 ms 일했는지 기록합니다. 에이전트끼리 무슨 일이 일어나는지 안 보이는 '블랙박스'를 막는 장치입니다.</div>
     <div id="log"></div>
   </aside>
 </div>
@@ -226,8 +232,8 @@ function render() {
   else who.hidden = true;
   const logs = P ? P.log : (caseLog ? [caseLog] : []);
   $("logCount").textContent = logs.length + "건";
-  $("log").innerHTML = logs.slice().reverse().map((l) => `<div class="log-item"><div class="row"><b>🤖 ${esc(l.agent)}</b><span class="t">${esc(String(l.seconds))}초</span></div>
-    <span class="tag cap">${esc(l.pattern)}</span> <span class="note">${esc(l.note || "")}</span></div>`).join("");
+  $("log").innerHTML = logs.map((l) => `<div class="log-item"><div class="row"><span class="a">[${esc(l.agent)}]</span><span class="t">${Number(l.ms || 0).toLocaleString()} ms</span></div>
+    <div class="pat">${esc(l.pattern)}</div>${l.note ? `<div class="note">${esc(l.note)}</div>` : ""}</div>`).join("");
   [renderIntake, renderInterview, renderResearch, renderSpec, renderApprove, renderDone][step - 1]();
   window.scrollTo({ top: 0 });
 }
@@ -358,6 +364,14 @@ function renderResearch() {
   const keys = Object.keys(P.tracks_meta);
   $("main").innerHTML = head(3, "다각도 리서치", "세 Researcher가 동시에 조사했습니다. 명세에 쓸 근거만 남기고 체크를 해제하세요. ⚠ 표시는 검색 결과로 확인되지 않은 출처입니다.") +
     `<div class="grid3">${keys.map((k) => trackCard(k, P.tracks[k] || { findings: [], sources: [], queries: [], retries: 0 })).join("")}</div>
+    <div class="box">
+      <div class="row"><b>📎 내 자료 올리기 (선택)</b><span class="meta">PDF·TXT·MD·CSV, 최대 5개 · 원문은 저장하지 않고 요약만 남깁니다</span></div>
+      <div class="meta" style="margin:6px 0">지난 보고서, 지표 정의, 회의록 등을 올리면 DocReader가 이번 요청에 맞춰 요약해 명세의 근거로 씁니다. 문서 안의 지시문은 따르지 않습니다.</div>
+      <input type="file" id="docFiles" multiple accept=".pdf,.txt,.md,.csv"> <button class="btn sm" onclick="uploadDocs()">DocReader로 읽기</button>
+      ${P.docs.map((d, i) => `<label class="finding"><input type="checkbox" id="doc_${i}" ${d.selected ? "checked" : ""}>
+        <span><b>${esc(d.name)}</b> — ${esc(d.summary)}<ul style="margin:4px 0">${d.key_points.map((k) => `<li>${esc(k)}</li>`).join("")}</ul>
+        ${d.cautions ? `<span class="tag warn">주의</span> <span class="meta">${esc(d.cautions)}</span>` : ""}</span></label>`).join("")}
+    </div>
     <label class="f">오너 메모·추가 자료 <small>(선택: 내부에서 알고 있는 사정, 이미 본 숫자의 출처 등. 실제 실적 숫자는 적지 않아도 됩니다)</small></label>
     <textarea id="memo" placeholder="예: 3분기에 주요 대학병원 2곳 DC에서 탈락한 것으로 들었음 (확인 필요)">${esc(P.research_memo)}</textarea>
     <div class="actions"><span></span><button class="btn primary" onclick="buildSpec()">📝 선택한 근거로 명세 작성 →</button></div>`;
@@ -392,8 +406,20 @@ async function retryTrack(k) {
     setP(d);
   }
 }
+async function uploadDocs() {
+  const files = Array.from($("docFiles").files);
+  if (!files.length) return toast("올릴 파일을 고르세요.");
+  const memo = $("memo").value, sel = saveSelections();
+  const payload = await Promise.all(files.map((f) => new Promise((ok, bad) => {
+    const r = new FileReader();
+    r.onload = () => ok({ name: f.name, data: String(r.result).split(",")[1] });  // data:...;base64,XXXX → XXXX
+    r.onerror = bad; r.readAsDataURL(f);
+  })));
+  const d = await call(`/api/project/${P.id}/docs`, { files: payload }, "DocReader가 사내 문서를 읽는 중… (약 30초)", "이번 요청에 맞춰 문서별로 요약하고, 문서 안의 지시문은 무시합니다.");
+  if (d) { d.research_memo = memo; for (const [k, flags] of Object.entries(sel)) d.tracks[k].findings.forEach((f, i) => f.selected = flags[i]); setP(d); }
+}
 async function buildSpec() {
-  setP(await call(`/api/project/${P.id}/spec`, { selections: saveSelections(), memo: $("memo").value },
+  setP(await call(`/api/project/${P.id}/spec`, { selections: saveSelections(), memo: $("memo").value, docs: P.docs.map((_, i) => $("doc_" + i).checked) },
     "명세 초안 작성 및 비판단 소집 중… (약 1분)", "선택한 리서치 근거와 메모로 Planner가 명세를 쓰고, Critic 검증단이 검토합니다."));
 }
 
@@ -471,7 +497,7 @@ function renderApprove() {
 }
 async function approve() {
   setP(await call(`/api/project/${P.id}/approve`, { report_type: reportType },
-    "Reporter가 산출물을, Coach가 피드백을 동시에 작성 중… (약 1분)", "산출물과 이번 건의 코칭·성장 기록을 병렬로 만듭니다."));
+    "Reporter·Architect·Coach가 동시에 작성 중… (약 1분)", "고른 산출물, 오케스트레이터 요청서, 이번 건의 코칭·성장 기록을 병렬로 만듭니다."));
 }
 
 // ---- 6. 산출물 완성 ----
