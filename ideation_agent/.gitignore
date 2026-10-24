@@ -1,0 +1,4 @@
+# 세션 스냅샷·결과물은 저장소에 올리지 않는다
+outputs/*
+!outputs/.gitkeep
+__pycache__/

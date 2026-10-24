@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ideation Agent</title>
+<!-- 마크다운 표시용 (marked 12.0.2, DOMPurify 3.1.6). 사내망에서도 되도록 로컬에 둔다 -->
+<script src="/static/vendor/marked.min.js"></script>
+<script src="/static/vendor/purify.min.js"></script>
+<style>
+  :root {
+    --bg: #f5f6fa; --panel: #ffffff; --text: #1d2330; --muted: #6b7385; --line: #e4e6ee;
+    --accent: #4f46e5; --accent-soft: #eef0ff; --ok: #16a34a; --ok-soft: #e8f7ee;
+    --warn: #b45309; --warn-soft: #fdf3e5; --bad: #c2410c; --bad-soft: #fdebe3; --soft: #f7f8fc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12141b; --panel: #1a1d27; --text: #e7e9f0; --muted: #9aa1b4; --line: #2c3040;
+      --accent: #8b85ff; --accent-soft: #25264a; --ok: #4ade80; --ok-soft: #173023;
+      --warn: #f5a54a; --warn-soft: #33261a; --bad: #fb8b62; --bad-soft: #3a2119; --soft: #20232f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.6 "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
+  button { font: inherit; }
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 14px 24px;
+           background: var(--panel); border-bottom: 1px solid var(--line); }
+  .badge { background: var(--accent); color: #fff; font-weight: 700; font-size: 13px; padding: 5px 10px; border-radius: 6px; }
+  header h1 { font-size: 20px; margin: 0; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .who { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px;
+          background: var(--soft); border: 1px solid var(--line); font-size: 13px; }
+  .linkbtn { background: none; border: 0; color: var(--accent); cursor: pointer; font-size: 13px; padding: 4px 6px; }
+  .linkbtn.red { color: var(--bad); }
+
+  /* 단계 표시줄 */
+  .stepper { display: flex; align-items: center; padding: 16px 24px; background: var(--panel); border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .st { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+  .st .dot { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700;
+             border: 2px solid var(--line); color: var(--muted); background: var(--panel); }
+  .st .lbl { font-size: 14px; color: var(--muted); white-space: nowrap; }
+  .st.done .dot { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .st.now .dot { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 0 4px var(--accent-soft); }
+  .st.now .lbl { color: var(--accent); font-weight: 600; } .st.done .lbl { color: var(--text); }
+  .line { flex: 1 1 40px; min-width: 24px; height: 2px; background: var(--line); margin: 0 12px; }
+  .line.done { background: var(--ok); }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; padding: 20px 24px; align-items: start; }
+  @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 24px; min-width: 0; }
+  .stepchip { display: inline-block; background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-soft);
+              font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 6px; }
+  .card h2 { font-size: 22px; margin: 10px 0 4px; }
+  .desc { color: var(--muted); margin: 0 0 18px; }
+  .row { display: flex; justify-content: space-between; align-items: start; gap: 12px; flex-wrap: wrap; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
+
+  label.f { display: block; font-weight: 600; margin: 14px 0 6px; }
+  label.f small { font-weight: 400; color: var(--muted); }
+  input[type=text], textarea, select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px;
+         background: var(--panel); color: var(--text); font: inherit; }
+  textarea { resize: vertical; min-height: 76px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 760px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+
+  .btn { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 10px; padding: 11px 18px; cursor: pointer; font-weight: 600; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn.sm { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
+  .actions { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button { border: 0; background: transparent; color: var(--muted); padding: 8px 16px; cursor: pointer; }
+  .seg button.on { background: var(--accent); color: #fff; }
+
+  .box { border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 14px 0; background: var(--panel); }
+  .box.soft { background: var(--soft); }
+  .box.ok { background: var(--ok-soft); border-left: 4px solid var(--ok); }
+  .hyp .bar { height: 8px; background: var(--line); border-radius: 4px; margin: 10px 0; overflow: hidden; }
+  .hyp .bar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+  .gap { background: var(--warn-soft); color: var(--warn); padding: 6px 10px; border-radius: 6px; font-size: 14px; }
+  .gap b { color: var(--warn); }
+  .q h4 { margin: 0 0 6px; font-size: 16px; }
+  .rec { border: 1px dashed var(--line); background: var(--soft); border-radius: 8px; padding: 10px 12px; margin: 10px 0; font-size: 14px;
+         display: flex; gap: 10px; justify-content: space-between; align-items: center; }
+  .rec.hidden-rec { color: var(--muted); }
+  .tag { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 6px; background: var(--soft); color: var(--muted); border: 1px solid var(--line); }
+  .tag.cap { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+  .tag.warn { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+  .tag.ok { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+  .tag.bad { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
+  details.box > summary { cursor: pointer; font-weight: 600; }
+  .meta { color: var(--muted); font-size: 13px; }
+
+  /* 리서치 */
+  .track h3 { margin: 0; font-size: 17px; }
+  .queries { background: var(--soft); border-radius: 8px; padding: 10px; font-size: 13px; color: var(--muted); margin: 10px 0; }
+  .finding { display: flex; gap: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin: 8px 0; font-size: 14px; }
+  .finding input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent); flex: 0 0 auto; }
+  .cite { font-size: 12px; color: var(--accent); border: 1px solid var(--accent-soft); border-radius: 4px; padding: 0 4px; margin-left: 2px; }
+  .sources { font-size: 13px; margin-top: 8px; }
+  .sources a { color: var(--accent); word-break: break-all; }
+
+  /* 명세 */
+  .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; }
+  @media (max-width: 760px) { .spec-grid { grid-template-columns: 1fr; } }
+  .spec-grid h5 { margin: 12px 0 4px; font-size: 14px; }
+  .spec-grid ul { margin: 0; padding-left: 18px; font-size: 14px; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; margin: 6px 0; display: block; overflow-x: auto; }
+  .tbl th, .tbl td { border: 1px solid var(--line); padding: 5px 8px; text-align: left; vertical-align: top; }
+  .tbl th { background: var(--soft); white-space: nowrap; }
+  .scores { display: flex; gap: 10px; flex-wrap: wrap; }
+  .score { flex: 1; min-width: 180px; border-radius: 10px; padding: 8px 12px; font-size: 14px; }
+  .score.pass { background: var(--ok-soft); } .score.fail { background: var(--bad-soft); }
+
+  /* 승인 */
+  .confirm { display: flex; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 14px; color: var(--accent); font-weight: 600; cursor: pointer; }
+  .confirm input { width: 22px; height: 22px; accent-color: var(--accent); }
+  .choice { border: 2px solid var(--line); border-radius: 14px; padding: 18px; cursor: pointer; position: relative; }
+  .choice.on { border-color: var(--accent); background: var(--accent-soft); }
+  .choice .ico { font-size: 28px; } .choice h4 { margin: 8px 0 2px; } .choice .en { color: var(--muted); font-size: 13px; }
+
+  .md { overflow-wrap: anywhere; }
+  .md table { border-collapse: collapse; display: block; overflow-x: auto; font-size: 14px; }
+  .md th, .md td { border: 1px solid var(--line); padding: 4px 8px; vertical-align: top; }
+  .md blockquote { margin: 8px 0; padding: 6px 12px; border-left: 3px solid var(--accent); background: var(--accent-soft); }
+
+  /* 실행 로그 */
+  .log h3 { margin: 0; font-size: 17px; }
+  aside.log { background: #121626; border-color: #121626; color: #d7dbea; }
+  aside.log .meta { color: #8b93ad; }
+  aside.log .chip { background: #1e2438; border-color: #2a3150; color: #b9c0dc; }
+  .log-item { background: #1a2034; border: 1px solid #262d47; border-radius: 10px; padding: 10px 12px; margin-top: 10px;
+              font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 13px; }
+  .log-item .a { color: #8fb4ff; font-weight: 700; }
+  .log-item .t { color: #4ade80; font-weight: 700; white-space: nowrap; }
+  .log-item .pat { color: #c9cfe6; }
+  .log-item .note { color: #8b93ad; }
+
+  /* 진행 모달 */
+  .overlay { position: fixed; inset: 0; background: rgba(20, 22, 35, .55); backdrop-filter: blur(3px); display: none; place-items: center; z-index: 10; padding: 16px; }
+  .overlay.on { display: grid; }
+  .modal { background: var(--panel); border-radius: 16px; padding: 32px 40px; width: min(560px, 100%); text-align: center; }
+  .spin { width: 44px; height: 44px; border-radius: 50%; border: 4px solid var(--accent-soft); border-top-color: var(--accent); margin: 0 auto 16px; animation: r 1s linear infinite; }
+  @keyframes r { to { transform: rotate(360deg); } }
+  .modal b { font-size: 18px; display: block; } .modal p { color: var(--muted); margin: 8px 0 18px; }
+  .prog { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+  .prog i { display: block; height: 100%; width: 40%; background: var(--accent); animation: slide 1.6s ease-in-out infinite; }
+  @keyframes slide { 0% { margin-left: -40%; } 100% { margin-left: 100%; } }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--bad); color: #fff; padding: 10px 16px; border-radius: 8px; display: none; z-index: 11; max-width: 90vw; }
+
+  dialog { width: min(900px, 94vw); max-height: 86vh; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--text); padding: 0; }
+  dialog .dh { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+  dialog .db { padding: 16px 20px; overflow-y: auto; max-height: calc(86vh - 60px); }
+  .item { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; cursor: pointer; }
+  .fit { display: flex; gap: 12px; align-items: center; border-radius: 12px; padding: 12px 16px; margin: 12px 0; }
+  .fit.ok { background: var(--ok-soft); } .fit.warn { background: var(--warn-soft); }
+  .fit b { font-size: 16px; }
+  .quality { border-radius: 12px; padding: 14px 16px; margin: 12px 0; }
+  .quality.fail { background: var(--bad-soft); border: 1px solid var(--bad); }
+  .quality.pass { background: var(--ok-soft); }
+  .dl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .extra-q { display: grid; grid-template-columns: 1fr; gap: 6px; }
+  .page { border-top: 2px dashed var(--line); margin-top: 18px; padding-top: 10px; }
+  .warnbar { background: var(--warn-soft); color: var(--warn); padding: 6px 10px; border-radius: 6px; font-size: 13px; margin: 8px 0; }
+</style>
+</head>
+<body>
+<header>
+  <span class="badge">⚡ Ideation</span>
+  <div><h1>Ideation Agent</h1><div class="sub">업무 문제 한 줄 → 인터뷰 · 리서치 · 비판 → 업무 특화 에이전트 설계</div></div>
+  <div class="who">
+    <button class="linkbtn" onclick="openGallery()">🗂 갤러리 (지난 설계)</button>
+    <span class="chip" id="whoChip" hidden></span>
+  </div>
+</header>
+<nav class="stepper" id="stepper"></nav>
+<div class="layout">
+  <main class="card" id="main"></main>
+  <aside class="card log">
+    <div class="row"><h3>🤖 실행 로그 <span class="meta" style="font-size:12px">LIVE TRACE</span></h3><span class="chip" id="logCount">0건</span></div>
+    <div class="meta">어떤 에이전트가 어떤 05장 패턴(교안 페이지)으로 몇 ms 일했는지 기록합니다. 에이전트 간 블랙박스를 없애는 장치입니다 (p.17).</div>
+    <div id="log"></div>
+  </aside>
+</div>
+<div class="overlay" id="overlay"><div class="modal"><div class="spin"></div><b id="busyTitle"></b><p id="busyDesc"></p><div class="prog"><i></i></div></div></div>
+<div class="toast" id="toast"></div>
+<dialog id="dlg"><div class="dh"><b id="dlgTitle"></b><button class="btn sm" onclick="dlg.close()">닫기</button></div><div class="db" id="dlgBody"></div></dialog>
+
+<script>
+const STEPS = ["아이디어 입력", "인터뷰", "리서치", "명세 정리", "비판 답변", "최종 확인", "결과물"];
+const SLIDES = ["p.9", "p.60·p.27", "p.59·p.21", "p.57", "p.61", "p.62·p.26", "p.58"];
+const TYPE_INFO = {
+  invest: { ico: "👔", en: "Executive Investment Review", d: "투자 의사결정(Go/No-Go), 예상 비용, 정량적 ROI 가치, 리스크 완화 방안 중심" },
+  canvas: { ico: "📊", en: "Business Model Canvas", d: "9개 핵심 블록(가치제안, 고객 세그먼트, 경쟁우위, 채널, 비용·수익 구조) 종합 정리" },
+  blueprint: { ico: "⚙️", en: "Agent Architecture Blueprint", d: "실행 워크플로 시퀀스, 도구 연동, 하네스/샌드박스 보안, HITL 승인 지점 중심" },
+};
+let CFG = null, S = null;            // 서버 설정, 세션 상태
+let form = { pack: "healthcare" };
+let extras = [], reportType = "invest", confirmed = false;
+const usedRec = {};
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => { const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; };
+const md = (t) => (window.marked && window.DOMPurify) ? DOMPurify.sanitize(marked.parse(t || "")) : `<pre style="white-space:pre-wrap">${esc(t)}</pre>`;
+// 링크는 http(s)만 허용 (javascript: 주소 차단)
+const safeUrl = (u) => { try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : "#"; } catch (e) { return "#"; } };
+const host = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return u; } };
+
+// ---- 서버 호출 (진행 모달) ----
+async function call(url, body, title, desc) {
+  $("busyTitle").textContent = title; $("busyDesc").textContent = desc || ""; $("overlay").classList.add("on");
+  try {
+    const r = await fetch(url, { method: body === undefined ? "GET" : "POST", headers: { "Content-Type": "application/json" },
+                                 body: body === undefined ? undefined : JSON.stringify(body) });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || r.statusText);
+    return data;
+  } catch (e) { toast(e.message); return null; }
+  finally { $("overlay").classList.remove("on"); }
+}
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.style.display = "block"; setTimeout(() => t.style.display = "none", 6000); }
+function setS(d) { if (!d) return; S = d; try { localStorage.setItem("ia_session", S.id); } catch (e) {} clearUsed(); render(); }
+function clearUsed() { for (const k in usedRec) delete usedRec[k]; }
+
+// ---- 공통 그리기 ----
+function render() {
+  const step = S ? S.step : 1;
+  $("stepper").innerHTML = STEPS.map((s, i) => {
+    const n = i + 1, cls = n < step ? "done" : n === step ? "now" : "";
+    return (i ? `<div class="line ${n <= step ? "done" : ""}"></div>` : "") +
+      `<div class="st ${cls}"><div class="dot">${n < step ? "✓" : n}</div><div><div class="lbl">${s}</div><div class="meta" style="font-size:11px">${SLIDES[i]}</div></div></div>`;
+  }).join("");
+  const who = $("whoChip");
+  if (S) { who.hidden = false; who.innerHTML = `<b>${esc(S.pack_name)}</b> ${esc(S.intake.role)} <button class="linkbtn red" onclick="resetAll()">초기화</button>`; }
+  else who.hidden = true;
+  const logs = S ? S.log : [];
+  $("logCount").textContent = logs.length + "건";
+  $("log").innerHTML = logs.map((l) => `<div class="log-item"><div class="row"><span class="a">[${esc(l.agent)}]</span><span class="t">${Number(l.ms).toLocaleString()} ms</span></div>
+    <div class="pat">${esc(l.pattern)} · ${esc(l.slide)}</div>${l.note ? `<div class="note">${esc(l.note)}</div>` : ""}</div>`).join("");
+  [renderIdea, renderInterview, renderResearch, renderSpec, renderCritique, renderApprove, renderResult][step - 1]();
+  window.scrollTo({ top: 0 });
+}
+const head = (n, title, desc, right = "") =>
+  `<div class="row"><span class="stepchip">Step ${n} · ${STEPS[n - 1]} (${SLIDES[n - 1]})</span>${right}</div><h2>${title}</h2><p class="desc">${desc}</p>`;
+
+// 질문 카드 (인터뷰·비판 공용)
+function qCard(q, i, label, recLabel, tag) {
+  return `<div class="box q"><div class="row"><h4>${label}${q.title ? ". " + esc(q.title) : ""}</h4>${tag}</div>
+    <div>${esc(q.question)}</div>
+    <div class="rec"><span><b>${recLabel}:</b> ${esc(q.recommended)}</span><button class="btn sm" onclick="useRec(${i})">💡 추천대로</button></div>
+    <textarea id="ans${i}" placeholder="직접 답변을 적어 주세요" maxlength="${CFG.limits.chars.answer}">${esc(q.answer || "")}</textarea></div>`;
+}
+function curQs() { return S.step === 2 ? S.rounds.at(-1).questions : S.critic_rounds.at(-1).questions; }
+function useRec(i) { $("ans" + i).value = curQs()[i].recommended; usedRec[i] = true; }
+function answers(n) { return Array.from({ length: n }, (_, i) => ({ answer: $("ans" + i)?.value || "", used_recommended: !!usedRec[i] })); }
+function srcLinks(srcs) { return (srcs || []).map((s) => `<a class="cite" href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener" title="${esc(s.title)}">${esc(host(s.url))}</a>`).join(" "); }
+function li(a) { return `<ul>${(a || []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`; }
+
+// ---- 1. 아이디어 입력 ----
+function renderIdea() {
+  const f = form, L = CFG.limits.chars;
+  $("main").innerHTML = head(1, "어떤 업무 문제를 해결하고 싶으신가요?",
+    "현업에서 반복적이거나 병목이 되는 업무 문제를 적어 주세요. Ideation Agent가 가설을 세우고 인터뷰를 시작합니다.") + `
+    <div class="grid2">
+      <div><label class="f">산업 팩</label><select id="pack">${CFG.packs.map((p) => `<option value="${p.id}" ${f.pack === p.id ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select></div>
+      <div><label class="f">내 역할</label><input type="text" id="role" maxlength="${L.role}" value="${esc(f.role)}" placeholder="예: 제약사 영업기획 BI 담당"></div>
+    </div>
+    <label class="f">업무 영역·주제</label><input type="text" id="area" maxlength="${L.area}" value="${esc(f.area)}" placeholder="예: 월간 시장 실적 보고">
+    <label class="f">풀고 싶은 문제 <small>(무엇이 반복되거나 병목인가요?)</small></label>
+    <textarea id="problem" maxlength="${L.problem}" placeholder="예: 매달 UBIST 데이터를 받아 PM별 보고서를 만드는 데 사흘이 걸리고, 숫자만 있고 해석이 없다는 피드백을 받는다">${esc(f.problem)}</textarea>
+    <label class="f">아이디어 한 줄 <small>(예: 매주 월요일마다 반복되는 엑셀 매출 정산 및 이상치 알림을 자동화하고 싶다)</small></label>
+    <textarea id="idea" maxlength="${L.idea}" style="min-height:60px">${esc(f.idea)}</textarea>
+    <div class="actions"><span class="meta">${CFG.web_search ? "웹 검색 사용" : "웹 검색 꺼짐 (IDEATION_WEB_SEARCH=0)"}</span>
+      <button class="btn primary" onclick="start()">🚀 인터뷰 시작하기</button></div>`;
+}
+async function start() {
+  for (const k of ["pack", "role", "area", "problem", "idea"]) form[k] = $(k).value;
+  if (!form.problem.trim() && !form.idea.trim()) return toast("풀고 싶은 문제나 아이디어를 적어 주세요.");
+  extras = [];
+  setS(await call("/api/session", form, "인터뷰어가 첫 질문을 준비 중… (약 20초)", "비즈니스 축에 따른 심층 질문을 구성하고 있습니다."));
+}
+
+// ---- 2. 인터뷰 ----
+function renderInterview() {
+  const r = S.rounds.at(-1), n = S.rounds.length, prev = S.rounds.slice(0, -1), L = CFG.limits;
+  const facts = prev.length ? prev.at(-1) : null;
+  $("main").innerHTML = head(2, "Interviewer 에이전트 질의응답", `라운드마다 빈틈을 질문합니다. 확신도 ${L.early_stop}% 이상이면 바로 리서치로 넘어갑니다.`,
+      `<span class="chip">질문 ${n}/${L.interview}</span>`) + `
+    <div class="box soft hyp">
+      <div class="row"><b style="color:var(--accent)">🔍 분석된 현재 가설</b><b>가설 신뢰도: <span style="color:var(--accent)">${r.confidence}%</span></b></div>
+      <div style="margin-top:6px">${esc(r.hypothesis)}</div>
+      <div class="bar"><i style="width:${r.confidence}%"></i></div>
+      ${r.gaps ? `<div class="gap"><b>아직 보완이 필요한 부분:</b> ${esc(r.gaps)}</div>` : ""}
+    </div>
+    ${prev.length ? `<details class="box"><summary>📜 이전 인터뷰 라운드 기록 (${prev.length}건)</summary>${prev.map((p, k) =>
+      `<div style="margin-top:10px"><b>${k + 1}라운드</b> · 확신도 ${p.confidence}%<ul>${p.questions.map((q) =>
+        `<li>${esc(q.question)}<br><span class="meta">→ ${esc(q.answer || "(답 없음)")}${q.used_recommended ? " · 추천 사용" : ""}</span></li>`).join("")}
+        ${p.extra.map((e) => `<li><span class="tag cap">직접 추가</span> ${esc(e.q)}<br><span class="meta">→ ${esc(e.a)}</span></li>`).join("")}</ul></div>`).join("")}</details>` : ""}
+    ${facts && facts.facts.length ? `<div class="box ok"><b style="color:var(--ok)">🔍 에이전트가 찾은 사실 (빠른 탐색 · p.27)</b>
+      ${facts.facts_warning ? `<div class="warnbar">⚠ ${esc(facts.facts_warning)}</div>` : ""}
+      <ul>${facts.facts.map((f) => `<li>${esc(f.fact)} <span class="meta">— ${esc(f.why)}</span> ${srcLinks(f.sources)}</li>`).join("")}</ul></div>` : ""}
+    ${r.ready ? `<div class="box ok">✅ 확신도 ${r.confidence}% — 충분히 구체화됐습니다. 리서치로 넘어가세요.</div>` :
+      r.questions.map((q, i) => qCard(q, i, `Q${i + 1}`, "추천 답변", `<span class="tag cap">${esc(q.axis)}</span>`)).join("")}
+    <div id="extras"></div>
+    ${r.ready ? "" : `<button class="btn sm" id="extraBtn" style="border-style:dashed;color:var(--accent)" onclick="addExtra()">+ 하고 싶은 말이 있으면 질문 추가</button>
+      <span class="meta">라운드당 최대 ${L.extra}개 (<span id="extraCount">0</span>/${L.extra})</span>`}
+    <div class="actions">
+      <button class="btn" onclick="submitInterview(true)">이 정도면 충분함 (리서치로 건너뛰기)</button>
+      <button class="btn primary" onclick="submitInterview(false)">${r.ready ? "최종 리서치 시작 →" : "답변 제출 및 다음 단계 진행 →"}</button>
+    </div>`;
+  extras.forEach((_, i) => drawExtra(i));
+}
+function addExtra() { if (extras.length >= CFG.limits.extra) return; extras.push({ question: "", answer: "" }); drawExtra(extras.length - 1); }
+function drawExtra(i) {
+  const el = document.createElement("div"); el.className = "box";
+  el.innerHTML = `<b>직접 추가한 질문 ${i + 1}</b><div class="extra-q">
+    <input type="text" maxlength="${CFG.limits.chars.question}" placeholder="에이전트가 묻지 못한 핵심 질문" value="${esc(extras[i].question)}" oninput="extras[${i}].question=this.value">
+    <textarea maxlength="${CFG.limits.chars.answer}" placeholder="그 질문에 대한 내 답" oninput="extras[${i}].answer=this.value">${esc(extras[i].answer)}</textarea></div>`;
+  $("extras").appendChild(el);
+  if ($("extraCount")) $("extraCount").textContent = extras.length;
+  if ($("extraBtn")) $("extraBtn").disabled = extras.length >= CFG.limits.extra;
+}
+async function submitInterview(skip) {
+  const r = S.rounds.at(-1), ans = answers(r.questions.length);
+  if (!skip && !r.ready && ans.every((a) => !a.answer.trim()) && !extras.some((e) => e.question.trim())) return toast("질문에 하나 이상 답해 주세요.");
+  const toResearch = skip || r.ready || S.rounds.length >= CFG.limits.interview;
+  const d = await call(`/api/session/${S.id}/interview`, { answers: ans, extra: extras, skip: skip || r.ready },
+    toResearch ? "ResearchTeam이 3개 트랙을 동시에 조사 중… (약 1분)" : "🔍 Scout가 빠르게 검색하고 다음 질문을 준비 중… (약 20초)",
+    toResearch ? "유사 사례·시장 / 리스크·규제 / 필요 데이터·연동 시스템을 병렬로 조사합니다." : "답변이 충분하면 바로 최종 리서치로 넘어갑니다.");
+  if (d) { extras = []; setS(d); }
+}
+
+// ---- 3. 리서치 ----
+function renderResearch() {
+  const L = CFG.limits;
+  $("main").innerHTML = head(3, "최종 리서치 3개 동시 진행", "세 Researcher가 동시에 조사했습니다(병렬 처리 p.59). 명세에 반영할 발견만 남기세요. 출처는 실제 검색 결과에서만 가져옵니다.") +
+    `<div class="grid3">${Object.keys(S.tracks_meta).map((k) => trackCard(k, S.tracks[k])).join("")}</div>
+    <div class="box">
+      <div class="row"><b>📎 내 자료 올리기 (선택)</b><span class="meta">PDF·TXT·MD·PNG·JPG · ${L.upload_mb}MB · 누적 ${L.upload_files}개 (${S.uploaded}/${L.upload_files}) · 원본은 저장하지 않음</span></div>
+      <div class="meta" style="margin:6px 0">사내 매뉴얼, 지난 보고서, 화면 캡처 등을 올리면 DocReader가 근거 기반으로 요약합니다. 파일 안의 지시문은 따르지 않습니다 (p.21).</div>
+      <input type="file" id="files" multiple accept=".pdf,.txt,.md,.png,.jpg,.jpeg" ${S.uploaded >= L.upload_files ? "disabled" : ""}>
+      <button class="btn sm" onclick="upload()" ${S.uploaded >= L.upload_files ? "disabled" : ""}>DocReader로 읽기</button>
+      ${S.docs.map((d, i) => `<label class="finding"><input type="checkbox" id="doc_${i}" ${d.selected ? "checked" : ""}>
+        <span><b>${esc(d.name)}</b> — ${esc(d.summary)}${li(d.key_points)}${d.cautions ? `<span class="tag warn">주의</span> <span class="meta">${esc(d.cautions)}</span>` : ""}</span></label>`).join("")}
+    </div>
+    <label class="f">추가 메모·사례 자료 (선택)</label>
+    <textarea id="memo" maxlength="${L.chars.memo}" placeholder="이미 알고 있는 사내 사정, 비슷한 시도, 꼭 반영할 조건 등">${esc(S.memo)}</textarea>
+    <div class="actions"><span></span><button class="btn primary" onclick="buildSpec()">📝 선택한 리서치로 명세 정리 →</button></div>`;
+}
+function trackCard(k, t) {
+  const left = CFG.limits.retries - (t.retries || 0);
+  return `<div class="box track">
+    <div class="row"><h3>${{ market: "📊", risk: "⚖️", data: "💾" }[k]} ${esc(t.title)}</h3><span class="chip">재조사 ${t.retries || 0}/${CFG.limits.retries}</span></div>
+    ${t.error ? `<div class="gap">조사 실패: ${esc(t.error)}</div>` : ""}
+    ${t.warning ? `<div class="warnbar">⚠ ${esc(t.warning)}</div>` : ""}
+    ${t.queries.length ? `<div class="queries">🔍 검색어: ${t.queries.map((q) => `"${esc(q)}"`).join(", ")}</div>` : ""}
+    ${t.findings.map((f, i) => `<label class="finding"><input type="checkbox" id="f_${k}_${i}" ${f.selected ? "checked" : ""}>
+      <span>${esc(f.text)} ${f.sources.map((n) => `<span class="cite">[${n}]</span>`).join("")}</span></label>`).join("")}
+    ${t.sources.length ? `<div class="sources"><b class="meta">참고 출처 및 근거:</b>${t.sources.map((s) =>
+      `<div><span class="cite">[${s.n}]</span> <a href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener">${esc(host(s.url))}</a> <span class="meta">${esc(s.title)}</span></div>`).join("")}</div>` : ""}
+    <hr><div class="meta">🔁 이 트랙 다시 조사 (${t.retries || 0}/${CFG.limits.retries})</div>
+    <div style="display:flex;gap:6px;margin-top:6px"><input type="text" id="retry_${k}" maxlength="${CFG.limits.chars.instruction}" placeholder="추가 지시 (예: 국내 병원 사례 위주로)">
+      <button class="btn sm" onclick="retryTrack('${k}')" ${left <= 0 ? "disabled" : ""}>다시 조사</button></div></div>`;
+}
+function selections() { const o = {}; for (const k of Object.keys(S.tracks)) o[k] = S.tracks[k].findings.map((_, i) => $(`f_${k}_${i}`).checked); return o; }
+function keepInputs(d, skip) {  // 다시 그려도 사용자가 고친 체크·메모가 사라지지 않게
+  const sel = selections(), docs = S.docs.map((_, i) => $("doc_" + i).checked), memo = $("memo").value;
+  for (const [k, flags] of Object.entries(sel)) if (k !== skip) d.tracks[k].findings.forEach((f, i) => f.selected = flags[i]);
+  docs.forEach((on, i) => { if (d.docs[i]) d.docs[i].selected = on; });
+  d.memo = memo; return d;
+}
+async function retryTrack(k) {
+  const d = await call(`/api/session/${S.id}/research/${k}/retry`, { instruction: $("retry_" + k).value }, `Researcher_${k}가 다시 조사 중… (약 40초)`, "추가 지시를 반영해 이 트랙만 다시 조사합니다.");
+  if (d) setS(keepInputs(d, k));
+}
+async function upload() {
+  const files = Array.from($("files").files);
+  if (!files.length) return toast("올릴 파일을 고르세요.");
+  const big = files.find((f) => f.size > CFG.limits.upload_mb * 1024 * 1024);
+  if (big) return toast(`${big.name}: ${CFG.limits.upload_mb}MB를 넘습니다.`);
+  const payload = await Promise.all(files.map((f) => new Promise((ok, bad) => {
+    const r = new FileReader(); r.onload = () => ok({ name: f.name, data: String(r.result).split(",")[1] }); r.onerror = bad; r.readAsDataURL(f);
+  })));
+  const d = await call(`/api/session/${S.id}/upload`, { files: payload }, "DocReader가 자료를 읽는 중… (약 30초)", "파일 안의 지시문은 무시하고 내용만 요약합니다.");
+  if (d) setS(keepInputs(d, null));
+}
+async function buildSpec() {
+  setS(await call(`/api/session/${S.id}/spec`, { selections: selections(), docs: S.docs.map((_, i) => $("doc_" + i).checked), memo: $("memo").value },
+    "Planner가 명세를 정리하는 중… (약 40초)", "인터뷰·선택한 리서치·업로드 문서를 종합해 계층적으로 분해합니다 (p.57)."));
+}
+
+// ---- 4. 명세 정리 ----
+function specView(s) {
+  const fitOk = s.fit_check.verdict === "에이전트";
+  return `<div class="fit ${fitOk ? "ok" : "warn"}"><span style="font-size:24px">${fitOk ? "✅" : "⚠️"}</span>
+      <div><b>적합성 판정: ${esc(s.fit_check.verdict)}</b><div class="meta">${esc(s.fit_check.reason)}</div></div></div>
+    <div class="spec-grid">
+      <div><h5>해결할 문제</h5>${esc(s.problem)}</div><div><h5>솔루션 역할</h5>${esc(s.solution_role)}</div>
+      <div><h5>사용자</h5>${esc(s.users)}</div><div></div>
+    </div>
+    <h5>에이전트 구성 (역할 하나 = 에이전트 하나)</h5><table class="tbl"><tr><th>에이전트</th><th>역할</th><th>패턴</th><th>도구</th></tr>
+      ${s.agents.map((a) => `<tr><td>${esc(a.name)}</td><td>${esc(a.role)}</td><td>${esc(a.pattern)}</td><td>${esc(a.tools)}</td></tr>`).join("")}</table>
+    <h5>사용 도구·시스템</h5><table class="tbl"><tr><th>도구</th><th>유형</th><th>권한</th><th>용도</th></tr>
+      ${s.systems.map((t) => `<tr><td>${esc(t.name)}</td><td><span class="tag cap">${esc(t.type)}</span></td><td>${esc(t.access)}</td><td>${esc(t.purpose)}</td></tr>`).join("")}</table>
+    <div class="spec-grid">
+      <div><h5>🚫 에이전트 금지 사항 (Do-Not)</h5>${li(s.do_not)}</div><div><h5>🙋 사람 승인 지점 (HITL)</h5>${li(s.hitl)}</div>
+      <div><h5>⏸ 즉시 중단 조건</h5>${li(s.stop_conditions)}</div>
+      <div><h5>📏 성공 지표</h5>${li(s.kpis.map((k) => `${k.name}: ${k.target} (${k.measure})`))}</div>
+    </div>
+    ${s.open_issues.length ? `<h5>❓ 남은 쟁점·[확인 필요]</h5>${li(s.open_issues)}` : ""}`;
+}
+function renderSpec() {
+  $("main").innerHTML = head(4, "명세 정리", "인터뷰·리서치·업로드 문서를 종합한 에이전트 명세입니다. 확인한 뒤 검증단의 비판을 받으세요.") +
+    `<div class="box soft"><h3 style="margin:0">📋 ${esc(S.spec.name)}</h3><div class="meta">${esc(S.spec.one_liner)}</div>${specView(S.spec)}</div>
+    <div class="actions"><span></span><button class="btn primary" onclick="critique()">🛡️ 검증단 소집 (Critic) →</button></div>`;
+}
+async function critique() {
+  setS(await call(`/api/session/${S.id}/critique`, {}, "명세 초안 비판단 소집 중… (약 30초)", "CFO·현장 책임자·법무·보안 관점에서 허점을 찾습니다 (p.61)."));
+}
+
+// ---- 5. 비판 답변 ----
+function renderCritique() {
+  const c = S.critic_rounds.at(-1), n = S.critic_rounds.length, prev = S.critic_rounds.slice(0, -1);
+  const pass = c.verdict === "PASS", last = n >= CFG.limits.critic;
+  $("main").innerHTML = head(5, "에이전트 명세화 & 비판적 검증 (Red-Teaming)", "CFO 및 현장·법무·보안 관점의 날카로운 질문에 답해 완성도를 높입니다.",
+      `<span class="chip">비판 검증 ${n}회차</span>`) + `
+    <details class="box soft"><summary>📋 ${esc(S.spec.name)} <span class="meta" style="font-weight:400">${esc(S.spec.one_liner)}</span></summary>${specView(S.spec)}</details>
+    ${prev.length ? `<details class="box"><summary>📜 이전 비판 검증 기록 (${prev.length}건)</summary>${prev.map((p, k) =>
+      `<div style="margin-top:10px"><b>${k + 1}회차 · ${esc(p.verdict)}</b><ul>${p.questions.map((q) =>
+        `<li><span class="tag">${esc(q.perspective)}</span> ${esc(q.question)}<br><span class="meta">→ ${esc(q.answer || "(답 없음)")}</span></li>`).join("")}</ul></div>`).join("")}</details>` : ""}
+    <h3>🛡️ 검증단 판정 <span class="tag ${pass ? "ok" : "bad"}">${esc(c.verdict)}</span></h3>
+    <div class="scores">${c.scores.map((s) => `<div class="score ${s.score >= 4 ? "pass" : "fail"}"><b>${esc(s.perspective)} · ${s.score}/5</b><br>${esc(s.comment)}</div>`).join("")}</div>
+    ${pass ? `<div class="box ok">✅ 기준 통과 (세 관점 모두 4점 이상).</div>` : last ? `<div class="gap" style="margin-top:12px">마지막 회차(${CFG.limits.critic}회)입니다. 답변을 반영하고 승인 단계로 넘어갑니다.</div>` : ""}
+    <h3 style="margin-top:20px">🛡️ 경영진·현장 검증단 비판 질문</h3>
+    ${c.questions.map((q, i) => qCard(q, i, `검증 질문 ${i + 1}`, "추천 방어 논리", `<span class="tag warn">${esc(q.perspective)}</span>`)).join("")}
+    <div class="actions">
+      <button class="btn" onclick="answerCritique(true)">이 정도면 충분함 (승인 단계로 건너뛰기)</button>
+      <button class="btn primary" onclick="answerCritique(false)">${pass || last ? "답변 반영하고 승인 단계로 →" : "비판 반영 및 계속 다듬기 →"}</button>
+    </div>`;
+}
+async function answerCritique(finish) {
+  const c = S.critic_rounds.at(-1), ans = answers(c.questions.length);
+  if (!finish && ans.every((a) => !a.answer.trim())) return toast("비판 질문에 하나 이상 답해 주세요.");
+  const more = !finish && c.verdict !== "PASS" && S.critic_rounds.length < CFG.limits.critic;
+  setS(await call(`/api/session/${S.id}/answer_critique`, { answers: ans, finish },
+    more ? "Planner가 답변을 반영하고 Critic이 다시 검증 중… (약 1분)" : "Planner가 답변을 반영하는 중… (약 30초)", ""));
+}
+
+// ---- 6. 최종 확인 ----
+function renderApprove() {
+  const s = S.spec;
+  $("main").innerHTML = head(6, "최종 확인 & 형식 선택", "에이전트 설계 명세와 가드레일을 확인하고, 출력할 보고서 형태를 고르세요. 확인 체크 없이는 서버가 보고서를 만들지 않습니다.") + `
+    <div class="box soft">
+      <h3 style="margin:0">${esc(s.name)}</h3><div class="meta">${esc(s.one_liner)}</div>
+      <div class="spec-grid" style="margin-top:8px">
+        <div><h5>사용자</h5>${esc(s.users)}</div><div><h5>핵심 도구</h5>${esc(s.systems.map((t) => `${t.name}(${t.type}·${t.access})`).join(", "))}</div>
+        <div><h5>사람 승인 (HITL)</h5>${esc(s.hitl.join(" / "))}</div><div><h5>중단 조건</h5>${esc(s.stop_conditions.join(" / "))}</div>
+        <div><h5>금지 사항</h5>${esc(s.do_not.join(" / "))}</div><div><h5>적합성</h5>${esc(s.fit_check.verdict)}</div>
+      </div><hr>
+      <label class="confirm"><input type="checkbox" id="ok" ${confirmed ? "checked" : ""} onchange="confirmed=this.checked;renderApprove()">
+        위 에이전트 설계 명세 및 가드레일을 확인하였으며, 보고서 생성을 승인합니다. (필수)</label>
+    </div>
+    <h3>📄 출력할 보고서 형태 선택</h3>
+    <div class="grid3">${Object.entries(S.report_types).map(([k, l]) => `<div class="choice ${reportType === k ? "on" : ""}" onclick="reportType='${k}';renderApprove()">
+      <div class="ico">${TYPE_INFO[k].ico}</div><h4>${esc(l)}</h4><div class="en">${TYPE_INFO[k].en}</div><div class="meta" style="margin-top:6px">${TYPE_INFO[k].d}</div></div>`).join("")}</div>
+    <div class="actions"><span></span><button class="btn primary" onclick="approve()" ${confirmed ? "" : "disabled"}>${confirmed ? "✅ 승인하고 보고서 생성" : "🔒 승인 확인 체크 후 보고서 생성 가능"}</button></div>`;
+}
+async function approve() {
+  setS(await call(`/api/session/${S.id}/approve`, { confirmed, report_type: reportType },
+    "Writer(1쪽)와 Architect(2쪽)가 동시에 작성 중… (약 1분)", "작성 후 품질 검사를 하고, 미달이면 자동으로 한 번 다시 만듭니다."));
+}
+
+// ---- 7. 결과물 ----
+function renderResult() {
+  const r = S.report, q = r.quality, L = CFG.limits;
+  const qbox = q.passed ? `<div class="quality pass">✅ 품질 검사 통과${q.auto_retried ? " (자동 재생성 1회 후)" : ""}</div>` :
+    `<div class="quality fail"><b>⚠ 품질 기준 미달${q.auto_retried ? " — 자동 재생성 후에도" : ""}</b>${li(q.issues)}
+      ${q.accepted ? `<span class="tag bad">경고 배지와 함께 받음</span>` :
+        `<div class="dl"><button class="btn sm" onclick="acceptReport()">경고와 함께 받기</button>
+         <button class="btn sm primary" onclick="retryReport()" ${q.retries >= L.report_retries ? "disabled" : ""}>다시 만들기 (${q.retries}/${L.report_retries})</button>
+         <span class="meta">고르기 전에는 다운로드할 수 없습니다.</span></div>`}</div>`;
+  $("main").innerHTML = head(7, "최종 원페이지 보고서 완성", "보고서(1쪽 + 2쪽 실행 방안) · 리서치 보고서 · 데모 제작 설계서를 받을 수 있습니다.") + `
+    <div class="dl">
+      <button class="btn sm" onclick="dl('report','md')" ${S.report_open ? "" : "disabled"}>⬇ 보고서 MD</button>
+      <button class="btn sm primary" onclick="dl('report','html')" ${S.report_open ? "" : "disabled"}>⬇ 보고서 HTML</button>
+      <button class="btn sm" onclick="dl('research','md')">⬇ 리서치 보고서</button>
+      ${S.demo_md ? `<button class="btn sm" onclick="dl('demo','md')">⬇ 데모 설계서</button>` :
+        `<button class="btn sm" onclick="demo()">🧪 데모 설계서 만들기 (DemoArchitect)</button>`}
+    </div>
+    ${qbox}
+    <div class="box"><span class="stepchip">1쪽 · ${esc(S.report_types[S.report_type])}</span><div class="md">${md(`# ${r.title}\n\n${r.writer_md}`)}</div>
+      <div class="page"><span class="stepchip">2쪽 · 실행 방안 (5계층 아키텍처)</span><div class="md">${md(r.architect_md)}</div></div></div>
+    ${S.demo_md ? `<details class="box"><summary>🧪 데모 제작 설계서</summary><div class="md">${md(S.demo_md)}</div></details>` : ""}
+    <div class="actions"><span></span><button class="btn primary" onclick="resetAll()">새 아이디어 시작</button></div>`;
+}
+async function acceptReport() { setS(await call(`/api/session/${S.id}/report/accept`, {}, "처리 중…", "")); }
+async function retryReport() { setS(await call(`/api/session/${S.id}/report/retry`, {}, "Writer·Architect가 다시 작성 중… (약 1분)", "품질 검사 지적을 반영합니다.")); }
+async function demo() {
+  setS(await call(`/api/session/${S.id}/demo`, {}, "DemoArchitect가 데모 설계서를 작성 중… (약 30초)",
+    "AI 코딩 도구(Claude 등)에 넣을 수 있는 실행 가능한 프로토타입 설계서를 생성합니다."));
+}
+async function dl(kind, fmt) {
+  const r = await fetch(`/api/session/${S.id}/download?kind=${kind}&fmt=${fmt}`);
+  if (!r.ok) { try { toast((await r.json()).detail); } catch (e) { toast(r.statusText); } return; }
+  const cd = r.headers.get("Content-Disposition") || "", m = cd.match(/filename\*=UTF-8''([^;]+)/);
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(await r.blob()); a.download = m ? decodeURIComponent(m[1]) : `ideation.${fmt}`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+// ---- 갤러리 (장기 메모리) ----
+async function openGallery() {
+  const { sessions } = await (await fetch("/api/sessions")).json();
+  $("dlgTitle").textContent = "🗂 갤러리 — 지난 설계 (장기 메모리 p.28)";
+  $("dlgBody").innerHTML = sessions.length ? "" : `<p class="meta">아직 저장된 설계가 없습니다.</p>`;
+  for (const s of sessions) {
+    const el = document.createElement("div"); el.className = "item";
+    el.innerHTML = `<b>${esc(s.title)}</b> <span class="tag">${esc(s.pack)}</span> <span class="tag cap">${STEPS[s.step - 1]}</span> <span class="meta">${esc(s.created)}</span>`;
+    el.onclick = async () => { $("dlg").close(); setS(await call(`/api/sessions/${s.id}/resume`, {}, "불러오는 중…", "")); };
+    $("dlgBody").appendChild(el);
+  }
+  $("dlg").showModal();
+}
+function resetAll() {
+  if (S && S.step < 7 && !confirm("진행 중인 설계를 닫고 처음으로 돌아갈까요? (갤러리에서 이어할 수 있습니다)")) return;
+  S = null; form = { pack: form.pack || "healthcare" }; extras = []; confirmed = false; reportType = "invest"; clearUsed();
+  try { localStorage.removeItem("ia_session"); } catch (e) {}
+  render();
+}
+
+(async () => {
+  CFG = await (await fetch("/api/config")).json();
+  let sid = null; try { sid = localStorage.getItem("ia_session"); } catch (e) {}
+  if (sid) { const r = await fetch(`/api/sessions/${sid}/resume`, { method: "POST" }); if (r.ok) S = await r.json(); }
+  render();
+})();
+</script>
+</body>
+</html>
