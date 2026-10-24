@@ -78,22 +78,26 @@ def chat(body: ChatIn):
 
     def events():
         # 한 줄에 JSON 하나씩 (NDJSON). 화면은 fetch 스트림으로 한 줄씩 읽는다.
+        finished = False
         try:
             for event in agent.ask(body.text):
+                if event["type"] == "done":
+                    finished = True
                 yield json.dumps(event, ensure_ascii=False) + "\n"
         except anthropic.AuthenticationError:
-            agent.rollback_to_last_user_text()
             yield _error("인증 실패: ANTHROPIC_API_KEY 환경변수를 확인하세요.")
         except anthropic.RateLimitError:
-            agent.rollback_to_last_user_text()
             yield _error("요청 한도 초과: 잠시 후 다시 시도하세요.")
         except anthropic.APIStatusError as exc:
-            agent.rollback_to_last_user_text()
             yield _error(f"API 오류 {exc.status_code}: {exc.message}")
         except anthropic.APIConnectionError:
-            agent.rollback_to_last_user_text()
             yield _error("연결 오류: 네트워크를 확인하세요.")
+        except Exception as exc:  # 도구 입력 JSON 파싱 실패 등. 대화가 반쯤 남지 않게 되돌린다
+            yield _error(f"처리 중 오류: {type(exc).__name__}: {exc}")
         finally:
+            # 오류나 브라우저 연결 끊김으로 턴이 끝나지 않았으면, tool_use 만 남은 대화가 되지 않게 되돌린다
+            if not finished:
+                agent.rollback_to_last_user_text()
             lock.release()
 
     return StreamingResponse(events(), media_type="application/x-ndjson")

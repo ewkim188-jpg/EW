@@ -179,9 +179,9 @@ function addReview(ev) {
     : ev.status === "exhausted" ? `⚠️ ${ev.max_rounds}회 검토에도 미통과 — 오너 판단 필요`
     : `🔁 ${ev.round}/${ev.max_rounds}회차 검토: 수정 후 재검토`;
   const critics = ev.results.map((r) =>
-    `<div class="critic ${r.verdict}"><b>${esc(r.critic)} · ${r.verdict} · ${r.score}/5</b>${esc(r.summary)}</div>`).join("");
+    `<div class="critic ${esc(r.verdict)}"><b>${esc(r.critic)} · ${esc(r.verdict)} · ${esc(String(r.score))}/5</b>${esc(r.summary)}</div>`).join("");
   const issues = ev.results.flatMap((r) => r.issues.map((i) =>
-    `<li><span class="sev-${i.severity}">[${i.severity}]</span> <b>${esc(r.critic)}</b> · ${esc(i.where)} — ${esc(i.problem)}<br><span class="meta">수정안: ${esc(i.fix)}</span></li>`));
+    `<li><span class="sev-${esc(i.severity)}">[${esc(i.severity)}]</span> <b>${esc(r.critic)}</b> · ${esc(i.where)} — ${esc(i.problem)}<br><span class="meta">수정안: ${esc(i.fix)}</span></li>`));
   addMsg("review", `<h4>${head} · ${esc(ev.title)}</h4><div class="critics">${critics}</div>` +
     (issues.length ? `<details><summary>지적 ${issues.length}건 보기</summary><ul>${issues.join("")}</ul></details>` : ""));
 }

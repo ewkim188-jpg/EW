@@ -52,6 +52,15 @@ def _stamp() -> str:
     return datetime.now().strftime("%Y%m%d_%H%M%S")
 
 
+def _unique(path: Path) -> Path:
+    """같은 이름의 파일이 있으면 __2, __3 … 을 붙인다."""
+    n = 2
+    while path.exists():
+        path = path.with_name(f"{path.stem.rsplit('__', 1)[0]}__{n}{path.suffix}")
+        n += 1
+    return path
+
+
 # ---------------------------------------------------------------------------
 # 성장 기록 읽기 (세션 시작 때 시스템 프롬프트에 넣는다)
 # ---------------------------------------------------------------------------
@@ -111,7 +120,7 @@ def set_stage(stage: str, note: str = "") -> tuple[str, dict]:
 
 def save_document(doc_type: str, title: str, content: str) -> tuple[str, dict]:
     DOC_DIR.mkdir(parents=True, exist_ok=True)
-    file = DOC_DIR / f"{_stamp()}_{_safe_name(doc_type)}_{_safe_name(title)}.md"
+    file = _unique(DOC_DIR / f"{_stamp()}_{_safe_name(doc_type)}_{_safe_name(title)}.md")
     file.write_text(
         f"# [{doc_type}] {title}\n\n- 작성: BI봇 / {datetime.now():%Y-%m-%d %H:%M}\n\n{content}\n",
         encoding="utf-8",
@@ -122,7 +131,7 @@ def save_document(doc_type: str, title: str, content: str) -> tuple[str, dict]:
 
 def handoff_to_orchestrator(title: str, documents: str, request: str) -> tuple[str, dict]:
     HANDOFF_DIR.mkdir(parents=True, exist_ok=True)
-    file = HANDOFF_DIR / f"{_stamp()}_오케스트레이터_{_safe_name(title)}.md"
+    file = _unique(HANDOFF_DIR / f"{_stamp()}_오케스트레이터_{_safe_name(title)}.md")
     file.write_text(
         f"# [오케스트레이터 요청] {title}\n\n"
         f"- 보낸 곳: BI봇 / {datetime.now():%Y-%m-%d %H:%M}\n"
@@ -172,7 +181,7 @@ TOOLS = [
         "name": "save_document",
         "description": "BI 분석 요청서, 지표 정의서, 모델 설계서, SFE·런칭 설계서, 리뷰 메모를 저장한다. "
                        "양식은 시스템 프롬프트를 따르고, 빈칸은 [확인 필요]로 채운다. "
-                       "리뷰 메모·기타를 뺀 문서는 같은 title 로 review_draft 를 통과해야 저장된다.",
+                       "리뷰 메모·기타를 뺀 문서는 같은 doc_type·title 로 review_draft 를 통과해야 저장된다.",
         "input_schema": {
             "type": "object",
             "properties": {

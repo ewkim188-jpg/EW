@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 
 import anthropic
 
-from tools import BASE_DIR
+from tools import BASE_DIR, DOC_TYPES
 
 MODEL = "claude-opus-5-5"
 CRITIC_EFFORT = "medium"  # 비평은 범위가 좁아 medium 으로 충분. 더 엄격하게 하려면 "high"
@@ -102,11 +102,12 @@ def _critic_system(name: str) -> str:
 @dataclass
 class ReviewState:
     """세션 하나의 검토 기록. 문서 제목별 검토 횟수와 마지막 결과."""
-    rounds: dict[str, int] = field(default_factory=dict)
-    status: dict[str, str] = field(default_factory=dict)  # 제목 → "pass" | "fail" | "exhausted"
+    # 키는 (문서 종류, 제목). 같은 제목이라도 종류가 다르면 다른 문서다
+    rounds: dict[tuple[str, str], int] = field(default_factory=dict)
+    status: dict[tuple[str, str], str] = field(default_factory=dict)  # "pass" | "fail" | "exhausted"
 
-    def can_save(self, title: str) -> bool:
-        return self.status.get(title) in ("pass", "exhausted")
+    def can_save(self, doc_type: str, title: str) -> bool:
+        return self.status.get((doc_type, title)) in ("pass", "exhausted")
 
 
 def _run_critic(client: anthropic.Anthropic, name: str, doc_type: str, context: str, draft: str) -> dict:
@@ -141,52 +142,59 @@ def _run_critic(client: anthropic.Anthropic, name: str, doc_type: str, context: 
 
 
 def review_draft(client: anthropic.Anthropic, state: ReviewState,
-                 doc_type: str, title: str, context: str, draft: str) -> tuple[str, dict]:
-    """비평가 3명을 병렬로 돌리고, (BI봇에게 돌려줄 결과, 화면 이벤트)를 돌려준다."""
-    rnd = state.rounds.get(title, 0) + 1
-    state.rounds[title] = rnd
-
+                 doc_type: str, title: str, context: str, draft: str) -> tuple[str, bool, dict | None]:
+    """비평가 3명을 병렬로 돌리고, (BI봇에게 돌려줄 결과, 오류 여부, 화면 이벤트)를 돌려준다."""
+    key = (doc_type, title)
     with ThreadPoolExecutor(max_workers=len(CRITICS)) as pool:
-        futures = [pool.submit(_run_critic, client, name, doc_type, context, draft) for name in CRITICS]
+        futures = {name: pool.submit(_run_critic, client, name, doc_type, context, draft) for name in CRITICS}
         results = []
-        for f in futures:
+        for name, f in futures.items():
             try:
                 results.append(f.result())
             except Exception as exc:  # 비평가 하나가 실패해도 나머지 결과는 살린다
-                results.append({"critic": "?", "verdict": "ERROR", "score": 0,
+                results.append({"critic": name, "verdict": "ERROR", "score": 0,
                                 "summary": f"{type(exc).__name__}: {exc}", "issues": []})
 
+    # 비평가가 응답에 실패한 회차는 검토로 치지 않는다 (실패가 쌓여 게이트가 열리면 안 된다)
+    failed = [r["critic"] for r in results if r["verdict"] == "ERROR"]
+    if failed:
+        return (f"비평가 {failed} 응답 실패로 이번 검토는 회차에 넣지 않았다. 초안을 고치지 말고 같은 입력으로 "
+                "review_draft 를 한 번 더 부른다. 다시 실패하면 오너에게 알린다."), True, None
+
+    rnd = state.rounds.get(key, 0) + 1
+    state.rounds[key] = rnd
     passed = all(r["verdict"] == "PASS" for r in results)
     if passed:
-        state.status[title] = "pass"
-        instruction = "모든 비평가 PASS. 사소한 지적은 반영할 만하면 반영하고 save_document 로 저장해도 된다."
+        state.status[key] = "pass"
+        instruction = ("모든 비평가 PASS. 통과한 초안을 같은 doc_type·title 로 save_document 한다. "
+                       "사소한 지적의 표현 수정 외에 내용을 바꾸려면 다시 검토받는다.")
     elif rnd >= MAX_ROUNDS:
-        state.status[title] = "exhausted"
+        state.status[key] = "exhausted"
         instruction = (f"최대 {MAX_ROUNDS}회 검토에도 통과하지 못했다. 더 반복하지 말고, 남은 '치명'·'중요' 문제를 "
                        "오너에게 표로 보여주고 어떻게 할지 판단을 받는다. 저장은 가능하지만 남은 문제를 문서 끝에 적는다.")
     else:
-        state.status[title] = "fail"
-        instruction = (f"{rnd}회차 FAIL. '치명'·'중요' 문제를 모두 반영해 초안을 고친 뒤, 같은 title 로 review_draft 를 다시 부른다. "
+        state.status[key] = "fail"
+        instruction = (f"{rnd}회차 FAIL. '치명'·'중요' 문제를 모두 반영해 초안을 고친 뒤, 같은 doc_type·title 로 review_draft 를 다시 부른다. "
                        "반영하지 않기로 한 지적이 있으면 이유를 context 에 적는다.")
 
     payload = {"round": rnd, "max_rounds": MAX_ROUNDS, "passed": passed, "results": results,
                "instruction": instruction}
     event = {"type": "review", "title": title, "round": rnd, "max_rounds": MAX_ROUNDS,
-             "passed": passed, "status": state.status[title], "results": results}
-    return json.dumps(payload, ensure_ascii=False), event
+             "passed": passed, "status": state.status[key], "results": results}
+    return json.dumps(payload, ensure_ascii=False), False, event
 
 
 REVIEW_TOOL = {
     "name": "review_draft",
     "description": (
         "문서 초안을 비평가 3명(논리·데이터·실행)에게 동시에 검토받는다. 기준을 넘을 때까지 고쳐서 다시 부른다 "
-        f"(같은 title 로 최대 {MAX_ROUNDS}회). BI 분석 요청서·지표 정의서·모델 설계서·SFE·런칭 설계서는 "
+        f"(같은 doc_type·title 로 최대 {MAX_ROUNDS}회). BI 분석 요청서·지표 정의서·모델 설계서·SFE·런칭 설계서는 "
         "이 검토를 통과해야 save_document 로 저장할 수 있다. 훈련 모드에서는 오너가 쓴 초안을 검토받는 데도 쓴다."
     ),
     "input_schema": {
         "type": "object",
         "properties": {
-            "doc_type": {"type": "string", "description": "문서 종류. save_document 의 doc_type 과 같게"},
+            "doc_type": {"type": "string", "enum": DOC_TYPES, "description": "문서 종류. save_document 의 doc_type 과 같게"},
             "title": {"type": "string", "description": "문서 제목. 다시 검토받을 때와 저장할 때 같은 제목을 쓴다"},
             "context": {"type": "string", "description": "비평가가 알아야 할 배경: 목적, 의사결정자, 오너가 확인해 준 사실, 지난 회차 지적 중 반영하지 않은 것과 이유"},
             "draft": {"type": "string", "description": "검토받을 초안 전문 (마크다운)"},

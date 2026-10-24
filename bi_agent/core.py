@@ -118,24 +118,26 @@ class BIAgent:
                 return
 
             # 응답 블록(thinking·tool_use 포함)을 그대로 기록에 붙인다 (폴백 경계 앞 블록만 정리)
-            self.messages.append({"role": "assistant", "content": _echo_safe(response.content)})
-            answer_parts += [b.text for b in response.content if b.type == "text"]
+            content = _echo_safe(response.content)
+            self.messages.append({"role": "assistant", "content": content})
+            answer_parts += [b.text for b in content if b.type == "text"]
 
             if response.stop_reason == "max_tokens":
                 yield {"type": "notice", "text": "응답이 길이 제한에 걸려 잘렸습니다. '이어서'라고 입력하면 계속합니다."}
-                if any(b.type == "tool_use" for b in response.content):
+                if any(b.type == "tool_use" for b in content):
                     # 잘린 도구 호출은 실행하지 않고 오류로 돌려준다
                     self.messages.append({"role": "user", "content": [
                         {"type": "tool_result", "tool_use_id": b.id, "is_error": True,
                          "content": "출력 길이 제한으로 도구 입력이 잘려 실행하지 않았습니다."}
-                        for b in response.content if b.type == "tool_use"
+                        for b in content if b.type == "tool_use"
                     ]})
                 break
 
             if response.stop_reason == "pause_turn":
                 continue
 
-            tool_uses = [b for b in response.content if b.type == "tool_use"]
+            # tool_result 는 기록에 남긴 tool_use 에만 짝지어야 한다 (폴백으로 빠진 블록 제외)
+            tool_uses = [b for b in content if b.type == "tool_use"]
             if response.stop_reason != "tool_use" or not tool_uses:
                 break
 
@@ -163,14 +165,15 @@ class BIAgent:
             error = validate_input(REVIEW_TOOL["input_schema"], args)
             if error:
                 return error, True, None
-            output, event = review_draft(self.client, self.reviews, **args)
-            return output, False, event
+            output, is_error, event = review_draft(self.client, self.reviews, **args)
+            return output, is_error, event
 
         # 기준을 넘을 때까지 반복: 검토를 통과하지 않은 문서는 저장·전달하지 못하게 막는다
         if name == "save_document" and isinstance(args, dict) and args.get("doc_type") in GATED_DOC_TYPES:
-            if not self.reviews.can_save(args.get("title", "")):
-                return ("아직 review_draft 를 통과하지 않은 문서입니다. 같은 title 로 review_draft 를 먼저 부르세요. "
-                        "(검토 상태: " + self.reviews.status.get(args.get("title", ""), "검토 전") + ")"), True, None
+            key = (args["doc_type"], args.get("title", ""))
+            if not self.reviews.can_save(*key):
+                return ("아직 review_draft 를 통과하지 않은 문서입니다. 같은 doc_type·title 로 review_draft 를 먼저 부르세요. "
+                        "(검토 상태: " + self.reviews.status.get(key, "검토 전") + ")"), True, None
         if name == "handoff_to_orchestrator" and not any(
                 v in ("pass", "exhausted") for v in self.reviews.status.values()):
             return "검토를 통과한 문서가 없습니다. 넘길 문서를 review_draft 로 먼저 검토받으세요.", True, None

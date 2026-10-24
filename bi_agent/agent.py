@@ -100,6 +100,9 @@ def main():
         except anthropic.APIConnectionError:
             print("\n[연결 오류] 네트워크를 확인하세요.")
             agent.rollback_to_last_user_text()
+        except Exception as exc:  # 도구 입력 JSON 파싱 실패 등
+            print(f"\n[처리 중 오류] {type(exc).__name__}: {exc}")
+            agent.rollback_to_last_user_text()
 
 
 if __name__ == "__main__":
